@@ -1,0 +1,27 @@
+[alias]
+  ci = commit
+  ciam = commit -am
+  co = checkout
+  st = status
+  br = branch
+  diffc = diff --cached
+  put = push origin HEAD
+  unstage = reset HEAD --
+  amend = commit -a --amend
+  last = log -1 HEAD
+
+[apply]
+  whitespace = nowarn
+
+[diff]
+  color = auto
+  rename = copy
+
+[pager]
+  color = true
+
+[status]
+  color = auto
+
+[core]
+  excludesfile = /home/micha/.gitignore
