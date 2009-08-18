@@ -1,10 +1,9 @@
+# Unix
+alias t="tail -f"
+
 #Ubuntu
 alias install="sudo apt-get install"
 alias remove="sudo apt-get remove"
-
-# Unix
-alias t="tail -f"
-alias g?="grep -e $1"
 
 # SVN
 alias svn_add_new="svn st | egrep '^\?[ ]+' | sed -e 's|^?[ ]*||' | xargs -i svn add '{}'"
