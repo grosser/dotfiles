@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+#hcitool scan
+#00:12:EE:F9:96:2E ändert sich, ist die usb addresse
+
+`sudo ifconfig eth0 down` #turn off network
+connect = "sudo wvdial k700"
+unless system(connect)
+  system "sudo hcitool cc 00:12:EE:F9:96:2E"
+  system "sudo rfcomm bind k700 00:12:EE:F9:96:2E"
+end
+
+system connect
+
+#trap sigint oder so...
+system "sudo ifconfig eth0 up"
+

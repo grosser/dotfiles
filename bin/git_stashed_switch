@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+raise "give me a branch to switch to" unless ARGV[0]
+`git stash`
+`git co #{ARGV[0]}`
+`git stash pop`
