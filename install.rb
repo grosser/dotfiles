@@ -19,7 +19,7 @@ raise "you should checkout dotfiles to ~/dotfiles and got to ~/ !" unless File.e
       `mv #{original} #{original}.backup`
     end
   end
-  `ln -s dotfiles/#{replaced} #{original}`
+  `ln -s ~/dotfiles/#{replaced} #{original}`
 end
 
 #replace folder through links
@@ -31,7 +31,7 @@ if File.exist?(folder)
     `mv #{folder} #{folder}.backup`
   end
 end
-`ln -s dotfiles/#{folder} #{folder}`
+`ln -s ~/dotfiles/#{folder} #{folder}`
 
 #do not share credentials + can always run install.rb
 # --> replace non-secret lines
