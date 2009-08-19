@@ -29,6 +29,8 @@ end
 `ln -s dotfiles/#{folder} #{folder}`
 
 if File.exist?(".gitconfig")
+  `cp .gitconfig .gitconfig.backup` unless no_backup
+
   #extract github+user info from .gitconfig then combine with info stored here
   copy = false
   config = File.read('.gitconfig').split("\n")
