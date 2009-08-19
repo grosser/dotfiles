@@ -14,7 +14,8 @@ Automatic install
     ruby dotfiles/install.rb
 
 install.rb will:
- - replaces .file through links to dotfiles/file for .bashrc .gitignore .irbrc
+
+ - replaces .file through links to dotfiles/file for .bashrc .gitignore .irbrc .ssh/config
  - replace content of .gitconfig through this, except for [github] and [user] section
  - replace bin folder through link to dotfiles/bin
 
