@@ -21,7 +21,7 @@ alias mys="mysql -uroot -proot"
 # RUBY
 alias ss="script/server"
 alias sc="script/console"
-alias sa="autospec -f"
+alias sa="autospec -f" #run autospec without the initial full run
 
 #GEMS
 alias gemi='sudo gem install --no-rdoc --no-ri'
