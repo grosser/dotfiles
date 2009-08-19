@@ -24,4 +24,4 @@
   color = auto
 
 [core]
-  excludesfile = .gitignore
+  excludesfile = /home/micha/.gitignore

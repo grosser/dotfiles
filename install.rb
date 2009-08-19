@@ -6,15 +6,20 @@ no_backup = ENV['NO_BACKUP']
 raise "you should checkout dotfiles to ~/dotfiles and got to ~/ !" unless File.exist?("dotfiles")
 
 #replace files through links
-%w[bashrc gitignore irbrc].each do |file|
-  if File.exist?(".#{file}")
+{
+  '.bashrrc'=>'bashrc',
+  '.gitignore'=>'gitignore',
+  '.irbrc'=>'irbrc',
+  '.ssh/config'=>'ssh/config'
+}.each do |original,replaced|
+  if File.exist?(original)
     if no_backup
-      `rm -f .#{file}`
+      `rm -f #{original}`
     else
-      `mv .#{file} .#{file}.backup`
+      `mv #{original} #{original}.backup`
     end
   end
-  `ln -s dotfiles/#{file} .#{file}`
+  `ln -s dotfiles/#{replaced} #{original}`
 end
 
 #replace folder through links
@@ -28,6 +33,8 @@ if File.exist?(folder)
 end
 `ln -s dotfiles/#{folder} #{folder}`
 
+#do not share credentials + can always run install.rb
+# --> replace non-secret lines
 if File.exist?(".gitconfig")
   `cp .gitconfig .gitconfig.backup` unless no_backup
 
