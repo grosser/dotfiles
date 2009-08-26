@@ -27,3 +27,6 @@
 
 [core]
   excludesfile = /home/micha/.gitignore
+
+[push]
+  default = current
