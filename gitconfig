@@ -9,6 +9,8 @@
   unstage = reset HEAD --
   amend = commit -a --amend
   last = log -1 HEAD
+  unconflic = "!ruby -e 'x = `git st`;files = x.split(\"\n\").select{|x|x=~/unmerged/}.map{|x|x.split(\" \")[2]}.join(\" \"); files.each{|f| `git reset #{f};git co #{f}`}'"
+
 
 [apply]
   whitespace = nowarn
