@@ -10,20 +10,33 @@
   amend = commit -a --amend
   last = log -1 HEAD
   unconflic = "!ruby -e 'x = `git st`;files = x.split(\"\n\").select{|x|x=~/unmerged/}.map{|x|x.split(\" \")[2]}.join(\" \"); files.each{|f| `git reset #{f};git co #{f}`}'"
-
+  l = log --pretty=format:'%h %an %Cred%ar %Cgreen%s'
 
 [apply]
   whitespace = nowarn
 
 [diff]
-  color = auto
   rename = copy
+
+[color]
+  branch = auto
+  diff = auto
+  status = auto
+
+[color "branch"]
+  current = green
+  local = blue
+  remote = remote
+
+#normal status has added/changed = green untracked/deleted/conflic = red -> ore colors
+[color "status"]
+  added = yellow
+  changed = green
+  untracked = cyan
 
 [pager]
   color = true
 
-[status]
-  color = auto
 
 [core]
   excludesfile = /home/micha/.gitignore

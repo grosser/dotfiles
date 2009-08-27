@@ -1,3 +1,5 @@
 nbproject
 .svn
 pkg
+*.cache
+*.log
