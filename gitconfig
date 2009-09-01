@@ -26,7 +26,7 @@
 [color "branch"]
   current = green
   local = blue
-  remote = remote
+  remote = yellow
 
 #normal status has added/changed = green untracked/deleted/conflic = red -> ore colors
 [color "status"]
