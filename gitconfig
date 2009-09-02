@@ -1,11 +1,15 @@
 [alias]
   ci = commit
+  cim = commit -m
   ciam = commit -am
   co = checkout
   st = status
   br = branch
   diffc = diff --cached
   put = push origin HEAD
+  pl = pull
+  ps = push
+  pls = "!git pull && git push"
   unstage = reset HEAD --
   amend = commit -a --amend
   last = log -1 HEAD
