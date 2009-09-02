@@ -1,7 +1,7 @@
 [alias]
   ci = commit
   cim = commit -m
-  ciam = commit -am
+  ciam = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; git_ciam\""
   co = checkout
   st = status
   br = branch
@@ -13,7 +13,8 @@
   unstage = reset HEAD --
   amend = commit -a --amend
   last = log -1 HEAD
-  unconflic = "!ruby -e 'x = `git st`;files = x.split(\"\n\").select{|x|x=~/unmerged/}.map{|x|x.split(\" \")[2]}.join(\" \"); files.each{|f| `git reset #{f};git co #{f}`}'"
+  unconflic = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; git_perform_on_st('\\s+unmerged', 'git reset #F;git co #F')\""
+  rmmissing = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; git_perform_on_st('\\s+deleted',  'git rm #F')\""
   l = log --pretty=format:'%h %an %Cred%ar %Cgreen%s'
 
 [apply]

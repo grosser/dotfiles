@@ -17,6 +17,7 @@ alias svn_rm_missing="svn st | egrep '^\![ ]+' | sed -e 's|^![ ]*||' | xargs -i 
 #GIT
 alias work='git co work'
 alias master='git co master'
+alias deploy='git co deploy'
 
 #Rails
 alias ttr="touch tmp/restart.txt"
