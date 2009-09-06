@@ -21,7 +21,6 @@ install.rb will:
 
 TODO
 ====
- - make gitignore excludesfile non-user specific
  - make ssh/config non-user specific (like gitconfig)
 
 Author

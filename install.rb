@@ -22,19 +22,24 @@ folder = 'bin'
 #do not share credentials + can always run install.rb
 # --> replace non-secret lines
 if File.exist?(".gitconfig")
+  #replace any $HOME with actual $HOME (since $HOME does not work in gitconfig)
+  original = File.read('dotfiles/gitconfig')
+  original.gsub!('$HOME', `echo $HOME`.strip)
+
   #extract github+user info from .gitconfig then combine with info stored here
   copy = false
   config = File.read('.gitconfig').split("\n")
   copied = config.map do |line|
     copy = false if line =~ /^\[/
-    copy = true if "[github] [user]".include? line.strip
+    copy = true if %w{[github] [user]}.include? line.strip
     line if copy
   end.compact.reject{|x| x.empty?}
+
 
   File.open('.gitconfig','w') do |f|
     f.puts copied * "\n"
     f.puts ''
-    f.puts File.read('dotfiles/gitconfig')
+    f.puts original
   end
 else
   `cp dotfiles/gitconfig .gitconfig`

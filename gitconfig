@@ -44,7 +44,7 @@
 
 
 [core]
-  excludesfile = /home/micha/.gitignore
+  excludesfile = $HOME/.gitignore
 
 [push]
   default = current
