@@ -1,7 +1,7 @@
 [alias]
   ci = commit
-  cim = commit -m
-  ciam = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; git_ciam\""
+  cim = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; args_to_string('git ci -m')\""
+  ciam = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; args_to_string('git ci -am')\""
   co = checkout
   st = status
   br = branch

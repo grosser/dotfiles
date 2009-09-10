@@ -11,6 +11,6 @@ def git_perform_on_st(find, execute)
 end
 
 # check in all changes with a message tat does not need quotes around it <-> lazy
-def git_ciam
-  `git ci -am "#{ARGV.join(' ').gsub('"','`')}"`
+def args_to_string(cmd)
+  `#{cmd} "#{ARGV.join(' ').gsub('"','`')}"`
 end
