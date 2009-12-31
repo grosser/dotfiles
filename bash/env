@@ -1,5 +1,6 @@
 export EDITOR="nano"
 export PATH="/opt/ruby-enterprise/bin:~/bin:$PATH"
+export JDK_HOME="/usr/lib/jvm/java-6-sun/jre"
 
 ### HISTORY
 # don't put duplicate lines in the history. See bash(1) for more options

@@ -10,11 +10,13 @@
   pl = pull
   ps = push
   pls = "!git pull && git push"
+  pick = cherry-pick
   unstage = reset HEAD --
+  uncommit = reset --soft HEAD^
   amend = commit -a --amend
   last = log -1 HEAD
   unconflic = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; git_perform_on_st('\\s+unmerged', 'git reset #F;git co #F')\""
-  rmmissing = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; git_perform_on_st('\\s+deleted',  'git rm #F')\""
+  rmdeleted = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; git_perform_on_st('\\s+deleted',  'git rm #F')\""
   l = log --pretty=format:'%h %an %Cred%ar %Cgreen%s'
 
 [apply]

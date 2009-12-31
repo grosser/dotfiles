@@ -7,7 +7,7 @@ alias l="ls -lah" #ls all+long+humanized filesizes
 #Ubuntu
 alias install="sudo apt-get install"
 alias remove="sudo apt-get remove"
-alias mys="mysql -uroot -proot"
+alias mys="mysql -uroot"
 
 # SVN
 alias svn_add_new="svn st | egrep '^\?[ ]+' | sed -e 's|^?[ ]*||' | xargs -i svn add '{}'"

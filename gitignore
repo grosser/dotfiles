@@ -1,5 +1,6 @@
 nbproject
 .svn
 pkg
+*.idea
 *.cache
 *.log

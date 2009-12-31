@@ -1,16 +1,21 @@
 #!/usr/bin/env ruby
-#hcitool scan
-#00:12:EE:F9:96:2E ändert sich, ist die usb addresse
+# sudo wvdialconf
+# Add to /etc/wvdial.conf for Eplus: 
+#   Init3 = AT+CGDCONT=1,"IP","internet.eplus.de"
+#   Phone = *99#
+#   Password = gprs
+#   Username = eplus
+# Others: http://wiki.ubuntuusers.de/UMTS_per_Mobiltelefon
 
-`sudo ifconfig eth0 down` #turn off network
-connect = "sudo wvdial k700"
-unless system(connect)
-  system "sudo hcitool cc 00:12:EE:F9:96:2E"
-  system "sudo rfcomm bind k700 00:12:EE:F9:96:2E"
+# turn off other connections and start connecting
+`ifconfig eth0 down`
+Process.fork{ `wvdial` }
+
+# if user Ctrl+c`s reconnect eth0
+Signal.trap :SIGINT do
+  `killall wvdial`
+  `ifconfig eth0 up`
 end
 
-system connect
-
-#trap sigint oder so...
-system "sudo ifconfig eth0 up"
+Process.wait
 
