@@ -17,6 +17,7 @@
   last = log -1 HEAD
   unconflic = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; git_perform_on_st('\\s+unmerged', 'git reset #F;git co #F')\""
   rmdeleted = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; git_perform_on_st('\\s+deleted',  'git rm #F')\""
+  rmuntracked = "!git ls-files --others --exclude-standard | xargs rm"
   l = log --pretty=format:'%h %an %Cred%ar %Cgreen%s'
 
 [apply]
