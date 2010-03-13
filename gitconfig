@@ -15,8 +15,8 @@
   uncommit = reset --soft HEAD^
   amend = commit -a --amend
   last = log -1 HEAD
-  unconflic = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; git_perform_on_st('\\s+unmerged', 'git reset #F;git co #F')\""
-  rmdeleted = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; git_perform_on_st('\\s+deleted',  'git rm #F')\""
+  unconflic = "!git ls-files --unmerged | xargs git reset && git ls-files --unmerged | xargs git co"
+  rmdeleted = "!git ls-files --deleted | xargs git rm"
   rmuntracked = "!git ls-files --others --exclude-standard | xargs rm"
   l = log --pretty=format:'%h %an %Cred%ar %Cgreen%s'
 
@@ -36,7 +36,7 @@
   local = blue
   remote = yellow
 
-#normal status has added/changed = green untracked/deleted/conflic = red -> ore colors
+#normal status has added/changed = green untracked/deleted/conflic = red -> more colors
 [color "status"]
   added = yellow
   changed = green
