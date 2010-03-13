@@ -16,7 +16,7 @@
   amend = commit -a --amend
   last = log -1 HEAD
   unconflic = "!git ls-files --unmerged | xargs git reset && git ls-files --unmerged | xargs git co"
-  rmdeleted = "!git ls-files --deleted | xargs git rm"
+  rmdeleted = "!git add -u"
   rmuntracked = "!git ls-files --others --exclude-standard | xargs rm"
   l = log --pretty=format:'%h %an %Cred%ar %Cgreen%s'
 
