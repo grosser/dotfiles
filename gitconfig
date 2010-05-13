@@ -51,3 +51,7 @@
 
 [push]
   default = current
+
+[branch "master"]
+  remote = "origin"
+  merge = master
