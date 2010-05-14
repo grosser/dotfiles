@@ -5,6 +5,7 @@ raise "you should checkout dotfiles to ~/dotfiles and got to ~/ !" unless File.e
 
 #replace files through links
 {
+  '.rspec'=>'rspec',
   '.bashrc'=>'bashrc',
   '.gitignore'=>'gitignore',
   '.irbrc'=>'irbrc',
