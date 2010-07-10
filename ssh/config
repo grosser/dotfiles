@@ -2,3 +2,8 @@ Host c*.dawanda.com
   User mgrosser
   Port 22998
   IdentityFile ~/.ssh/id_rsa.pub
+
+Host dawanda.biz
+  User mgrosser
+  Port 22998
+  IdentityFile ~/.ssh/id_rsa.pub
