@@ -4,3 +4,5 @@ pkg
 *.idea
 *.cache
 *.log
+.bundle
+.rvmrc
