@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+branch = `git branch | grep '*'`.split.last
+File.open('.git/config', 'a') do |f|
+  f.write %{\n\n[branch "#{branch}"]\nremote = origin\nmerge = refs/heads/#{branch}}
+end
