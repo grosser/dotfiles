@@ -52,6 +52,7 @@
 [push]
   default = current
 
-[branch "master"]
-  remote = "origin"
-  merge = master
+# this messes with rails plugin installation ...
+#[branch "master"]
+#  remote = "origin"
+#  merge = master
