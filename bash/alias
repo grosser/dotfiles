@@ -7,7 +7,7 @@ alias l="ls -lah" #ls all+long+humanized filesizes
 #Ubuntu
 alias install="sudo apt-get install"
 alias remove="sudo apt-get remove"
-alias mys="mysql -uroot"
+alias mys="mysql -uroot dawanda_import"
 
 # SVN
 alias svn_add_new="svn st | egrep '^\?[ ]+' | sed -e 's|^?[ ]*||' | xargs -i svn add '{}'"
@@ -27,6 +27,7 @@ alias sg="script/generate"
 
 # RUBY
 alias sa="autospec -f" #run autospec without the initial full run
+alias be="bundle exec"
 
 #GEMS
 alias gemi='sudo gem install --no-rdoc --no-ri'
