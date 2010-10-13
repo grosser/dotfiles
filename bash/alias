@@ -28,6 +28,7 @@ alias sg="script/generate"
 # RUBY
 alias sa="autospec -f" #run autospec without the initial full run
 alias be="bundle exec"
+alias rc="rvm use system && redcar ."
 
 #GEMS
 alias gemi='sudo gem install --no-rdoc --no-ri'

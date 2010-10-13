@@ -6,3 +6,4 @@ pkg
 *.log
 .bundle
 .rvmrc
+.redcar
