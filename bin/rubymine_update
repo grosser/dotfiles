@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'rake'
+
+body = `curl --silent http://www.jetbrains.com/ruby/download/download_thanks.jsp?os=linux | grep .tar.gz`
+url = body.match(%r{http://.*?\.tar\.gz})[0]
+puts url
+new = "/opt/rubymine.#{Time.now.strftime("%Y-%m-%d_%H:%M:%S")}"
+old = "/opt/rubymine"
+puts "cd /tmp && rm -rf RubyMine* && wget #{url} && tar xfz #{File.basename(url)} && (sudo mv #{old} #{new} || echo old not found) && sudo mv RubyMine\t/ #{old}"
