@@ -8,6 +8,6 @@ export GEM_OPEN_EDITOR=redcar
 export HISTCONTROL=ignoredups
 # ... and ignore same sucessive entries.
 export HISTCONTROL=ignoreboth
-if [[ -s /home/micha/.rvm/scripts/rvm ]] ; then source /home/micha/.rvm/scripts/rvm ; fi
+if [[ -s ~/.rvm/scripts/rvm ]] ; then source ~/.rvm/scripts/rvm ; fi
 
 
