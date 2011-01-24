@@ -8,8 +8,7 @@ raise "you should checkout dotfiles to ~/dotfiles and got to ~/ !" unless File.e
   '.rspec'=>'rspec',
   '.bashrc'=>'bashrc',
   '.gitignore'=>'gitignore',
-  '.irbrc'=>'irbrc',
-  '.ssh/config'=>'ssh/config'
+  '.irbrc'=>'irbrc'
 }.each do |original,replaced|
   `rm -f #{original}`
   `ln -s ~/dotfiles/#{replaced} #{original}`
