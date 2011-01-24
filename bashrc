@@ -1,7 +1,8 @@
-source ~/dotfiles/bash/env
-source ~/dotfiles/bash/alias
-source ~/dotfiles/bash/settings
-source ~/dotfiles/bash/misc
-source ~/dotfiles/bash/git_prompt
-source ~/dotfiles/bash/rake_autocomplete
+source ~/dotfiles/bash/env.sh
+source ~/dotfiles/bash/alias.sh
+source ~/dotfiles/bash/settings.sh
+source ~/dotfiles/bash/misc.sh
+source ~/dotfiles/bash/git_prompt.sh
+source ~/dotfiles/bash/rake_autocomplete.sh
 source ~/dotfiles/bash/bundler-exec.sh
+source ~/dotfiles/bash/personal.sh

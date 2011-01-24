@@ -36,10 +36,3 @@ alias rvmrake="rvm ree && rake ; rvm 1.9.2 && rake" # run rake tasks with 1.8.7 
 #GEMS
 alias gemi='sudo gem install --no-rdoc --no-ri'
 alias gemu='sudo gem uninstall'
-
-#Personal
-alias kj="killall java"
-alias kf="killall firefox"
-alias da="cd /apps/dawanda"
-alias rs="cd /apps/rs"
-alias r="ruco"
