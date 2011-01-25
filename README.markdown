@@ -20,8 +20,9 @@ install.rb will:
  - replace content of .gitconfig, except for [github] and [user] section
  - replace bin folder through link to dotfiles/bin
 
-Author
-======
+### [Contributors](http://github.com/grosser/dotfiles/contributors)
+ - [Roman Heinrich](http://github.com/mindreframer)
+
 [Michael Grosser](http://grosser.it)  
 michael@grosser.it  
 Hereby placed under public domain, do what you want, just do not hold me accountable...
