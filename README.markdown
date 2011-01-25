@@ -1,4 +1,4 @@
-My dotfiles, have a look, give me hints for improvement...
+My dotfiles, have a look, try them, give me hints for improvement...
 
 Install
 =======
@@ -6,25 +6,22 @@ Install
 
 Manual Install
 --------------
-For all files you need
-    ln -s dotfiles/xxx .xxx
+Symlink the files you want to use e.g.
+    ln -s dotfiles/rspec .rspec
 
 Automatic install
 -----------------
     ruby dotfiles/install.rb
 
 install.rb will:
-
- - replaces .file through links to dotfiles/file for .bashrc .gitignore .irbrc .ssh/config
- - replace content of .gitconfig through this, except for [github] and [user] section
+ 
+ - *make a backup of all the files it changes* to ~/dotfiles_backup_TIMESTAMP
+ - replaces .file through links to dotfiles/file for .bashrc .gitignore .irbrc .rspec
+ - replace content of .gitconfig, except for [github] and [user] section
  - replace bin folder through link to dotfiles/bin
-
-TODO
-====
- - make ssh/config non-user specific (like gitconfig)
 
 Author
 ======
-[Michael Grosser](http://pragmatig.wordpress.com)  
-grosser.michael@gmail.com  
+[Michael Grosser](http://grosser.it)  
+michael@grosser.it  
 Hereby placed under public domain, do what you want, just do not hold me accountable...

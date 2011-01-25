@@ -1,47 +1,44 @@
 #!/usr/bin/env ruby
-# -> run me with `ruby dotfiles/setup.rb`
+# backup files and replace
 
-raise "you should checkout dotfiles to ~/dotfiles and got to ~/ !" unless File.exist?("dotfiles")
+def extract_sections(file, sections)
+  copy = false
+  config = File.read(file).split("\n")
+  config.map do |line|
+    copy = false if line =~ /^\[/
+    copy = true if sections.include? line.strip
+    line if copy
+  end.compact.reject(&:empty?) * "\n"
+end
+
+dotfiles = File.expand_path(File.dirname(__FILE__))
+home = File.expand_path('~')
+
+expected = "#{home}/dotfiles"
+raise "dotfiles must be checked out as #{expected}" if expected != dotfiles
+
+# create backup folder
+backup = "#{home}/dotfiles_backup_#{Time.now.strftime('%Y-%m-%dT%H:%M:%S')}"
+`mkdir #{backup}`
 
 #replace files through links
-{
-  '.rspec'=>'rspec',
-  '.bashrc'=>'bashrc',
-  '.gitignore'=>'gitignore',
-  '.irbrc'=>'irbrc'
-}.each do |original,replaced|
-  `rm -f #{original}`
-  `ln -s ~/dotfiles/#{replaced} #{original}`
+%w[rspec bashrc gitignore irbrc nanorc].each do |file|
+  original = "#{home}/.#{file}"
+  `mv #{original} #{backup}/.#{file}`
+  `ln -s #{dotfiles}/#{file} #{original}`
 end
 
-#replace folder through links
+#replace bin folder through link
 folder = 'bin'
-`rm -rf #{folder}`
-`ln -s ~/dotfiles/#{folder} #{folder}`
+`mv #{home}/#{folder} #{backup}/#{folder}`
+`ln -s #{dotfiles}/#{folder} #{home}/#{folder}`
 
-#do not share credentials + can always run install.rb
-# --> replace non-secret lines
-if File.exist?(".gitconfig")
-  #replace any $HOME with actual $HOME (since $HOME does not work in gitconfig)
-  original = File.read('dotfiles/gitconfig')
-  original.gsub!('$HOME', `echo $HOME`.strip)
-
-  #extract github+user info from .gitconfig then combine with info stored here
-  copy = false
-  config = File.read('.gitconfig').split("\n")
-  copied = config.map do |line|
-    copy = false if line =~ /^\[/
-    copy = true if %w{[github] [user]}.include? line.strip
-    line if copy
-  end.compact.reject{|x| x.empty?}
-
-
-  File.open('.gitconfig','w') do |f|
-    f.puts copied * "\n"
-    f.puts ''
-    f.puts original
-  end
-else
-  `cp dotfiles/gitconfig .gitconfig`
+# merge credentials from old gitconfig with new
+gitconfig = "#{home}/.gitconfig"
+if File.exist?(gitconfig)
+  credentials = extract_sections(gitconfig, ['[github]', '[user]']) + "\n\n"
+  `mv #{gitconfig} #{backup}/.gitconfig`
 end
 
+new = File.read("#{dotfiles}/gitconfig").gsub('$HOME', home)
+File.open(gitconfig,'w'){|f| f.write "#{credentials}#{new}" }
