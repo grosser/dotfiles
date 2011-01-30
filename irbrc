@@ -42,3 +42,11 @@ def hide_rails_log
   end
   nil
 end
+
+class Time
+  def self.benchmark
+    t = Time.now.to_f
+    yield
+    Time.now.to_f - t
+  end
+end
