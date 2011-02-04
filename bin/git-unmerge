@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'rake'
+
+def run(cmd)
+  puts cmd
+  out = ''
+  IO.popen(cmd) do |pipe|
+    while str = pipe.gets
+      out << str
+    end
+  end
+  raise unless $?.success?
+  out
+end
+
+def merged_commits(merge)
+  found = run("git show --pretty=format:'%p' #{merge} | head -1").strip.split(' ')
+  puts found.inspect
+  found.size == 1 ? nil : found
+end
+
+current = run("git br | grep '*'").sub('*','').strip
+puts "currently on #{current}"
+
+raise unless unmerge = ARGV[0]
+merge, time, message = run(%{git log --pretty=format:'%h--%ar--%s' | grep "Merge branch '#{unmerge}'" | head -n1}).strip.split('--',3)
+
+raise "could not find merge" unless message
+puts "Unmerging #{merge} from #{time}: #{message}"
+
+merged = merged_commits(merge)
+puts "commits where #{merged.inspect}"
+
+to_pick = run("git log --pretty=format:'%h' #{merge}..master").strip.split("\n")
+
+puts "Will now checkout #{merged[0]}"
+puts "and pick #{to_pick.inspect}"
+
+begin
+  later = []
+  run "git co #{merged[0]}"
+  to_pick.reverse.each do |commit|
+    if merged = merged_commits(commit)
+      puts "cannot pick merge #{commit}"
+      later << commit
+    else
+      run "git cherry-pick #{commit}"
+    end
+  end
+rescue
+  unless later.empty?
+    puts "You should now merge these branches:"
+    later.each do |commit|
+      puts run("git show --pretty=format:'%h %ar %s' #{commit} | head -1")
+    end
+  else
+    puts "DONE!"
+  end
+end  
