@@ -1,6 +1,8 @@
 # Unix
 alias t="tail -f"
 alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
 alias cdd="cd -" #go to last used directory
 alias l="ls -lah" #ls all+long+humanized filesizes
 
