@@ -9,14 +9,15 @@ LIGHT_GREEN="\[\033[1;32m\]"
       WHITE="\[\033[1;37m\]"
  LIGHT_GRAY="\[\033[0;37m\]"
  COLOR_NONE="\[\e[0m\]"
- 
+
 function parse_git_branch {
- 
+
   git rev-parse --git-dir &> /dev/null
   git_status="$(git status 2> /dev/null)"
   branch_pattern="^# On branch ([^${IFS}]*)"
-  remote_pattern="# Your branch is (.*) of"
+  remote_pattern="# Your branch is (.*?) "
   diverge_pattern="# Your branch and (.*) have diverged"
+
   if [[ ! ${git_status}} =~ "working directory clean" ]]; then
 state="${RED}⚡"
   fi
@@ -36,7 +37,7 @@ branch=${BASH_REMATCH[1]}
     echo " (${branch})${remote}${state}"
   fi
 }
- 
+
 function prompt_func() {
     previous_return_value=$?;
     # prompt="${TITLEBAR}$BLUE[$RED\w$GREEN$(__git_ps1)$YELLOW$(git_dirty_flag)$BLUE]$COLOR_NONE "
@@ -48,5 +49,5 @@ PS1="${prompt}➔ "
 PS1="${prompt}${RED}➔${COLOR_NONE} "
     fi
 }
- 
+
 PROMPT_COMMAND=prompt_func
