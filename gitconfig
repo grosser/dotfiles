@@ -52,6 +52,10 @@
 [push]
   default = current
 
+# rebase when pulling
+[branch]
+  autosetuprebase = always
+
 # this messes with rails plugin installation ...
 #[branch "master"]
 #  remote = "origin"
