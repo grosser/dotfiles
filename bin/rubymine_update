@@ -5,6 +5,12 @@ require 'rake'
 body = `curl --silent http://www.jetbrains.com/ruby/download/download_thanks.jsp?os=linux | grep .tar.gz`
 url = body.match(%r{http://.*?\.tar\.gz})[0]
 puts url
-new = "/opt/rubymine.#{Time.now.strftime("%Y-%m-%d_%H:%M:%S")}"
-old = "/opt/rubymine"
-puts "cd /tmp && rm -rf RubyMine* && wget #{url} && tar xfz #{File.basename(url)} && (sudo mv #{old} #{new} || echo old not found) && sudo mv RubyMine\t/ #{old}"
+
+archive = "/opt/rubymine.#{Time.now.strftime("%Y-%m-%d_%H:%M:%S")}"
+install_dir = "/opt/rubymine"
+unpacked = File.basename(url).sub('.tar.gz','')
+
+sh "cd /tmp && rm -rf RubyMine*"
+sh "wget #{url} && tar xfz #{File.basename(url)}"
+sh "sudo mv #{install_dir} #{archive}" if File.exist?(install_dir)
+sh "sudo mv #{unpacked} #{install_dir}"
