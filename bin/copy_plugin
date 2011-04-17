@@ -5,3 +5,4 @@ target = "vendor/plugins/#{File.basename plugin}"
 `cp -R #{plugin} #{target}`
 `rm -rf #{target}/.git`
 `rm -rf #{target}/pkg`
+`rm -rf #{target}/.bundle`
