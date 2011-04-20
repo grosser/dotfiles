@@ -6,3 +6,5 @@ alias da="cd /apps/dawanda"
 alias rs="cd /apps/rs"
 alias r="rvm 1.9.2 exec ruco"
 alias m="mine . > /dev/null 2>&1 &"
+
+export GEMEDITOR='mine'
