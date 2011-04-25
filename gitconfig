@@ -1,4 +1,5 @@
 [alias]
+  aa = !git add -u && git add . && git status
   ci = commit
   cim = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; args_to_string('git ci -m')\""
   ciam = "!ruby -e \"require '~/dotfiles/ruby/git_cmds'; args_to_string('git ci -am')\""
