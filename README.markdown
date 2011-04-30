@@ -14,15 +14,18 @@ Automatic install
     ruby dotfiles/install.rb
 
 install.rb will:
- 
+
  - *make a backup of all the files it changes* to ~/dotfiles_backup_TIMESTAMP
  - replaces .file through links to dotfiles/file for .bashrc .gitignore .irbrc .rspec
  - replace content of .gitconfig, except for [github] and [user] section
- - replace bin folder through link to dotfiles/bin
+
+Secret
+------
+If you add a folder named 'secret' to dotfiles it will also symlink stuff from there.
 
 ### [Contributors](http://github.com/grosser/dotfiles/contributors)
  - [Roman Heinrich](http://github.com/mindreframer)
 
-[Michael Grosser](http://grosser.it)  
-michael@grosser.it  
+[Michael Grosser](http://grosser.it)
+michael@grosser.it
 Hereby placed under public domain, do what you want, just do not hold me accountable...

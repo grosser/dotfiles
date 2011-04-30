@@ -21,18 +21,22 @@ raise "dotfiles must be checked out as #{expected}" if expected != dotfiles
 backup = "#{home}/dotfiles_backup_#{Time.now.strftime('%Y-%m-%dT%H:%M:%S')}"
 `mkdir #{backup}`
 
-#replace files through links
-%w[rspec bashrc gitignore irbrc nanorc].each do |file|
-  original = "#{home}/.#{file}"
-  `mv #{original} #{backup}/.#{file}`
-  `ln -s #{dotfiles}/#{file} #{original}`
+# replace files through links (and backup old stuff)
+Dir["#{dotfiles}/dot*", "#{dotfiles}/secret/dot*"].each do |dotfile|
+  file = File.basename(dotfile).sub('dot','.')
+  original = "#{home}/#{file}"
+  `mv #{original} #{backup} 2>&1`
+  `ln -s #{dotfile} #{original}`
 end
 
-#replace bin folder through link
-folder = 'bin'
-`mv #{home}/#{folder} #{backup}/#{folder}`
-`ln -s #{dotfiles}/#{folder} #{home}/#{folder}`
+# link bin files
+`mv #{home}/bin #{backup} 2>&1`
+`mkdir #{home}/bin 2>&1`
+Dir["#{dotfiles}/bin/*", "#{dotfiles}/secret/bin/*"].each do |bin_file|
+  `ln -s #{bin_file} #{home}/bin/#{File.basename(bin_file)}`
+end
 
+# gitconfig
 # merge credentials from old gitconfig with new
 gitconfig = "#{home}/.gitconfig"
 if File.exist?(gitconfig)
@@ -42,3 +46,5 @@ end
 
 new = File.read("#{dotfiles}/gitconfig").gsub('$HOME', home)
 File.open(gitconfig,'w'){|f| f.write "#{credentials}#{new}" }
+
+puts "Everything done!!"
