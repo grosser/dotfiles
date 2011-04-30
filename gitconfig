@@ -20,6 +20,7 @@
   rmdeleted = "!git add -u"
   rmuntracked = "!git ls-files --others --exclude-standard | xargs rm"
   l = log --pretty=format:'%h %an %Cred%ar %Cgreen%s'
+  rmb = !sh -c 'git branch -D $1 && git push origin :$1' -
 
 [apply]
   whitespace = nowarn
