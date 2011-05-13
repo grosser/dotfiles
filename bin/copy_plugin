@@ -6,3 +6,4 @@ target = "vendor/plugins/#{File.basename plugin}"
 `rm -rf #{target}/.git`
 `rm -rf #{target}/pkg`
 `rm -rf #{target}/.bundle`
+`rm -rf #{target}/.rvmrc`
