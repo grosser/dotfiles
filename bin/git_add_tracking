@@ -1,5 +1,9 @@
-#!/usr/bin/env ruby
-branch = `git branch | grep '*'`.split.last
-File.open('.git/config', 'a') do |f|
-  f.write %{\n\n[branch "#{branch}"]\nremote = origin\nmerge = refs/heads/#{branch}}
-end
+#!/bin/bash
+
+branch=$(git branch 2>/dev/null | grep ^\*)
+[ x$1 != x ] && tracking=$1 || tracking=${branch/* /}
+
+git config branch.$tracking.remote origin
+git config branch.$tracking.merge refs/heads/$tracking
+
+echo "tracking origin/$tracking"
