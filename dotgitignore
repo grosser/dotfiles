@@ -7,3 +7,4 @@ pkg
 .bundle
 .rvmrc
 .redcar
+node_modules
