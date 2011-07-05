@@ -5,6 +5,7 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias cdd="cd -" #go to last used directory
 alias l="ls -lah" #ls all+long+humanized filesizes
+f(){ find -name "*$1*"; }
 
 #Ubuntu
 alias install="sudo apt-get install"
