@@ -1,0 +1,10 @@
+# Create remote from github author and create new branch
+# github-pull author [branch]
+# uses current folder name as project-name
+AUTHOR=$1
+PROJECT=$(basename `pwd`)
+if [ $2 ]; then BRANCH=$2; else BRANCH=master; fi
+
+(git remote add $AUTHOR https://github.com/$AUTHOR/$PROJECT.git || echo 'remote exists') && \
+git fetch $AUTHOR && \
+git co -b $AUTHOR-$BRANCH --track $AUTHOR/$BRANCH
