@@ -2,6 +2,7 @@ export EDITOR="nano"
 export PATH="~/bin:$PATH"
 export JDK_HOME="/usr/lib/jvm/java-6-sun/jre"
 export GEM_OPEN_EDITOR=redcar
+RBXOPT="-Xrbc.db" # do not clutter up everything with .rbc files when using rubinius
 
 ### HISTORY
 # don't put duplicate lines in the history. See bash(1) for more options
