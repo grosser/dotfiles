@@ -32,6 +32,7 @@ alias sg="script/generate"
 alias sa="autospec -f" #run autospec without the initial full run
 alias be="bundle exec"
 alias bi="bundle install"
+alias bo="EDITOR=mine bundle open"
 alias nob-ruby="`which ruby`" # ruby without bundler
 alias rc="rvm use system && redcar ."
 alias rvmrake="rvm ree,1.9.2 exec rake" # run rake tasks with 1.8.7 and 1.9.2
