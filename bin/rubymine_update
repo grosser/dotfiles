@@ -14,3 +14,6 @@ sh "cd /tmp && rm -rf RubyMine*"
 sh "wget #{url} && tar xfz #{File.basename(url)}"
 sh "sudo mv #{install_dir} #{archive}" if File.exist?(install_dir)
 sh "sudo mv #{unpacked} #{install_dir}"
+
+# make multi-clipboard work for Ubuntu
+sh "echo 'idea.use.alt.clipboard.sync=true' >> /opt/rubymine/bin/idea.properties"
