@@ -36,6 +36,7 @@ alias bo="EDITOR=mine bundle open"
 alias nob-ruby="`which ruby`" # ruby without bundler
 alias rc="rvm use system && redcar ."
 alias rvmrake="rvm ree,1.9.2 exec rake" # run rake tasks with 1.8.7 and 1.9.2
+alias ge="EDITOR=mine gem edit"
 
 #GEMS
 alias gemi='sudo gem install --no-rdoc --no-ri'
