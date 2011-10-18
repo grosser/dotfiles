@@ -10,16 +10,3 @@ RBXOPT="-Xrbc.db" # do not clutter up everything with .rbc files when using rubi
 export HISTCONTROL=ignoredups
 # ... and ignore same sucessive entries.
 export HISTCONTROL=ignoreboth
-
-
-export PATH="$HOME/.rbenv/bin:$PATH"
-export PATH="$HOME/.rbenv/versions/1.9.3-rc1/bin:$PATH"
-
-# Load RVM if it is installed,
-#  first try to load  user install
-#  then try to load root install, if user install is not there.
-#if [ -s "$HOME/.rvm/scripts/rvm" ] ; then
-#  . "$HOME/.rvm/scripts/rvm"
-#elif [ -s "/usr/local/rvm/scripts/rvm" ] ; then
-#  . "/usr/local/rvm/scripts/rvm"
-#fi

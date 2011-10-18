@@ -8,3 +8,4 @@ pkg
 .rvmrc
 .redcar
 node_modules
+.rbenv-version

@@ -1,3 +1,3 @@
 #!/usr/bin/env ruby
 raise "gime a file!!" unless ARGV[0]
-exec "rvm ree exec redcarpet #{ARGV[0]} > /tmp/markdown.html && chromium-browser /tmp/markdown.html"
+exec "/home/micha/.rbenv/versions/1.9.3-rc1/bin/redcarpet #{ARGV[0]} > /tmp/markdown.html && chromium-browser /tmp/markdown.html"
