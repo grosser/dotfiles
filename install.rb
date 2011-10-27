@@ -47,13 +47,6 @@ Dir["#{dotfiles}/*", "#{dotfiles}/secret/*"].each do |dotfile|
   backup_and_replace(dotfile, home, backup)
 end
 
-# link bin files
-`mv #{home}/bin #{backup} 2>&1`
-`mkdir #{home}/bin 2>&1`
-Dir["#{dotfiles}/bin/*", "#{dotfiles}/secret/bin/*"].each do |bin_file|
-  `ln -s #{bin_file} #{home}/bin/#{File.basename(bin_file)}`
-end
-
 # gitconfig
 # merge credentials from old gitconfig with new
 gitconfig = "#{home}/.gitconfig"
