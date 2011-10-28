@@ -11,15 +11,13 @@ alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/he
 #alias video-skype=""
 alias skype-restart="killall -9 skype && skype &"
 
-function rbenvsudo(){
-  executable=$1
-  shift 1
-  sudo $(rbenv which $executable) $* 
-}
-
 function take(){
   mkdir $1;
   cd $1;
+}
+
+function pdf-decrypt(){
+  qpdf --decrypt $1 $1.tmp && mv -f $1.tmp $1
 }
 
 export GEMEDITOR='mine'
