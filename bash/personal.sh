@@ -9,7 +9,7 @@ alias m="mine . > /dev/null 2>&1 &"
 alias wrake="`which rake` _0.8.7_"
 alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/helpers" # pry as rails console, without pry as dependency
 #alias video-skype=""
-alias skype-restart="killall -9 skype && skype &"
+alias skype-restart="killall -9 skype && video-skype"
 
 function take(){
   mkdir $1;
