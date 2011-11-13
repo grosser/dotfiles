@@ -4,8 +4,11 @@ pkg
 *.idea
 *.cache
 *.log
+*.db
+*.pid
 .bundle
 .rvmrc
 .redcar
 node_modules
 .rbenv-version
+tmp
