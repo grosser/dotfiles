@@ -1,0 +1,4 @@
+#!/bin/bash
+# - normal open command is useless
+# - xdg-open behaves OSX like and therefore eases the pain of using projects that are OSX-centric
+xdg-open $*
