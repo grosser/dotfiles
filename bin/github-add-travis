@@ -1,7 +1,16 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-require 'rest_client'
-require 'json'
+
+{
+  'rest-client' => 'rest_client',
+  'json' => 'json'
+}.each do |gem, lib|
+  begin
+    require lib
+  rescue LoadError
+    puts "gem install #{gem} --- #{$!}" 
+  end
+end
 
 abort "Usage: github-add-travis password [repo]" if ARGV.size < 1
 password = ARGV[0]
@@ -41,3 +50,5 @@ puts "Hook-id: #{id}"
 
 url = "#{base}/repos/#{github_user}/#{repo}/hooks/#{id}/test"
 puts RestClient.post(url, nil)
+
+puts "Everything set up!!"
