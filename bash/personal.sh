@@ -4,11 +4,10 @@ alias kj="pkill -f java"
 alias kf="pkill -f firefox"
 alias da="cd /apps/dawanda/main"
 alias rs="cd /apps/rs"
-alias r="~/.rbenv/versions/1.9.3-rc1/bin/ruco"
 alias m="mine . > /dev/null 2>&1 &"
 alias wrake="`which rake` _0.8.7_"
 alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/helpers" # pry as rails console, without pry as dependency
-#alias video-skype=""
+alias r="rvm 1.9.3 exec ruco"
 alias skype-restart="killall -9 skype && video-skype"
 
 function take(){
