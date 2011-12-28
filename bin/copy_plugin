@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# copy a project into rails plugin folder, removing all unncessary files/folders
+# cd rails-app && copy_plugin ~/code/plugin_source
 plugin = ARGV[0] || raise("give me a folder to copy from")
 target = "vendor/plugins/#{File.basename plugin}"
 `rm -rf #{target}`
