@@ -1,3 +1,18 @@
 #!/usr/bin/env ruby
-raise "gime a file!!" unless ARGV[0]
-exec "rvm 1.9.3 exec redcarpet #{ARGV[0]} > /tmp/markdown.html && chromium-browser /tmp/markdown.html"
+# open a given markdown file as html
+
+if ARGV[1] == 'VIA_RVM'
+  require 'redcarpet'
+  require 'github/markup'
+
+  raise "gime a file!!" unless ARGV[0]
+  tempfile = "/tmp/markdown.html"
+
+  markdown = File.read(ARGV[0]).force_encoding('UTF-8')
+  html = GitHub::Markup.render("tmp.markdown", markdown)
+  File.open(tempfile, 'w'){|f| f.write html }
+  exec "open #{tempfile}"
+else
+  # use a specific ruby version so we do not have to install the libs everywhere
+  exec "rvm 1.9.3 exec #{$0} #{ARGV[0]} VIA_RVM"
+end
