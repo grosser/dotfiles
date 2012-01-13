@@ -4,8 +4,8 @@ raise "gime a file!!" unless ARGV[0]
 
 require 'cgi'
 content = File.read(ARGV[0])
-url = 'http://localhost:3000'
-#url = 'http://github-preview.herokuapp.com'
+#url = 'http://localhost:3000'
+url = 'http://github-preview.herokuapp.com'
 
 
 exec "chromium-browser '#{url}/?text=#{CGI.escape content}'"
