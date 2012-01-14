@@ -19,8 +19,4 @@ function pdf-decrypt(){
   qpdf --decrypt $1 $1.tmp && mv -f $1.tmp $1
 }
 
-function shredrm(){
- find $1 -type f | xargs shred && rm -rf $1
-}
-
 export GEMEDITOR='mine'

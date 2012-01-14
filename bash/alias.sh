@@ -10,7 +10,7 @@ f(){ find -name "*$1*"; }
 #Ubuntu
 alias install="sudo apt-get install"
 alias remove="sudo apt-get remove"
-alias mys="mysql -uroot dawanda_import"
+alias erase="wipe -crqQ1" # rename + overwrite + remove files
 
 # SVN
 alias svn_add_new="svn st | egrep '^\?[ ]+' | sed -e 's|^?[ ]*||' | xargs -i svn add '{}'"
