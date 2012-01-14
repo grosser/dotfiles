@@ -1,14 +1,17 @@
-#!/bin/bash
+# Copyright (c) 2009 rupa deadwyler under the WTFPL license
 
 # maintains a jump-list of the directories you actually use
 #
 # INSTALL:
+#   * optionally:
+#     set $_Z_CMD in .bashrc/.zshrc to change the command (default z).
+#     set $_Z_DATA in .bashrc/.zshrc to change the datafile (default ~/.z).
 #   * put something like this in your .bashrc:
 #     . /path/to/z.sh
 #   * put something like this in your .zshrc:
 #     . /path/to/z.sh
 #     function precmd () {
-#       z --add "$(pwd -P)"
+#       _z --add "$(pwd -P)"
 #     }
 #   * cd around for a while to build up the db
 #   * PROFIT!!
@@ -20,9 +23,12 @@
 #   * z -t foo  # cd to most recently accessed dir matching foo
 #   * z -l foo  # list all dirs matching foo (by frecency)
 
-z() {
+_z() {
 
- local datafile="$HOME/.z"
+ local datafile="${_Z_DATA:-$HOME/.z}"
+
+ # bail out if we don't own ~/.z (we're another user but our ENV is still set)
+ [ -f "$datafile" -a ! -O "$datafile" ] && return
 
  # add entries
  if [ "$1" = "--add" ]; then
@@ -32,7 +38,8 @@ z() {
   [ "$*" = "$HOME" ] && return
 
   # maintain the file
-  local tempfile="$(mktemp $datafile.XXXXXX)" || return
+  local tempfile
+  tempfile="$(mktemp $datafile.XXXXXX)" || return
   awk -v path="$*" -v now="$(date +%s)" -F"|" '
    BEGIN {
     rank[path] = 1
@@ -53,25 +60,39 @@ z() {
      for( i in rank ) print i "|" 0.9*rank[i] "|" time[i] # aging
     } else for( i in rank ) print i "|" rank[i] "|" time[i]
    }
-  ' "$datafile" 2>/dev/null > "$tempfile"
-  env mv -f "$tempfile" "$datafile"
+  ' "$datafile" 2>/dev/null >| "$tempfile"
+  if [ $? -ne 0 -a -f "$datafile" ]; then
+   env rm -f "$tempfile"
+  else
+   env mv -f "$tempfile" "$datafile"
+  fi
 
  # tab completion
  elif [ "$1" = "--complete" ]; then
   awk -v q="$2" -F"|" '
+   function notdir(path, tmp) {
+    # faster than system()
+    n = gsub("/+", "/", path)
+    for( i = 0; i < n; i++ ) path = path "/.."
+    path = path datafile
+    if( ( getline tmp < path ) >= 0 ) {
+      close(path)
+      return 0
+    }
+    return 1
+   }
    BEGIN {
     if( q == tolower(q) ) nocase = 1
     split(substr(q,3),fnd," ")
    }
    {
-    if( system("test -d \"" $1 "\"") ) next
+    if( notdir($1) ) next
     if( nocase ) {
      for( i in fnd ) tolower($1) !~ tolower(fnd[i]) && $1 = ""
-     if( $1 ) print $1
     } else {
      for( i in fnd ) $1 !~ fnd[i] && $1 = ""
-     if( $1 ) print $1
     }
+    if( $1 ) print $1
    }
   ' "$datafile" 2>/dev/null
 
@@ -88,13 +109,26 @@ z() {
   [ "$fnd" ] || local list=1
 
   # if we hit enter on a completion just go there
-  [ -d "$last" ] && cd "$last" && return
+  case "$last" in
+   # completions will always start with /
+   /*) [ -z "$list" -a -d "$last" ] && cd "$last" && return;;
+  esac
 
   # no file yet
   [ -f "$datafile" ] || return
 
-  local tempfile="$(mktemp $datafile.XXXXXX)" || return
-  local cd="$(awk -v t="$(date +%s)" -v list="$list" -v typ="$typ" -v q="$fnd" -v tmpfl="$tempfile" -F"|" '
+  local cd
+  cd="$(awk -v t="$(date +%s)" -v list="$list" -v typ="$typ" -v q="$fnd" -v datafile="$datafile" -F"|" '
+   function notdir(path, tmp) {
+    n = gsub("/+", "/", path)
+    for( i = 0; i < n; i++ ) path = path "/.."
+    path = path datafile
+    if( ( getline tmp < path ) >= 0 ) {
+      close(path)
+      return 0
+    }
+    return 1
+   }
    function frecent(rank, time) {
     dx = t-time
     if( dx < 3600 ) return rank*4
@@ -114,22 +148,19 @@ z() {
      print toopen
     }
    }
-   function common(matches, fnd, nc) {
+   function common(matches) {
+    # shortest match
     for( i in matches ) {
      if( matches[i] && (!short || length(i) < length(short)) ) short = i
     }
     if( short == "/" ) return
-    for( i in matches ) if( matches[i] && i !~ short ) x = 1
-    if( x ) return
-    if( nc ) {
-     for( i in fnd ) if( tolower(short) !~ tolower(fnd[i]) ) x = 1
-    } else for( i in fnd ) if( short !~ fnd[i] ) x = 1
-    if( !x ) return short
+    # shortest match must be common to each match
+    for( i in matches ) if( matches[i] && i !~ short ) return
+    return short
    }
    BEGIN { split(q, a, " ") }
    {
-    if( system("test -d \"" $1 "\"") ) next
-    print $0 >> tmpfl
+    if( notdir($1) ) next
     if( typ == "rank" ) {
      f = $2
     } else if( typ == "recent" ) {
@@ -150,32 +181,13 @@ z() {
    }
    END {
     if( cx ) {
-     output(wcase, cx, common(wcase, a, 0))
-    } else if( ncx ) output(nocase, ncx, common(nocase, a, 1))
+     output(wcase, cx, common(wcase))
+    } else if( ncx ) output(nocase, ncx, common(nocase))
    }
   ' "$datafile")"
-  if [ $? -gt 0 ]; then
-   env rm -f "$tempfile"
-  else
-   env mv -f "$tempfile" "$datafile"
-   [ "$cd" ] && cd "$cd"
-  fi
+  [ $? -gt 0 ] && return
+  [ "$cd" ] && cd "$cd"
  fi
 }
 
-# if this is enabled last exit status git_promt highlighting does not longer work
-#if complete &> /dev/null; then
-#  # bash tab completion
-#  complete -C 'z --complete "$COMP_LINE"' z
-#  # populate directory list. avoid clobbering other PROMPT_COMMANDs.
-#  echo $PROMPT_COMMAND | grep -q "z --add"
-#  [ $? -gt 0 ] && PROMPT_COMMAND='z --add "$(pwd -P 2>/dev/null)";'"$PROMPT_COMMAND"
-#elif compctl &> /dev/null; then
-#  # zsh tab completion
-#  _z_zsh_tab_completion() {
-#    local compl
-#    read -l compl
-#    reply=(`z --complete "$compl"`)
-#  }
-#  compctl -U -K _z_zsh_tab_completion z
-#fi
+alias ${_Z_CMD:-z}='_z 2>&1'
