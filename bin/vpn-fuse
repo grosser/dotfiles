@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+# kill certain app if vpn fails
+# e.g. vpn-fuse BankNetwork banking-client
+NAME = ARGV[0] || raise('give me a name!')
+APP = ARGV[1] || raise('give me an app name')
+
+def run(cmd)
+  puts cmd
+  IO.popen(cmd) do |pipe|
+    while str = pipe.gets
+      puts str
+    end
+  end
+  $?.success?
+end
+
+run "nmcli con up id #{NAME}" || raise
+
+# Ctrl+c or watcher fails --> disconnect and kill app
+at_exit do
+  run "pkill -f #{APP}"
+  run "pkill -f -9 #{APP}"
+  run "nmcli con down id #{NAME}"
+end
+
+loop do
+  break unless run("nmcli con status id #{NAME} | grep #{NAME}")
+  sleep 1
+end
