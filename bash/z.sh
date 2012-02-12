@@ -40,12 +40,24 @@ _z() {
   # maintain the file
   local tempfile
   tempfile="$(mktemp $datafile.XXXXXX)" || return
-  awk -v path="$*" -v now="$(date +%s)" -F"|" '
+  awk -v path="$*" -v now="$(date +%s)" -v datafile="$datafile" -F"|" '
+   function notdir(path, tmp) {
+    # faster than system()
+    n = gsub("/+", "/", path)
+    for( i = 0; i < n; i++ ) path = path "/.."
+    path = path datafile
+    if( ( getline tmp < path ) >= 0 ) {
+      close(path)
+      return 0
+    }
+    return 1
+   }
    BEGIN {
     rank[path] = 1
     time[path] = now
    }
    $2 >= 1 {
+    if( notdir($1) ) next
     if( $1 == path ) {
      rank[$1] = $2 + 1
      time[$1] = now
@@ -69,7 +81,7 @@ _z() {
 
  # tab completion
  elif [ "$1" = "--complete" ]; then
-  awk -v q="$2" -F"|" '
+  awk -v q="$2" -v datafile="$datafile" -F"|" '
    function notdir(path, tmp) {
     # faster than system()
     n = gsub("/+", "/", path)
@@ -92,7 +104,7 @@ _z() {
     } else {
      for( i in fnd ) $1 !~ fnd[i] && $1 = ""
     }
-    if( $1 ) print $1
+    if( $1 ) print "\"" $1 "\""
    }
   ' "$datafile" 2>/dev/null
 
@@ -154,6 +166,10 @@ _z() {
      if( matches[i] && (!short || length(i) < length(short)) ) short = i
     }
     if( short == "/" ) return
+
+    # escape regex chars in right hand side
+    #gsub(/[\(\[\|]/, "\\\&", short)
+
     # shortest match must be common to each match
     for( i in matches ) if( matches[i] && i !~ short ) return
     return short
@@ -191,3 +207,19 @@ _z() {
 }
 
 alias ${_Z_CMD:-z}='_z 2>&1'
+
+if complete &> /dev/null; then
+ # bash tab completion
+ complete -C '_z --complete "$COMP_LINE"' ${_Z_CMD:-z}
+ # populate directory list. avoid clobbering other PROMPT_COMMANDs.
+ echo $PROMPT_COMMAND | grep -q "_z --add"
+ [ $? -gt 0 ] && PROMPT_COMMAND='_z --add "$(pwd -P 2>/dev/null)" 2>/dev/null;'"$PROMPT_COMMAND"
+elif compctl &> /dev/null; then
+ # zsh tab completion
+ _z_zsh_tab_completion() {
+  local compl
+  read -l compl
+  reply=(${(f)"$(_z --complete "$compl")"})
+ }
+ compctl -U -K _z_zsh_tab_completion _z
+fi
