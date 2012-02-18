@@ -14,7 +14,11 @@ def run(cmd)
   $?.success?
 end
 
-run "nmcli con up id #{NAME}" || raise
+def vpn_up?
+  run("nmcli con status id #{NAME} | grep #{NAME}")
+end
+
+run "nmcli con up id #{NAME}" || raise("could not start vpn") unless vpn_up?
 
 # Ctrl+c or watcher fails --> disconnect and kill app
 at_exit do
@@ -23,6 +27,6 @@ at_exit do
 end
 
 loop do
-  break unless run("nmcli con status id #{NAME} | grep #{NAME}")
+  break unless vpn_up?
   sleep 1
 end
