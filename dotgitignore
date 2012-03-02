@@ -5,6 +5,7 @@ pkg
 *.cache
 *.log
 *.db
+*.sqlite
 *.pid
 .bundle
 .rvmrc

@@ -3,6 +3,7 @@
 # e.g. vpn-fuse BankNetwork 'pkill -f banking-client'
 NAME = ARGV[0] || raise('give me a name!')
 COMMAND = ARGV[1] || raise('give me a command')
+$retry = ARGV[2].to_i
 
 def run(cmd)
   puts cmd
@@ -18,7 +19,11 @@ def vpn_up?
   run("nmcli con status id #{NAME} | grep #{NAME}")
 end
 
-run "nmcli con up id #{NAME}" || raise("could not start vpn") unless vpn_up?
+def start_vpn
+  run "nmcli con up id #{NAME}" || raise("could not start vpn") unless vpn_up?
+end
+
+start_vpn unless vpn_up?
 
 # Ctrl+c or watcher fails --> disconnect and kill app
 at_exit do
@@ -27,6 +32,13 @@ at_exit do
 end
 
 loop do
-  break unless vpn_up?
+  if not vpn_up?
+    if $retry == 0
+      exit
+    else
+      start_vpn
+      $retry -= 1
+    end
+  end
   sleep 1
 end
