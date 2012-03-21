@@ -1,5 +1,4 @@
 [alias]
-  aa = !git add -u && git add . && git status
   ci = commit
   cim = commit -m
   ciam = commit -am
@@ -7,17 +6,12 @@
   st = status
   br = branch
   diffc = diff --cached
-  put = push origin HEAD
   pl = pull
   ps = push
   pls = "!git pull && git push"
   pick = cherry-pick
-  unstage = reset HEAD --
   uncommit = reset --soft HEAD^
   amend = commit -a --amend
-  last = log -1 HEAD
-  unconflic = "!git ls-files --unmerged | xargs git reset && git ls-files --unmerged | xargs git co"
-  rmdeleted = "!git add -u"
   rmuntracked = "!git ls-files --others --exclude-standard | xargs rm"
   l = log --pretty=format:'%h %an %Cred%ar %Cgreen%s'
   rmb = !sh -c 'git branch -D $1 && git push origin :$1' -
