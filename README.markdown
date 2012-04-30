@@ -13,6 +13,8 @@ Automatic install
 -----------------
     ruby dotfiles/install.rb
 
+For OSx: `ln -s .bashrc .bash_login`
+
 install.rb will:
 
  - *make a backup of all the files it changes* to ~/dotfiles_backup_TIMESTAMP

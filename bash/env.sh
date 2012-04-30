@@ -1,5 +1,5 @@
 export EDITOR="ruco"
-export PATH="~/dotfiles/bin:~/dotfiles/secret/bin:$PATH"
+export PATH="~/dotfiles/bin:~/dotfiles/secret/bin:/usr/local/bin:$PATH"
 export JAVA_HOME="/usr/lib/jvm/java-6-openjdk"
 export RUBYMINE_JDK="/usr/lib/jvm/java-6-sun/jre"
 export GEM_OPEN_EDITOR=redcar
