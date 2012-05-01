@@ -20,3 +20,10 @@ function pdf-decrypt(){
 }
 
 export GEMEDITOR='mine'
+
+# ZenDesk specific
+function zd {
+  ~/.zendesk/"${1}" "${2}"
+}
+
+PATH="$HOME/.zendesk/bin:$HOME/.zendesk/sbin:$PATH"
