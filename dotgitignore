@@ -14,3 +14,4 @@ node_modules
 .rbenv-version
 tmp
 log
+.DS_Store
