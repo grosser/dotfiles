@@ -8,7 +8,7 @@ alias wrake="`which rake` _0.8.7_"
 alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/helpers" # pry as rails console, without pry as dependency
 alias r="rvm 1.9.3 exec ruco"
 alias skype-restart="killall -9 skype && video-skype"
-alias pmaster="git co master && git pull --rebase && (bundle check || bundle) && rake db:migrate db:test:prepare && git co - && git rebase master"
+alias pmaster="current=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'` && git co master && git pull --rebase && (bundle check || bundle) && rake db:migrate db:test:prepare && git co $current && git rebase master"
 
 function take(){
   mkdir $1;
