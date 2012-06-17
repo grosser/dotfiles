@@ -50,11 +50,9 @@
 [push]
   default = current
 
-# rebase when pulling
-[branch]
-  autosetuprebase = always
 
-# this messes with rails plugin installation ...
-#[branch "master"]
-#  remote = "origin"
-#  merge = master
+[branch]
+  autosetuprebase = always # rebase when pulling
+
+[rerere]
+  enabled = true # store resolved rebase steps even when aborted
