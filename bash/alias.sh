@@ -32,6 +32,7 @@ alias sg="script/generate"
 alias sa="autospec -f" #run autospec without the initial full run
 alias be="bundle exec"
 alias bi="bundle install"
+alias b="bundle check 2>&1 > /dev/null || { bundle --quiet || bundle check > /dev/null; } && bundle exec"
 alias bo="EDITOR=mine bundle open"
 alias nob-ruby="`which ruby`" # ruby without bundler
 alias ge="EDITOR=mine gem edit"

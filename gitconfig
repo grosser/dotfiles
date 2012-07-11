@@ -13,8 +13,9 @@
   uncommit = reset --soft HEAD^
   amend = commit -a --amend
   rmuntracked = "!git ls-files --others --exclude-standard | xargs rm"
-  l = log --pretty=format:'%h %an %Cred%ar %Cgreen%s'
+  l = log --pretty=format:'%h %an %Cred%ar %d %Cgreen%s'
   rmb = !sh -c 'git branch -D $1 && git push origin :$1' -
+  adrc = "!git add . && git rebase --continue"
   unpushed = !"PROJ_BRANCH=$(git symbolic-ref HEAD | sed 's|refs/heads/||') && git log origin/$PROJ_BRANCH..HEAD"
   unpulled = !"PROJ_BRANCH=$(git symbolic-ref HEAD | sed 's|refs/heads/||') && git fetch && git log HEAD..origin/$PROJ_BRANCH"
 
