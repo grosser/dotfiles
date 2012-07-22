@@ -1,0 +1,10 @@
+file "bash/liquidprompt.bash", "https://raw.github.com/nojhan/liquidprompt/master/liquidprompt.bash" do |path|
+  rewrite(path) do |content|
+    content.gsub!("setaf 7", "setaf 0") # make white black since I use a white background
+    content.gsub!(/__CPUNUM=.*/, "__CPUNUM=''") # does blow up on osx
+
+    # remove __load stuff, does not work on osx
+    content.sub!(/__load.*?^\}/m, "__load(){ test 1; }")
+    content.sub!(/__load_color.*?^\}/m, "__load_color(){ test 1; }")
+  end
+end

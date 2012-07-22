@@ -4,7 +4,7 @@ source ~/dotfiles/bash/settings.sh
 source ~/dotfiles/bash/misc.sh
 
 source ~/dotfiles/bash/z.sh # load before any promt modifications !
-source ~/dotfiles/bash/git_prompt.sh
+source ~/dotfiles/bash/liquidprompt.bash
 source ~/dotfiles/bash/git-completion.bash
 source ~/dotfiles/bash/rake_autocomplete.sh
 source ~/dotfiles/bash/bundler-exec.sh
