@@ -11,7 +11,8 @@
   pls = "!git pull && git push"
   pick = cherry-pick
   uncommit = reset --soft HEAD^
-  amend = commit -a --amend
+  amend = commit -a --amend -C HEAD
+  amendm = commit -a --amend # amend with message
   rmuntracked = "!git ls-files --others --exclude-standard | xargs rm"
   l = log --pretty=format:'%h %an %Cred%ar %d %Cgreen%s'
   rmb = !sh -c 'git branch -D $1 && git push origin :$1' -
