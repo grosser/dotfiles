@@ -1,11 +1,19 @@
-# Unix
-alias t="tail -f"
+# General
+#alias t="tail -f"
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias cdd="cd -" #go to last used directory
 alias l="ls -lah" #ls all+long+humanized filesizes
 f(){ find -name "*$1*"; }
+function run() {
+  number=$1
+  shift
+  for i in `seq $number`; do
+    $@
+  done
+}
+
 
 #Ubuntu
 alias install="sudo apt-get install"
