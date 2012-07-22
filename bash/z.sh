@@ -3,9 +3,6 @@
 # maintains a jump-list of the directories you actually use
 #
 # INSTALL:
-#   * optionally:
-#     set $_Z_CMD in .bashrc/.zshrc to change the command (default z).
-#     set $_Z_DATA in .bashrc/.zshrc to change the datafile (default ~/.z).
 #   * put something like this in your .bashrc:
 #     . /path/to/z.sh
 #   * put something like this in your .zshrc:
@@ -15,6 +12,11 @@
 #     }
 #   * cd around for a while to build up the db
 #   * PROFIT!!
+#   * optionally:
+#     set $_Z_CMD in .bashrc/.zshrc to change the command (default z).
+#     set $_Z_DATA in .bashrc/.zshrc to change the datafile (default ~/.z).
+#     set $_Z_NO_RESOLVE_SYMLINKS to prevent symlink resolution.
+#     set $_Z_NO_PROMPT_COMMAND if you're handling PROMPT_COMMAND yourself.
 #
 # USE:
 #   * z foo     # cd to most frecent dir matching foo
@@ -40,24 +42,14 @@ _z() {
   # maintain the file
   local tempfile
   tempfile="$(mktemp $datafile.XXXXXX)" || return
-  awk -v path="$*" -v now="$(date +%s)" -v datafile="$datafile" -F"|" '
-   function notdir(path, tmp) {
-    # faster than system()
-    n = gsub("/+", "/", path)
-    for( i = 0; i < n; i++ ) path = path "/.."
-    path = path datafile
-    if( ( getline tmp < path ) >= 0 ) {
-      close(path)
-      return 0
-    }
-    return 1
-   }
+  while read line; do
+   [ -d "${line%%\|*}" ] && echo $line
+  done < "$datafile" | awk -v path="$*" -v now="$(date +%s)" -F"|" '
    BEGIN {
     rank[path] = 1
     time[path] = now
    }
    $2 >= 1 {
-    if( notdir($1) ) next
     if( $1 == path ) {
      rank[$1] = $2 + 1
      time[$1] = now
@@ -72,7 +64,7 @@ _z() {
      for( i in rank ) print i "|" 0.9*rank[i] "|" time[i] # aging
     } else for( i in rank ) print i "|" rank[i] "|" time[i]
    }
-  ' "$datafile" 2>/dev/null >| "$tempfile"
+  ' 2>/dev/null >| "$tempfile"
   if [ $? -ne 0 -a -f "$datafile" ]; then
    env rm -f "$tempfile"
   else
@@ -81,32 +73,22 @@ _z() {
 
  # tab completion
  elif [ "$1" = "--complete" ]; then
-  awk -v q="$2" -v datafile="$datafile" -F"|" '
-   function notdir(path, tmp) {
-    # faster than system()
-    n = gsub("/+", "/", path)
-    for( i = 0; i < n; i++ ) path = path "/.."
-    path = path datafile
-    if( ( getline tmp < path ) >= 0 ) {
-      close(path)
-      return 0
-    }
-    return 1
-   }
+  while read line; do
+   [ -d "${line%%\|*}" ] && echo $line
+  done < "$datafile" | awk -v q="$2" -F"|" '
    BEGIN {
     if( q == tolower(q) ) nocase = 1
     split(substr(q,3),fnd," ")
    }
    {
-    if( notdir($1) ) next
     if( nocase ) {
      for( i in fnd ) tolower($1) !~ tolower(fnd[i]) && $1 = ""
     } else {
      for( i in fnd ) $1 !~ fnd[i] && $1 = ""
     }
-    if( $1 ) print "\"" $1 "\""
+    if( $1 ) print $1
    }
-  ' "$datafile" 2>/dev/null
+  ' 2>/dev/null
 
  else
   # list/go
@@ -130,17 +112,9 @@ _z() {
   [ -f "$datafile" ] || return
 
   local cd
-  cd="$(awk -v t="$(date +%s)" -v list="$list" -v typ="$typ" -v q="$fnd" -v datafile="$datafile" -F"|" '
-   function notdir(path, tmp) {
-    n = gsub("/+", "/", path)
-    for( i = 0; i < n; i++ ) path = path "/.."
-    path = path datafile
-    if( ( getline tmp < path ) >= 0 ) {
-      close(path)
-      return 0
-    }
-    return 1
-   }
+  cd="$(while read line; do
+   [ -d "${line%%\|*}" ] && echo $line
+  done < "$datafile" | awk -v t="$(date +%s)" -v list="$list" -v typ="$typ" -v q="$fnd" -F"|" '
    function frecent(rank, time) {
     dx = t-time
     if( dx < 3600 ) return rank*4
@@ -168,7 +142,7 @@ _z() {
     if( short == "/" ) return
 
     # escape regex chars in right hand side
-    #gsub(/[\(\[\|]/, "\\\&", short)
+    gsub(/[\(\[\|]/, "\\&", short)
 
     # shortest match must be common to each match
     for( i in matches ) if( matches[i] && i !~ short ) return
@@ -176,7 +150,6 @@ _z() {
    }
    BEGIN { split(q, a, " ") }
    {
-    if( notdir($1) ) next
     if( typ == "rank" ) {
      f = $2
     } else if( typ == "recent" ) {
@@ -200,7 +173,7 @@ _z() {
      output(wcase, cx, common(wcase))
     } else if( ncx ) output(nocase, ncx, common(nocase))
    }
-  ' "$datafile")"
+  ')"
   [ $? -gt 0 ] && return
   [ "$cd" ] && cd "$cd"
  fi
@@ -208,12 +181,16 @@ _z() {
 
 alias ${_Z_CMD:-z}='_z 2>&1'
 
+[ "$_Z_NO_RESOLVE_SYMLINKS" ] || _Z_RESOLVE_SYMLINKS="-P"
+
 if complete &> /dev/null; then
  # bash tab completion
  complete -C '_z --complete "$COMP_LINE"' ${_Z_CMD:-z}
- # populate directory list. avoid clobbering other PROMPT_COMMANDs.
- echo $PROMPT_COMMAND | grep -q "_z --add"
- [ $? -gt 0 ] && PROMPT_COMMAND='_z --add "$(pwd -P 2>/dev/null)" 2>/dev/null;'"$PROMPT_COMMAND"
+ [ "$_Z_NO_PROMPT_COMMAND" ] || {
+  # populate directory list. avoid clobbering other PROMPT_COMMANDs.
+  echo $PROMPT_COMMAND | grep -q "_z --add"
+  [ $? -gt 0 ] && PROMPT_COMMAND='_z --add "$(pwd '$_Z_RESOLVE_SYMLINKS' 2>/dev/null)" 2>/dev/null;'"$PROMPT_COMMAND"
+ }
 elif compctl &> /dev/null; then
  # zsh tab completion
  _z_zsh_tab_completion() {

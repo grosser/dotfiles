@@ -2,7 +2,6 @@ source ~/dotfiles/bash/env.sh
 source ~/dotfiles/bash/alias.sh
 source ~/dotfiles/bash/settings.sh
 source ~/dotfiles/bash/misc.sh
-
 source ~/dotfiles/bash/z.sh # load before any promt modifications !
 source ~/dotfiles/bash/git_prompt.sh
 source ~/dotfiles/bash/git-completion.bash
