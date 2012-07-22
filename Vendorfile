@@ -1,1 +1,2 @@
 file "bash/z.sh", "https://raw.github.com/rupa/z/master/z.sh"
+file "bash/rake_cap_bash_autocomplete.sh", "https://raw.github.com/sgruhier/rake_cap_bash_autocomplete/master/rake_cap_bash_autocomplete.sh"
