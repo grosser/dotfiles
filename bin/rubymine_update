@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# update rubymine by grabbing the latest version from their website
 require 'rubygems'
 require 'rake'
 

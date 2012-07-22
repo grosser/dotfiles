@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# kill certain app if vpn fails
+# kill certain app if vpn fails for ubuntu
 # e.g. vpn-fuse BankNetwork 'pkill -f banking-client'
 NAME = ARGV[0] || raise('give me a name!')
 COMMAND = ARGV[1] || raise('give me a command')
