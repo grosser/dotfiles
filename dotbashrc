@@ -11,3 +11,4 @@ source ~/dotfiles/bash/rvm.sh
 source ~/dotfiles/bash/personal.sh
 
 complete -C ~/dotfiles/bash/rake_autocomplete.rb -o default rake
+complete -C ~/dotfiles/bash/tddium_autocomplete.rb -o default tddium
