@@ -6,7 +6,8 @@ source ~/dotfiles/bash/z.sh # load before any promt modifications !
 source ~/dotfiles/bash/git_prompt.sh
 source ~/dotfiles/bash/git-completion.bash
 source ~/dotfiles/bash/cap_thor_bash_autocomplete.sh
-complete -C ~/dotfiles/bash/rake_autocomplete.rb -o default rake
 source ~/dotfiles/bash/bundler-exec.sh
 source ~/dotfiles/bash/rvm.sh
 source ~/dotfiles/bash/personal.sh
+
+complete -C ~/dotfiles/bash/rake_autocomplete.rb -o default rake

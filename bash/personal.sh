@@ -10,6 +10,8 @@ alias r="rvm 1.9.3 exec ruco"
 alias skype-restart="killall -9 skype && video-skype"
 alias pmaster='current=`git branch 2> /dev/null | sed -e "/^[^*]/d" -e "s/* \(.*\)/\1/"` && git co master && git pull --rebase && (bundle check || bundle) && rake db:migrate db:test:prepare && git co db/*.sql && git co $current && git rebase master'
 alias t='testrbl'
+alias bo='EDITOR=mine bundle open'
+alias tdd='rm -rf .tddium && tddium run' # tddium messes up it's branch knowledge too often...
 
 function take(){
   mkdir $1;
