@@ -2,7 +2,7 @@
 if ARGV.size != 1
   $stderr.puts <<-TXT
     git-edit <commit>
-    git-edit --commit   # amends your changes to the commit and brings you back where you came from
+    git-edit --amend    # amends your changes to the commit and brings you back where you came from
     git-edit --continue # brings you back where you came from and keeps everything you did
     git-edit --abort    # screwed up -> get back out :)
   TXT
@@ -25,7 +25,7 @@ case command
 when  /^[a-f\d]+$/
   commit = command
   sh %Q{EDITOR="perl -pi -e 's,pick #{commit},edit #{commit},'" git rebase --interactive #{commit}^}
-when "--commit"
+when "--amend"
   sh "git commit -a --amend -C HEAD && git rebase --continue"
 when "--continue"
   sh "git rebase --continue"
