@@ -1,0 +1,36 @@
+#!/usr/bin/ruby
+if ARGV.size != 1
+  $stderr.puts <<-TXT
+    git-edit <commit>
+    git-edit --commit   # amends your changes to the commit and brings you back where you came from
+    git-edit --continue # brings you back where you came from and keeps everything you did
+    git-edit --abort    # screwed up -> get back out :)
+  TXT
+  edit 1
+end
+
+def sh(cmd)
+  puts cmd
+  IO.popen(cmd) do |pipe|
+    while str = pipe.gets
+      puts str
+    end
+  end
+  $?.success?
+end
+
+command = ARGV[0]
+
+case command
+when  /^[a-f\d]+$/
+  commit = command
+  sh %Q{EDITOR="perl -pi -e 's,pick #{commit},edit #{commit},'" git rebase --interactive #{commit}^}
+when "--commit"
+  sh "git commit -a --amend -C HEAD && git rebase --continue"
+when "--continue"
+  sh "git rebase --continue"
+when "--abort"
+  sh "git rebase --abort"
+else
+  raise "unknown command #{command}"
+end
