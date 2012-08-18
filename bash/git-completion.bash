@@ -1,5 +1,16 @@
 #!bash
 #
+#
+#
+#
+# HACKS:
+# 1:  added grep -v tddium to __git_refs line 580
+#     so branches from tddium that I cannot delete do not show up in autocomplete
+# 2:  added --continue to _git_cherry_pick line 1200 so it gets autocompleted
+#
+#
+#
+#
 # bash/zsh completion support for core Git.
 #
 # Copyright (C) 2006,2007 Shawn O. Pearce <spearce@spearce.org>
@@ -562,7 +573,7 @@ __git_refs ()
 			# but only output if the branch name is unique
 			local ref entry
 			git --git-dir="$dir" for-each-ref --shell --format="ref=%(refname:short)" \
-				"refs/remotes/" | \
+				"refs/remotes/" | grep -v tddium | \
 			while read -r entry; do
 				eval "$entry"
 				ref="${ref#*/}"
