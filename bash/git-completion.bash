@@ -1195,7 +1195,7 @@ _git_cherry_pick ()
 {
 	case "$cur" in
 	--*)
-		__gitcomp "--edit --no-commit"
+		__gitcomp "--edit --no-commit --continue"
 		;;
 	*)
 		__gitcomp_nl "$(__git_refs)"
