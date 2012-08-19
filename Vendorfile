@@ -5,7 +5,4 @@ file "bash/cap_thor_bash_autocomplete.sh", "https://raw.github.com/sgruhier/rake
   rewrite(path){ |content| content.sub(/_rakecomplete.*?^\}/m,"").sub(/.*rake.*/,"") }
 end
 
-file "bash/rake_autocomplete.rb", "https://raw.github.com/gist/1025439/rake_autocomplete_for_bash.rb" do |path|
-  # old rake version had a first line that this script tried to ignore
-  rewrite(path){ |content| content.sub('task_lines.split("\n")[1..-1]', 'task_lines.split("\n")') }
-end
+file "bash/rake_autocomplete.rb", "https://raw.github.com/gist/3395598/rake_autocomplete.rb"

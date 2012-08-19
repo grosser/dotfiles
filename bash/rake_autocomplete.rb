@@ -32,12 +32,5 @@ end
 tasks = task_lines.split("\n").collect {|line| line.split[1]}
 tasks = tasks.select {|t| /^#{Regexp.escape task_match}/ =~ t} if task_match
 
-# handle namespaces
-if task_match =~ /^([-\w:]+:)/
-  upto_last_colon = $1
-  after_match = $'
-  tasks = tasks.collect { |t| (t =~ /^#{Regexp.escape upto_last_colon}([-\w:]+)$/) ? "#{$1}" : t }
-end
-
 puts tasks
 exit 0
