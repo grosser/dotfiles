@@ -140,12 +140,11 @@ _z() {
      if( matches[i] && (!short || length(i) < length(short)) ) short = i
     }
     if( short == "/" ) return
-
-    # escape regex chars in right hand side
-    gsub(/[\(\[\|]/, "\\&", short)
-
-    # shortest match must be common to each match
-    for( i in matches ) if( matches[i] && i !~ short ) return
+    # shortest match must be common to each match. escape special characters in
+    # a copy when testing, so we can return the original.
+    clean_short = short
+    gsub(/[\(\)\[\]\|]/, "\\\\&", clean_short)
+    for( i in matches ) if( matches[i] && i !~ clean_short ) return
     return short
    }
    BEGIN { split(q, a, " ") }
@@ -185,7 +184,7 @@ alias ${_Z_CMD:-z}='_z 2>&1'
 
 if complete &> /dev/null; then
  # bash tab completion
- complete -C '_z --complete "$COMP_LINE"' ${_Z_CMD:-z}
+ complete -o filenames -C '_z --complete "$COMP_LINE"' ${_Z_CMD:-z}
  [ "$_Z_NO_PROMPT_COMMAND" ] || {
   # populate directory list. avoid clobbering other PROMPT_COMMANDs.
   echo $PROMPT_COMMAND | grep -q "_z --add"
