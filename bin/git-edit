@@ -23,7 +23,7 @@ command = ARGV[0]
 
 case command
 when  /^[a-f\d]+$/
-  commit = command
+  commit = command[0...7]
   sh %Q{EDITOR="perl -pi -e 's,pick #{commit},edit #{commit},'" git rebase --interactive #{commit}^}
 when "--amend"
   sh "git commit -a --amend -C HEAD && git rebase --continue"
