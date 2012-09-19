@@ -15,10 +15,12 @@
   amendm = commit -a --amend # amend with message
   rmuntracked = "!git ls-files --others --exclude-standard | xargs rm"
   l = log --pretty=format:'%h %an %Cred%ar %d %Cgreen%s'
-  rmb = !sh -c 'git branch -D $1 && git push origin :$1' - # remove branch from remote + local
+  rmb = !sh -c '(git branch -D $1 || test 1) && git push origin :$1' -
   adrc = "!git add . && git rebase --continue"
   unpushed = !"PROJ_BRANCH=$(git symbolic-ref HEAD | sed 's|refs/heads/||') && git log origin/$PROJ_BRANCH..HEAD"
   unpulled = !"PROJ_BRANCH=$(git symbolic-ref HEAD | sed 's|refs/heads/||') && git fetch && git log HEAD..origin/$PROJ_BRANCH"
+  clear = "!git reset .; git co .; git rmuntracked"
+  parent-update = "!git fetch parent && git rebase parent/master"
 
 [apply]
   whitespace = nowarn

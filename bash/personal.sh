@@ -11,7 +11,7 @@ alias pmaster='current=`git branch 2> /dev/null | sed -e "/^[^*]/d" -e "s/* \(.*
 alias t='testrbl'
 alias zt='zeus testrb'
 alias bo='EDITOR=mine bundle open'
-alias tdd='rm -rf .tddium && tddium run' # tddium messes up it's branch knowledge too often...
+alias tdd='date && rm -rf .tddium && tddium run' # tddium messes up it's branch knowledge too often...
 
 function take(){
   mkdir $1;
