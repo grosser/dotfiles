@@ -24,7 +24,11 @@ run-with-bundler()
     local command="$1"
     shift
     if bundler-installed && within-bundled-project; then
-        bundle exec $command "$@"
+        if [ $command == "ruby" ]; then
+          ruby -rbundler/setup "$@"
+        else
+          bundle exec $command "$@"
+        fi
     else
         $command "$@"
     fi
