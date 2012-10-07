@@ -23,9 +23,9 @@
   parent-update = "!git fetch parent && git rebase parent/master"
 
   # shortcuts so I get autocomlete
-  stached-switch = "!git-stached-switch"
-  edit = "!git-edit"
-  request = "!git-pull-request"
+  stached-switch = "!~/dotfiles/bin/git-stached-switch"
+  edit = "!~/dotfiles/bin/git-edit"
+  request = "!~/dotfiles/bin/git-pull-request"
 
 [apply]
   whitespace = nowarn
