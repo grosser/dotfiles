@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+remotes = `git remote -v`.split("\n")
+remote = remotes.detect{|l| l.start_with?("origin\t") }
+url = remote.split(" ")[1]
+repo = url.match(%r{([a-z\d]+/[a-z\d]+)\.git}i)[1]
+branch = `git rev-parse --abbrev-ref HEAD`.strip
+exec %Q{open "https://github.com/#{repo}/pull/new/#{branch}"}

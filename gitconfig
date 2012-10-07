@@ -22,6 +22,11 @@
   clear = "!git reset .; git co .; git rmuntracked"
   parent-update = "!git fetch parent && git rebase parent/master"
 
+  # shortcuts so I get autocomlete
+  stached-switch = "!git-stached-switch"
+  edit = "!git-edit"
+  request = "!git-pull-request"
+
 [apply]
   whitespace = nowarn
 
