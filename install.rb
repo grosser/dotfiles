@@ -55,7 +55,7 @@ if File.exist?(gitconfig)
   `mv #{gitconfig} #{backup}/.gitconfig`
 end
 
-new = File.read("#{dotfiles}/gitconfig").gsub('$HOME', home)
+new = File.read("#{dotfiles}/gitconfig").gsub('%{HOME}', home)
 File.open(gitconfig,'w'){|f| f.write "#{credentials}#{new}" }
 
 puts "Everything done!!"

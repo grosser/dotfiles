@@ -54,7 +54,7 @@
 
 
 [core]
-  excludesfile = $HOME/.gitignore
+  excludesfile = %{HOME}/.gitignore
 
 [push]
   default = current
