@@ -12,7 +12,7 @@ alias t='testrbl'
 alias zt='zeus testrb'
 alias bo='EDITOR=mine bundle open'
 alias go='EDITOR=mine gem open'
-alias tdd='date && rm -rf .tddium && tddium run' # tddium messes up it's branch knowledge too often...
+alias tdd='date && tddium run'
 
 function take(){
   mkdir $1;
