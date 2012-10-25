@@ -4,3 +4,11 @@ file "bash/cap_thor_bash_autocomplete.sh", "https://raw.github.com/sgruhier/rake
 end
 
 file "bash/rake_autocomplete.rb", "https://raw.github.com/gist/3395598/rake_autocomplete.rb"
+file "bin/sshb", "https://raw.github.com/kpumuk/dotfiles/master/bash/bin/sshb" do |file|
+  rewrite(file) do |content|
+    content.
+      sub('-font "$FONT"', '-family "Georgia"').
+      sub('BG_COLOR="#000000"', 'BG_COLOR="#FFFFFF"')
+  end
+end
+
