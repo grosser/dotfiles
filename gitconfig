@@ -3,7 +3,7 @@
   cim = commit -m
   ciam = commit -am
   co = checkout
-  st = status
+  st = status -sb
   br = branch
   diffc = diff --cached
   pl = pull
@@ -21,6 +21,8 @@
   unpulled = !"PROJ_BRANCH=$(git symbolic-ref HEAD | sed 's|refs/heads/||') && git fetch && git log HEAD..origin/$PROJ_BRANCH"
   clear = "!git reset .; git co .; git rmuntracked"
   parent-update = "!git fetch parent && git rebase parent/master"
+  consume = !sh -c 'git cherry-pick $1 && git rmb $1' -
+  count = shortlog -sn
 
   # shortcuts so I get autocomlete
   stached-switch = "!~/dotfiles/bin/git-stached-switch"
