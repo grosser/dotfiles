@@ -7,6 +7,7 @@ alias r="rvm 1.9.3 exec ruco"
 alias t='testrbl'
 alias zt='zeus testrb'
 alias bo='EDITOR=mine bundle open'
+alias bu='bundle update'
 alias go='EDITOR=mine gem open'
 alias tdd='date && tddium run'
 
