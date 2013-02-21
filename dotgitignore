@@ -17,3 +17,5 @@ tmp
 log
 .DS_Store
 .sass-cache
+.vagrant
+dump.rdb

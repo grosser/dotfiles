@@ -10,6 +10,8 @@ alias bo='EDITOR=mine bundle open'
 alias bu='bundle update'
 alias go='EDITOR=mine gem open'
 alias tdd='date && tddium run'
+alias global-off='sudo mv /Applications/GlobalProtect{,OFF}.app && pkill -9 -f GlobalProtect'
+alias global-on='sudo mv /Applications/GlobalProtect{OFF,}.app'
 
 function take(){
   mkdir $1;
