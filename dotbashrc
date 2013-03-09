@@ -1,11 +1,12 @@
 source ~/dotfiles/bash/env.sh
 source ~/dotfiles/bash/alias.sh
 source ~/dotfiles/bash/git_prompt.sh
-source ~/dotfiles/bash/git-completion.bash
-source ~/dotfiles/bash/cap_thor_bash_autocomplete.sh
+source ~/dotfiles/bash/git-autocomplete.bash
+source ~/dotfiles/bash/cap-thor-bash-autocomplete.sh
+source ~/dotfiles/bash/vagrant-autocomplete.sh
 source ~/dotfiles/bash/bundler-exec.sh
 source ~/dotfiles/bash/rvm.sh
 source ~/dotfiles/bash/personal.sh
 
-complete -C ~/dotfiles/bash/rake_autocomplete.rb -o default rake
+complete -C ~/dotfiles/bash/rake-autocomplete.rb -o default rake
 complete -C ~/dotfiles/bash/tddium_autocomplete.rb -o default tddium

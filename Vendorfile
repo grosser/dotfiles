@@ -4,6 +4,7 @@ file "bash/cap-thor-bash-autocomplete.sh", "https://raw.github.com/sgruhier/rake
 end
 
 file "bash/rake-autocomplete.rb", "https://raw.github.com/gist/3395598/rake_autocomplete.rb"
+file "bash/vagrant-autocomplete.sh", "https://raw.github.com/kura/vagrant-bash-completion/master/vagrant"
 file "bin/sshb", "https://raw.github.com/kpumuk/dotfiles/master/bash/bin/sshb" do |file|
   rewrite(file) do |content|
     content.
