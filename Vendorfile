@@ -1,9 +1,9 @@
-file "bash/cap_thor_bash_autocomplete.sh", "https://raw.github.com/sgruhier/rake_cap_bash_autocomplete/master/rake_cap_bash_autocomplete.sh" do |path|
+file "bash/cap-thor-bash-autocomplete.sh", "https://raw.github.com/sgruhier/rake_cap_bash_autocomplete/master/rake_cap_bash_autocomplete.sh" do |path|
   # remove rake autocomplete
   rewrite(path){ |content| content.sub(/_rakecomplete.*?^\}/m,"").sub(/.*rake.*/,"") }
 end
 
-file "bash/rake_autocomplete.rb", "https://raw.github.com/gist/3395598/rake_autocomplete.rb"
+file "bash/rake-autocomplete.rb", "https://raw.github.com/gist/3395598/rake_autocomplete.rb"
 file "bin/sshb", "https://raw.github.com/kpumuk/dotfiles/master/bash/bin/sshb" do |file|
   rewrite(file) do |content|
     content.
