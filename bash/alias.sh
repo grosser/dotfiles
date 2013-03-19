@@ -5,6 +5,7 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias cdd="cd -" #go to last used directory
 alias l="ls -lah" #ls all+long+humanized filesizes
+alias shutdown-vms="VBoxManage list vms | cut -f 1 -d ' ' | xargs -I NAME sh -c 'VBoxManage controlvm NAME poweroff ; VBoxManage unregistervm NAME'"
 f(){ find -name "*$1*"; }
 
 #Ubuntu
