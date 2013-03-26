@@ -24,6 +24,7 @@
   consume = !sh -c 'git cherry-pick $1 && git rmb $1' -
   count = shortlog -sn
   amend-to = !sh -c 'git stash && git edit $1 && git stash pop && git edit --amend' -
+  rprune = remote prune origin
 
   # shortcuts so I get autocomlete
   stached-switch = "!~/dotfiles/bin/git-stached-switch"
