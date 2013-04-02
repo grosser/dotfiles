@@ -25,6 +25,7 @@
   count = shortlog -sn
   amend-to = !sh -c 'git stash && git edit $1 && git stash pop && git edit --amend' -
   rprune = remote prune origin
+  reduce-to-subfolder = !sh -c 'git filter-branch --tag-name-filter cat --prune-empty --subdirectory-filter $1 HEAD && git reset --hard && git for-each-ref refs/original/ | cut -f 2 | xargs -n 1 git update-ref -d && git reflog expire --expire=now --all && git gc --aggressive --prune=now && git remote rm origin' -
 
   # shortcuts so I get autocomlete
   stached-switch = "!~/dotfiles/bin/git-stached-switch"
