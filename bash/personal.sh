@@ -5,6 +5,8 @@ alias wruby="`which ruby`" # ruby without bundler
 alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/helpers" # pry as rails console, without pry as dependency
 alias r="rvm 1.9.3 exec ruco"
 alias t='testrbl'
+alias r3t='BUNDLE_GEMFILE=Gemfile.rails3 t'
+alias r3b='BUNDLE_GEMFILE=Gemfile.rails3 bundle'
 alias zt='zeus testrb'
 alias bo='EDITOR=mine bundle open'
 alias bu='bundle update'
