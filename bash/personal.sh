@@ -34,6 +34,6 @@ function zd {
   ~/.zendesk/"${1}" "${2}"
 }
 
-eval "$(/Users/mgrosser/code/zendesk/z/bin/z init -)"
+eval "$(~/code/zendesk/z/bin/z init -)"
 
 PATH="$HOME/.zendesk/bin:$HOME/.zendesk/sbin:$PATH"
