@@ -23,3 +23,4 @@ alias ttr="touch tmp/restart.txt"
 # RUBY
 alias be="bundle exec"
 alias b="bundle check 2>&1 > /dev/null || { bundle --quiet || bundle check > /dev/null; }"
+alias bl="bundle --local"
