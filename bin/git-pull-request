@@ -11,4 +11,4 @@ unless system("git show origin/#{branch} 2>&1 > /dev/null")
   `git push -u origin #{branch}`
 end
 
-exec %Q{open "https://github.com/#{repo}/compare/master...#{branch}?expand=1"}
+exec %Q{open "https://github.com/#{repo}/compare/#{branch}?expand=1"}
