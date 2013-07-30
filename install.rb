@@ -26,7 +26,7 @@ dotfiles = File.expand_path(File.dirname(__FILE__))
 home = File.expand_path('~')
 
 expected = "#{home}/dotfiles"
-raise "dotfiles must be checked out as #{expected}" if expected != dotfiles
+#raise "dotfiles must be checked out as #{expected}" if expected != dotfiles
 
 # create backup folder
 backup = "#{home}/dotfiles_backup_#{Time.now.strftime('%Y-%m-%dT%H:%M:%S')}"
