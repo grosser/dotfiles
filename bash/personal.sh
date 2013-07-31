@@ -14,6 +14,8 @@ alias go='EDITOR=mine gem open'
 alias tdd='date && tddium run | tee /tmp/tdd.log'
 alias global-off='sudo mv /Applications/GlobalProtect{,OFF}.app && pkill -9 -f GlobalProtect'
 alias global-on='sudo mv /Applications/GlobalProtect{OFF,}.app'
+alias casper-off='sudo mv /usr/sbin/jamfAgent{,-off} && sudo mv /usr/sbin/jamf{,-off} && sudo pkill -9 jamf'
+alias casper-on='sudo mv /usr/sbin/jamfAgent{-off,} && sudo mv /usr/sbin/jamf{-off,}'
 
 function take(){
   mkdir $1;
