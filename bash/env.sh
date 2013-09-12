@@ -12,5 +12,5 @@ export HISTSIZE=1000000 #size of history
 export HISTCONTROL=ignorespace:ignoredups # ignore dulicates, cmds beginning with space
 
 #in case-sensitive autocompletion
-bind 'set completion-ignore-case on'
+tty -s && bind 'set completion-ignore-case on'
 
