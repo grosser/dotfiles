@@ -20,3 +20,4 @@ log
 .vagrant
 dump.rdb
 .rspec
+vendor/bundle

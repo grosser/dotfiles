@@ -39,4 +39,4 @@ function zd {
 
 eval "$(~/code/zendesk/z/bin/z init -)"
 
-PATH="$HOME/.zendesk/bin:$HOME/.zendesk/sbin:$PATH"
+PATH="$HOME/.zendesk/bin:$HOME/.zendesk/sbin:$HOME/Applications/eclipse-adt/sdk/tools:$HOME/Applications/eclipse-adt/sdk/platform-tools/:$PATH"
