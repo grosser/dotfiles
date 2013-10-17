@@ -5,8 +5,11 @@ source ~/dotfiles/bash/git-autocomplete.bash
 source ~/dotfiles/bash/cap-thor-bash-autocomplete.sh
 source ~/dotfiles/bash/vagrant-autocomplete.sh
 source ~/dotfiles/bash/bundler-exec.sh
+<<<<<<< HEAD
 source /opt/boxen/env.sh >/dev/null 2>&1
 source ~/.rvm/scripts/rvm >/dev/null 2>&1
+[ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
+eval "$(rbenv init -)"
 source ~/dotfiles/bash/personal.sh
 
 complete -C ~/dotfiles/bash/rake-autocomplete.rb -o default rake
