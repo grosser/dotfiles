@@ -33,10 +33,4 @@ export RUBY_HEAP_SLOTS_GROWTH_FACTOR=1
 export RUBY_GC_MALLOC_LIMIT=1000000000
 export RUBY_HEAP_FREE_MIN=500000
 
-function zd {
-  ~/.zendesk/"${1}" "${2}"
-}
-
-eval "$(~/code/zendesk/z/bin/z init -)"
-
-PATH="$HOME/.zendesk/bin:$HOME/.zendesk/sbin:$HOME/Applications/eclipse-adt/sdk/tools:$HOME/Applications/eclipse-adt/sdk/platform-tools/:$PATH"
+PATH="$HOME/Applications/eclipse-adt/sdk/tools:$HOME/Applications/eclipse-adt/sdk/platform-tools/:$PATH"

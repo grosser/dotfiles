@@ -5,6 +5,7 @@ source ~/dotfiles/bash/git-autocomplete.bash
 source ~/dotfiles/bash/cap-thor-bash-autocomplete.sh
 source ~/dotfiles/bash/vagrant-autocomplete.sh
 source ~/dotfiles/bash/bundler-exec.sh
+[ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
 if [ -f ~/.rvm ]; then
   source "$HOME/.rvm/scripts/rvm"
 else
