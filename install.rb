@@ -44,4 +44,7 @@ if File.exist?(gitconfig) && !File.read(gitconfig).include?("[include]")
   File.open(gitconfig, "a+") { |f| f.write "\n\n[include]\n  path=#{dotfiles}/gitconfig\n" }
 end
 
+# install local gems
+`cd #{dotfiles} && bundle --binstubs --path vendor/bundle`
+
 puts "Everything done!!"
