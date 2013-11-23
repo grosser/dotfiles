@@ -33,4 +33,4 @@ export RUBY_HEAP_SLOTS_GROWTH_FACTOR=1
 export RUBY_GC_MALLOC_LIMIT=1000000000
 export RUBY_HEAP_FREE_MIN=500000
 
-PATH="$HOME/Applications/eclipse-adt/sdk/tools:$HOME/Applications/eclipse-adt/sdk/platform-tools/:$PATH"
+PATH="/Applications/eclipse-adt/sdk/tools:/Applications/eclipse-adt/sdk/platform-tools/:$PATH"
