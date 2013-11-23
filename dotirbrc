@@ -1,14 +1,26 @@
-require 'rubygems'
+def require_without_bundler(gem, file)
+  return require(file) unless defined?(::Bundler)
+  if gem_path = Dir.glob("{#{Gem.path.join(',')}}/gems/#{gem}*").first
+    $LOAD_PATH << "#{gem_path}/lib"
+    require file
+  else
+    raise LoadError, "Gem #{gem} not found via require_without_bundler"
+  end
+end
 
 begin
-  #nice history and color
-  gem 'blackwinter-wirble' # blackwinter branch has history_uniq fixes
-  require 'wirble'
+  # nice history and color
+  require_without_bundler 'blackwinter-wirble', 'wirble' # blackwinter branch has history_uniq fixes
   Wirble::History::DEFAULTS[:history_uniq] = 'reverse'
 
   Wirble.init
   Wirble.colorize
 rescue LoadError => e
+  # No wirble use defaults to get at least history
+  require 'irb/ext/save-history'
+  IRB.conf[:USE_READLINE] = true
+  IRB.conf[:SAVE_HISTORY] = 10000
+  IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.irb-save-history"
 end
 
 
