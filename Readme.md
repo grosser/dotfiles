@@ -9,16 +9,18 @@ Manual Install
 --------------
 Symlink the files you want to use e.g.
 
-    cd ~ && ln -s dotfiles/rspec .rspec
+```Bash
+cd ~ && ln -s dotfiles/rspec .rspec
+```
 
 Automatic install
 -----------------
 
-    cd ~ && ruby dotfiles/install.rb
+```Bash
+curl -L https://raw.github.com/grosser/dotfiles/master/autoload.sh | bash -s master
+```
 
-For OSx: `ln -s .bashrc .bash_login`
-
-install.rb will:
+it runs `install.rb` which will:
 
  - *make a backup of all the files it changes* to ~/dotfiles_backup_TIMESTAMP
  - replaces .file through links to dotfiles/file for .bashrc .gitignore .irbrc .rspec
