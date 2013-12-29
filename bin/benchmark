@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+require 'benchmark'
+
+runs = ARGV[0].to_i
+
+times = Array.new(runs).each_with_index.map do |_, i|
+  t = Benchmark.realtime { system(*ARGV[1..-1]) }
+  puts "run #{(i+1).to_s.rjust(3)}: #{t.round(2)} #{"FAILURE " unless $?.success?}"
+  t
+end
+
+sum = times.inject(:+)
+
+puts "\nruns: #{runs}\ntotal: #{sum.round(2)}\naverage: #{(sum / runs).round(2)}\nrange: #{times.min.round(2)}..#{times.max.round(2)}"
