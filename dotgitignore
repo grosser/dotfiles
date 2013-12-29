@@ -21,3 +21,4 @@ log
 dump.rdb
 .rspec
 vendor/bundle
+vendor/cache/ruby
