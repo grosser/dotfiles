@@ -9,6 +9,7 @@ alias shutdown-vms="VBoxManage list vms | cut -f 1 -d ' ' | xargs -I NAME sh -c 
 alias reberks="rm -f Berksfile.lock && berks"
 
 f(){ find . -iname "*$1*"; }
+bul(){ bundle update "$1" --local && bundle package; } # need the package until https://github.com/bundler/bundler/issues/2791 is fixed
 
 #Ubuntu
 # alias install="sudo apt-get install"
