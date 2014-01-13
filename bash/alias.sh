@@ -9,7 +9,6 @@ alias shutdown-vms="VBoxManage list vms | cut -f 1 -d ' ' | xargs -I NAME sh -c 
 alias reberks="rm -f Berksfile.lock && berks"
 
 f(){ find . -iname "*$1*"; }
-bul(){ bundle update "$1" --local && bundle package; } # need the package until https://github.com/bundler/bundler/issues/2791 is fixed
 
 #Ubuntu
 # alias install="sudo apt-get install"
@@ -26,3 +25,4 @@ alias ttr="touch tmp/restart.txt"
 alias be="bundle exec"
 alias b="bundle check 2>&1 > /dev/null || { ((test -f vendor/cache && bundle --local --quiet) || bundle --quiet) || bundle check > /dev/null; }"
 alias bl="bundle --local --quiet"
+alias bul="bundle update --local"
