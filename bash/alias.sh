@@ -10,6 +10,10 @@ alias reberks="rm -f Berksfile.lock && berks"
 
 f(){ find . -iname "*$1*"; }
 
+function git-find-merge() {
+  git rev-list $1..master --ancestry-path | grep -f <(git rev-list $1..master --first-parent) | tail -1
+}
+
 #Ubuntu
 # alias install="sudo apt-get install"
 # alias remove="sudo apt-get remove"

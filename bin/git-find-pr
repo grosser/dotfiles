@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+commit = `git-find-merge #{$1}`.strip
+raise "Could not find merge" unless $?.success?
+
+pr = `git show #{commit}`[/Merge pull request #(\d+)/, 1]
+raise "Could not find pr" unless pr
+
+remotes = `git remote -v`.split("\n")
+remote = remotes.detect{|l| l.start_with?("origin\t") }
+url = remote.split(" ")[1]
+repo = url[%r{(\w+/[-\w\.]+)}i, 1].to_s.sub(/\.git$/, "")
+exec %Q{open "https://github.com/#{repo}/pull/#{pr}"}
+

@@ -1,0 +1,2 @@
+#!/bin/bash
+git rev-list $1..master --ancestry-path | grep -f <(git rev-list $1..master --first-parent) | tail -1
