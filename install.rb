@@ -1,16 +1,6 @@
 #!/usr/bin/env ruby
 # backup files and replace
 
-def extract_sections(file, sections)
-  copy = false
-  config = File.read(file).split("\n")
-  config.map do |line|
-    copy = false if line =~ /^\[/
-    copy = true if sections.include? line.strip
-    line if copy
-  end.compact.reject(&:empty?) * "\n"
-end
-
 def backup_and_replace(dotfile, home, backup)
   # dotxxx -> home/.xxx
   if File.basename(dotfile) =~ /^dot/
@@ -48,14 +38,10 @@ Dir["#{dotfiles}/*", "#{dotfiles}/secret/*"].each do |dotfile|
 end
 
 # gitconfig
-# merge credentials from old gitconfig with new
+# add include
 gitconfig = "#{home}/.gitconfig"
-if File.exist?(gitconfig)
-  credentials = extract_sections(gitconfig, ['[github]', '[user]']) + "\n\n"
-  `mv #{gitconfig} #{backup}/.gitconfig`
+if File.exist?(gitconfig) && !File.read(gitconfig).include?("[include]")
+  File.open(gitconfig, "a+") { |f| f.write "\n\n[include]\n  path=#{dotfiles}/gitconfig\n" }
 end
-
-new = File.read("#{dotfiles}/gitconfig").gsub('%{HOME}', home)
-File.open(gitconfig,'w'){|f| f.write "#{credentials}#{new}" }
 
 puts "Everything done!!"
