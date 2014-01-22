@@ -2,7 +2,7 @@
 # open github page for given gem
 
 require 'open-uri'
-raise "give me a sha" if ARGV.size != 1
+raise "give me a gem name" if ARGV.size != 1
 
 gem = ARGV[0]
 json = open("https://rubygems.org/api/v1/gems/#{gem}.json").read
