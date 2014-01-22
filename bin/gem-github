@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+# open github page for given gem
+
+require 'open-uri'
+raise "give me a sha" if ARGV.size != 1
+
+gem = ARGV[0]
+json = open("https://rubygems.org/api/v1/gems/#{gem}.json").read
+uri = json[/[^"]+github.com[^"]+/]
+
+unless uri
+  puts "Did not find homepage for #{gem}"
+  uri = "https://rubygems.org/gems/#{gem}"
+end
+
+exec "open #{uri}"
