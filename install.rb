@@ -45,6 +45,6 @@ if File.exist?(gitconfig) && !File.read(gitconfig).include?("[include]")
 end
 
 # install local gems
-`cd #{dotfiles} && bundle --binstubs --path vendor/bundle`
+`cd #{dotfiles}/gems && RBENV_VERSION=2.0.0 bundle --binstubs --path vendor/bundle`
 
 puts "Everything done!!"

@@ -2,7 +2,7 @@
 remotes = `git remote -v`.split("\n")
 remote = remotes.detect{|l| l.start_with?("origin\t") }
 url = remote.split(" ")[1]
-repo = url[%r{(\w+/[-\w\.]+)}i, 1].to_s.sub(/\.git$/, "")
+repo = url.split("://").last.split(%r{[/:]}, 2).last.sub(".git", "")
 branch = `git rev-parse --abbrev-ref HEAD`.strip
 
 # push branch if it is not yet on origin

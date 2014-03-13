@@ -2,6 +2,7 @@
 require 'benchmark'
 
 runs = ARGV[0].to_i
+raise "Usage: times command" if runs == 0
 
 times = Array.new(runs).each_with_index.map do |_, i|
   t = Benchmark.realtime { system(*ARGV[1..-1]) }

@@ -11,7 +11,7 @@ alias zt='zeus testrb'
 alias bo='EDITOR=mine bundle open'
 alias bu='bundle update'
 alias go='EDITOR=mine gem open'
-alias tdd='date && tddium run'
+alias tdd='date && tddium run --quiet'
 alias global-off='sudo mv /Applications/GlobalProtect{,OFF}.app && pkill -9 -f GlobalProtect'
 alias global-on='sudo mv /Applications/GlobalProtect{OFF,}.app'
 alias casper-off='sudo mv /usr/sbin/jamfAgent{,-off} && sudo mv /usr/sbin/jamf{,-off} && sudo pkill -9 jamf'
@@ -34,4 +34,4 @@ export RUBY_HEAP_SLOTS_GROWTH_FACTOR=1
 export RUBY_GC_MALLOC_LIMIT=1000000000
 export RUBY_HEAP_FREE_MIN=500000
 
-export PATH="~/dotfiles/gems/bin:$PATH"
+export PATH="$HOME/dotfiles/gems/bin:$PATH"
