@@ -35,8 +35,7 @@
   stached-switch = "!~/dotfiles/bin/git-stached-switch"
   edit = "!~/dotfiles/bin/git-edit"
   request = "!~/dotfiles/bin/git-pull-request"
-  find-merge = "!~/dotfiles/bin/git-find-merge"
-  find-pr = "!~/dotfiles/bin/git-find-pr"
+  whence = "!git-whence"
 
 [apply]
   whitespace = nowarn
