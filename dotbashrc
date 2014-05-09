@@ -11,3 +11,6 @@ source ~/dotfiles/bash/personal.sh
 
 complete -C ~/dotfiles/bash/rake-autocomplete.rb -o default rake
 complete -C ~/dotfiles/bash/tddium_autocomplete.rb -o default tddium
+
+# added by travis gem
+[ -f /Users/mgrosser/.travis/travis.sh ] && source /Users/mgrosser/.travis/travis.sh
