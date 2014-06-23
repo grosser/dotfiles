@@ -13,4 +13,4 @@ export HISTCONTROL=ignorespace:ignoredups # ignore dulicates, cmds beginning wit
 
 #in case-sensitive autocompletion
 tty -s && bind 'set completion-ignore-case on'
-
+rbenv shell 2.1.2
