@@ -9,7 +9,7 @@ def available_tasks
   task_lines = `tddium --help`.split("\n")
   inside_tasks = false
   task_lines.map do |line|
-    inside_tasks = true and next if line == "Tasks:"
+    inside_tasks = true and next if line == "Commands:"
     inside_tasks = false and next if inside_tasks and line =~ /^\S/
     line.strip.split(/\s+/)[1] if inside_tasks
   end.compact
@@ -30,5 +30,5 @@ end
 exit 0 unless /^tddium\b/ =~ ENV["COMP_LINE"]
 
 require "tddium/version"
-tasks = cache("~/.autocomplete-cache/tddium-#{TddiumVersion::VERSION}"){ available_tasks }
+tasks = cache("~/.autocomplete-cache/tddium-#{Tddium::VERSION}"){ available_tasks }
 puts tasks.grep(/^#{$'.strip}/)
