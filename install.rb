@@ -37,14 +37,6 @@ Dir["#{dotfiles}/*", "#{dotfiles}/secret/*"].each do |dotfile|
   backup_and_replace(dotfile, home, backup)
 end
 
-# gitconfig
-# add include
-gitconfig = "#{home}/.gitconfig"
-File.write(gitconfig, "") unless File.exist?(gitconfig)
-if !File.read(gitconfig).include?("[include]")
-  File.open(gitconfig, "a+") { |f| f.write "\n\n[include]\n  path=#{dotfiles}/gitconfig\n" }
-end
-
 # install local gems
 `cd #{dotfiles}/gems && RBENV_VERSION=2.0.0 bundle --binstubs --path vendor/bundle`
 
