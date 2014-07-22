@@ -31,7 +31,8 @@ end
 
 def add_include_to_gitconfig(dotfiles)
   gitconfig = ".gitconfig"
-  if File.exist?(gitconfig) && !File.read(gitconfig).include?("[include]")
+  File.write(gitconfig, "") unless File.exist?(gitconfig)
+  if !File.read(gitconfig).include?("[include]")
     File.open(gitconfig, "a+") { |f| f.write "\n\n[include]\n  path=#{dotfiles}/gitconfig\n" }
   end
 end
