@@ -11,7 +11,7 @@
   ps = push
   pls = "!git pull && git push"
   pick = cherry-pick
-  pick-all = !sh -c 'git co staging && git pull && git pick $1 $2 && git pls && git co production && git pull && git pick $1 $2 && git pls && git co master' -
+  pick-all = !sh -c '(git show $1 2>&1 > /dev/null || (git fetch origin && git show $1 2>&1 > /dev/null)) && git co staging && git pull && git pick $1 $2 && git pls && git co production && git pull && git pick $1 $2 && git pls && git co master' -
   uncommit = reset --soft HEAD^
   amend = commit -a --amend -C HEAD
   amendm = commit -a --amend # amend with message
@@ -28,15 +28,14 @@
   consume = !sh -c 'git cherry-pick $1 && git rmb $1' -
   count = shortlog -sn
   amend-to = !sh -c 'git stash && git edit $1 && git stash pop && git edit --amend' -
-  rprune = remote prune origin
+  rprune = !git remote prune origin > /dev/null
   reduce-to-subfolder = !sh -c 'git filter-branch --tag-name-filter cat --prune-empty --subdirectory-filter $1 HEAD && git reset --hard && git for-each-ref refs/original/ | cut -f 2 | xargs -n 1 git update-ref -d && git reflog expire --expire=now --all && git gc --aggressive --prune=now && git remote rm origin' -
 
   # shortcuts so I get autocomlete
   stached-switch = "!~/dotfiles/bin/git-stached-switch"
   edit = "!~/dotfiles/bin/git-edit"
   request = "!~/dotfiles/bin/git-pull-request"
-  find-merge = "!~/dotfiles/bin/git-find-merge"
-  find-pr = "!~/dotfiles/bin/git-find-pr"
+  whence = "!git-whence"
 
 [apply]
   whitespace = nowarn
