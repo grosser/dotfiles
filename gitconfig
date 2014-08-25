@@ -2,6 +2,7 @@
   ci = commit
   cim = commit -m
   ciam = commit -am
+  ciaam = "!git add -A && git ciam"
   co = checkout
   cod = checkout -
   st = status -sb
@@ -62,9 +63,9 @@
 [pager]
   color = true
 
-
 [core]
   excludesfile = ~/.gitignore
+  pager = less -S
 
 [push]
   default = current
