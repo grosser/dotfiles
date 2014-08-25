@@ -14,3 +14,6 @@ complete -C ~/dotfiles/bash/tddium_autocomplete.rb -o default tddium
 
 # added by travis gem
 [ -f /Users/mgrosser/.travis/travis.sh ] && source /Users/mgrosser/.travis/travis.sh
+
+### Added by the Heroku Toolbelt
+export PATH="/usr/local/heroku/bin:$PATH"
