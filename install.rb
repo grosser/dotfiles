@@ -66,6 +66,6 @@ move_file_to_backup(".zshrc", backup)
 add_include_to_gitconfig(dotfiles)
 
 # install local gems
-`cd #{dotfiles}/gems && RBENV_VERSION=2.0.0 bundle`
+`cd #{dotfiles}/gems && RBENV_VERSION=2.1.2 bundle`
 
 puts "Everything done!!"
