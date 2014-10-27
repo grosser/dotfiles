@@ -1,5 +1,5 @@
 #Stuff that no-one else need, add and modify here to keep forks clean
-alias m="mine . > /dev/null 2>&1 &"
+alias m='mine $(pwd) > /dev/null 2>&1 &'
 alias wrake="`which rake`" # rake without bundler
 alias wruby="`which ruby`" # ruby without bundler
 alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/helpers" # pry as rails console, without pry as dependency
