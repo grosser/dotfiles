@@ -3,14 +3,14 @@ alias m='mine $(pwd) > /dev/null 2>&1 &'
 alias wrake="`which rake`" # rake without bundler
 alias wruby="`which ruby`" # ruby without bundler
 alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/helpers" # pry as rails console, without pry as dependency
-alias r="(which rvm && rvm 2.0.0 exec ruco) || RBENV_VERSION=2.0.0 ruco"
+alias r="(which rvm && rvm 2.0.0 exec ruco) || RBENV_VERSION=2.1.5 ruco"
 alias t='testrbl'
 alias r3t='BUNDLE_GEMFILE=Gemfile.rails3 t'
 alias r3b='BUNDLE_GEMFILE=Gemfile.rails3 bundle'
 alias zt='zeus testrb'
-alias bo='EDITOR=mine bundle open'
+alias bo='bundle open'
 alias bu='bundle update'
-alias go='EDITOR=mine gem open'
+alias go='gem open'
 alias tdd='date && tddium run --quiet'
 alias tds='tddium status'
 alias global-off='sudo mv /Applications/GlobalProtect{,OFF}.app && pkill -9 -f GlobalProtect'
@@ -26,6 +26,9 @@ function take(){
 function pdf-decrypt(){
   qpdf --decrypt $1 $1.tmp && mv -f $1.tmp $1
 }
+
+export BUNDLER_EDITOR=mine
+export GEM_EDITOR=mine
 
 # Big app GC tuning
 export RUBY_HEAP_MIN_SLOTS=1000000 # ruby < 2.1
