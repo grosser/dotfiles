@@ -38,4 +38,5 @@ export RUBY_GC_MALLOC_LIMIT=1000000000
 export RUBY_HEAP_FREE_MIN=500000
 
 export DOCKER_HOST=tcp://192.168.42.45:2375
-PATH="/Applications/eclipse-adt/sdk/tools:/Applications/eclipse-adt/sdk/platform-tools/:$PATH"
+export GOPATH=$HOME/Code/go
+PATH="/Applications/eclipse-adt/sdk/tools:/Applications/eclipse-adt/sdk/platform-tools/:$GOPATH/bin:$PATH"

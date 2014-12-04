@@ -22,3 +22,4 @@ dump.rdb
 .rspec
 vendor/bundle
 vendor/cache/ruby
+.vendor
