@@ -16,7 +16,7 @@
   uncommit = reset --soft HEAD^
   amend = commit -a --amend -C HEAD
   amendm = commit -a --amend # amend with message
-  rmuntracked = "!git ls-files --others --exclude-standard | xargs rm"
+  rmuntracked = clean -df
   l = log --pretty=format:'%h %an %Cred%ar %d %Cgreen%s'
   rmb = !sh -c '(git branch -D $1 >/dev/null 2>&1 || true) && (git push origin :$1 >/dev/null 2>&1 || true) && rm .git/refs/remotes/origin/$1 >/dev/null 2>&1' - # using semiconol -> syntax error :/
   adrc = "!git add . && git rebase --continue"
@@ -24,7 +24,7 @@
   rbm = "!git checkout master && git pull && git co - && git rebase master"
   unpushed = !"PROJ_BRANCH=$(git symbolic-ref HEAD | sed 's|refs/heads/||') && git log origin/$PROJ_BRANCH..HEAD"
   unpulled = !"PROJ_BRANCH=$(git symbolic-ref HEAD | sed 's|refs/heads/||') && git fetch && git log HEAD..origin/$PROJ_BRANCH"
-  clear = "!git reset .; git co .; git rmuntracked"
+  clear = "!git reset .; git co .; git clean -df"
   parent-update = "!git fetch parent && git rebase parent/master"
   consume = !sh -c 'git cherry-pick $1 && git rmb $1' -
   count = shortlog -sn
