@@ -1,3 +1,4 @@
+# see: vendorer -h
 file "bash/cap-thor-bash-autocomplete.sh", "https://raw.github.com/sgruhier/rake_cap_bash_autocomplete/master/rake_cap_bash_autocomplete.sh" do |path|
   # remove rake autocomplete
   rewrite(path){ |content| content.sub(/_rakecomplete.*?^\}/m,"").sub(/.*rake.*/,"") }
@@ -13,3 +14,8 @@ file "bin/sshb", "https://raw.github.com/kpumuk/dotfiles/master/bash/bin/sshb" d
   end
 end
 
+["pru", "testrbl", "git-whence", "git-autobisect", "vendorer"].each do |gem|
+  file "bin/#{gem}", "http://rubinjam.herokuapp.com/pack/#{gem}" do |path|
+    `chmod +x #{path}`
+  end
+end
