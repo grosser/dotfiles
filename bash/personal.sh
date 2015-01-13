@@ -10,9 +10,10 @@ alias r3b='BUNDLE_GEMFILE=Gemfile.rails3 bundle'
 alias zt='zeus testrb'
 alias bo='bundle open'
 alias bu='bundle update'
+alias bp='bundle package --quiet'
 alias tdd='date && tddium run --quiet'
 alias tds='tddium status'
-alias global-off='sudo mv /Applications/GlobalProtect{,OFF}.app && pkill -9 -f GlobalProtect && pkill -9 -f PanGPS'
+alias global-off='sudo mv /Applications/GlobalProtect{,OFF}.app && pkill -9 -f GlobalProtect && sudo pkill -9 -f PanGPS'
 alias global-on='sudo mv /Applications/GlobalProtect{OFF,}.app'
 alias casper-off='sudo mv /usr/sbin/jamfAgent{,-off} && sudo mv /usr/sbin/jamf{,-off} && sudo pkill -9 jamf'
 alias casper-on='sudo mv /usr/sbin/jamfAgent{-off,} && sudo mv /usr/sbin/jamf{-off,}'
@@ -40,8 +41,8 @@ export RUBY_HEAP_FREE_MIN=500000
 # Docker
 export DOCKER_HOST=tcp://192.168.42.45:2375
 source ~/Code/zendesk/docker-images/dockmaster/zdi.sh
+export ZENDESK_REGISTRY_PUSH_PATH=registry.docker.zdsys/grosser
 
 # GO
 export GOPATH=$HOME/Code/go
-
-PATH="/Applications/eclipse-adt/sdk/tools:/Applications/eclipse-adt/sdk/platform-tools/:$GOPATH/bin:$PATH"
+PATH="/Applications/eclipse-adt/sdk/tools:/Applications/eclipse-adt/sdk/platform-tools/:$HOME/Code/go/bin:$PATH"
