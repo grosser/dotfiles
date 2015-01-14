@@ -15,7 +15,5 @@ file "bin/sshb", "https://raw.github.com/kpumuk/dotfiles/master/bash/bin/sshb" d
 end
 
 ["pru", "testrbl", "git-whence", "git-autobisect", "vendorer"].each do |gem|
-  file "bin/#{gem}", "http://rubinjam.herokuapp.com/pack/#{gem}" do |path|
-    `chmod +x #{path}`
-  end
+  file "bin/#{gem}", "http://rubinjam.herokuapp.com/pack/#{gem}"
 end
