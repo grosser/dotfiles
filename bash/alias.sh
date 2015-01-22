@@ -27,7 +27,7 @@ alias ttr="touch tmp/restart.txt"
 
 # RUBY
 alias be="bundle exec"
-alias b="bundle check 2>&1 > /dev/null || { ((test -f vendor/cache && bundle --local --quiet) || bundle --quiet) || bundle check > /dev/null; }"
+alias b="bundle check 2>&1 > /dev/null || { ((test -d vendor/cache && bundle --local --quiet) || bundle --quiet) || bundle check > /dev/null; }"
 alias bl="bundle --local --quiet"
 alias bul="bundle update --local"
 alias bundle-grep="bundle exec ruby -e 'puts $:' | xargs grep -r"
