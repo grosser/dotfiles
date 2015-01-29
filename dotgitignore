@@ -8,7 +8,6 @@ pkg
 *.sqlite
 *.sqlite3
 *.pid
-.bundle
 .rvmrc
 .redcar
 node_modules
