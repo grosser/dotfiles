@@ -26,7 +26,7 @@ when  /^[a-f\d]+$/
   commit = command[0...7]
   sh %Q{EDITOR="perl -pi -e 's,pick #{commit},edit #{commit},'" git rebase --interactive #{commit}^}
 when "--amend"
-  sh "git commit -a --amend -C HEAD && git rebase --continue"
+  sh "git commit -n -a --amend -C HEAD && git rebase --continue"
 when "--continue"
   sh "git rebase --continue"
 when "--abort"
