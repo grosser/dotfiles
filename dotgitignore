@@ -22,3 +22,4 @@ dump.rdb
 vendor/bundle
 vendor/cache/ruby
 .vendor
+.bundle
