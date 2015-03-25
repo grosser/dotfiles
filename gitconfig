@@ -24,7 +24,7 @@
   rbm = "!git checkout master && git pull && git co - && git rebase master"
   unpushed = !"PROJ_BRANCH=$(git symbolic-ref HEAD | sed 's|refs/heads/||') && git log origin/$PROJ_BRANCH..HEAD"
   unpulled = !"PROJ_BRANCH=$(git symbolic-ref HEAD | sed 's|refs/heads/||') && git fetch && git log HEAD..origin/$PROJ_BRANCH"
-  clear = "!git reset .; git co .; git clean -df"
+  clear = "!git reset .; git co .; git clean -f"
   parent-update = "!git fetch parent && git rebase parent/master"
   consume = !sh -c 'git cherry-pick $1 && git rmb $1' -
   count = shortlog -sn
