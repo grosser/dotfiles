@@ -17,6 +17,10 @@ alias global-off='sudo mv /Applications/GlobalProtect{,OFF}.app && pkill -9 -f G
 alias global-on='sudo mv /Applications/GlobalProtect{OFF,}.app'
 alias casper-off='sudo mv /usr/sbin/jamfAgent{,-off} && sudo mv /usr/sbin/jamf{,-off} && sudo pkill -9 jamf'
 alias casper-on='sudo mv /usr/sbin/jamfAgent{-off,} && sudo mv /usr/sbin/jamf{-off,}'
+alias spotlight-off='sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist'
+alias spotlight-on='sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist'
+alias game-on='global-off; casper-off; spotlight-off'
+alias game-off='global-on; casper-on; spotlight-on'
 
 function take(){
   mkdir $1;
