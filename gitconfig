@@ -14,7 +14,7 @@
   pick = cherry-pick
   pick-all = !sh -c '(git show $1 2>&1 > /dev/null || (git fetch origin && git show $1 2>&1 > /dev/null)) && git co staging && git pull && git pick $1 $2 && git pls && git co production && git pull && git pick $1 $2 && git pls && git co master && git pull' -
   uncommit = reset --soft HEAD^
-  amend = commit -a --amend -C HEAD
+  amend = commit -a --amend --no-edit
   amendm = commit -a --amend # amend with message
   rmuntracked = clean -df
   l = log --pretty=format:'%h %an %Cred%ar %d %Cgreen%s'
