@@ -20,6 +20,7 @@ log
 dump.rdb
 .rspec
 vendor/bundle
+*/vendor/bundle
 gemfiles/vendor/bundle
 .vendor
 .bundle
