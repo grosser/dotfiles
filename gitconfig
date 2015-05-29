@@ -22,15 +22,10 @@
   adrc = "!git add . && git rebase --continue"
   adpc = "!git add . && git pick --continue"
   rbm = "!git checkout master && git pull && git co - && git rebase master"
-  unpushed = !"PROJ_BRANCH=$(git symbolic-ref HEAD | sed 's|refs/heads/||') && git log origin/$PROJ_BRANCH..HEAD"
-  unpulled = !"PROJ_BRANCH=$(git symbolic-ref HEAD | sed 's|refs/heads/||') && git fetch && git log HEAD..origin/$PROJ_BRANCH"
   clear = "!git reset .; git co .; git clean -f"
   parent-update = "!git fetch parent && git rebase parent/master"
-  consume = !sh -c 'git cherry-pick $1 && git rmb $1' -
-  count = shortlog -sn
   amend-to = !sh -c 'git stash && git edit $1 && git stash pop && git edit --amend' -
-  reduce-to-subfolder = !sh -c 'git filter-branch --tag-name-filter cat --prune-empty --subdirectory-filter $1 HEAD && git reset --hard && git for-each-ref refs/original/ | cut -f 2 | xargs -n 1 git update-ref -d && git reflog expire --expire=now --all && git gc --aggressive --prune=now && git remote rm origin' -
-  rprune = !git remote prune origin && git branch --merged | grep -v '*' | xargs git branch -d
+  rprune = !git checkout master && git pull && git remote prune origin && git branch --merged | grep -v '*' | xargs git branch -d
 
   # shortcuts so I get autocomlete
   stached-switch = "!~/dotfiles/bin/git-stached-switch"

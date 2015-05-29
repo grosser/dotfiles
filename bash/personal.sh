@@ -42,6 +42,8 @@ export RUBY_HEAP_FREE_MIN=500000
 
 # Docker
 export DOCKER_HOST=tcp://192.168.42.45:2375
+export DOCKER_HOST=tcp://192.168.249.128:2375
+
 test -e ~/Code/zendesk/docker-images/dockmaster/zdi.sh && source ~/Code/zendesk/docker-images/dockmaster/zdi.sh
 export ZENDESK_REGISTRY_PUSH_PATH=registry.docker.zdsys/grosser
 
