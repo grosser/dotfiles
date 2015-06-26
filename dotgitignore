@@ -19,8 +19,6 @@ log
 .vagrant
 dump.rdb
 .rspec
-vendor/bundle
-*/vendor/bundle
-gemfiles/vendor/bundle
 .vendor
 .bundle
+**/vendor/bundle
