@@ -7,7 +7,7 @@ alias r="(which rvm && rvm 2.0.0 exec ruco) || RBENV_VERSION=2.1.6 ruco"
 alias t='testrbl'
 alias r3t='BUNDLE_GEMFILE=Gemfile.rails3 t'
 alias r3b='BUNDLE_GEMFILE=Gemfile.rails3 bundle'
-alias zt='zeus testrb'
+alias st='spring test'
 alias bo='bundle open'
 alias bu='bundle update'
 alias bp='bundle package --quiet'
