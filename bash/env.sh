@@ -11,6 +11,10 @@ export RBXOPT="-Xrbc.db" # do not clutter up everything with .rbc files when usi
 export HISTSIZE=1000000 #size of history
 export HISTCONTROL=ignorespace:ignoredups # ignore dulicates, cmds beginning with space
 
+### Ignore mail
+unset -v MAIL;
+unset -v MAIL_WARNING;
+
 #in case-sensitive autocompletion
 tty -s && bind 'set completion-ignore-case on'
 
