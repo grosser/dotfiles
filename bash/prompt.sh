@@ -41,12 +41,20 @@ function prompt_func() {
   # show last exit status
   if test $? -eq 0
   then
-    prompt="➔ "
+    status="➔ "
   else
-    prompt="${RED}➔${COLOR_NONE} "
+    status="${RED}➔${COLOR_NONE} "
   fi
 
-  prompt="${TITLEBAR}${BLUE}[${COLOR_NONE}\w${GREEN}$(parse_git_branch)${BLUE}]${COLOR_NONE} ${prompt}"
+  # show host on remote servers
+  host=$(hostname)
+  if [[ $host != *".local"* ]]; then
+    host="${host} - "
+  else
+    host=""
+  fi
+
+  prompt="${host}${TITLEBAR}${BLUE}[${COLOR_NONE}\w${GREEN}$(parse_git_branch)${BLUE}]${COLOR_NONE} ${status}"
 
   PS1=$prompt
 

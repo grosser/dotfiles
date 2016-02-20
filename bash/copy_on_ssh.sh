@@ -30,7 +30,7 @@ function ssh()
     skip_sync=1;
   fi
   if [ -z "$skip_sync" -a -z "$DISABLE_BRIEFCASE" ]; then
-    rsync -vrptgoDL -e ssh --files-from="$HOME/dotfiles/copy_on_ssh.txt" "$HOME" "$server":
+    rsync -rptgoL --rsh ssh --files-from="$HOME/dotfiles/copy_on_ssh.txt" "$HOME" "$server":
   fi
   $__SSH "$@";
 }
