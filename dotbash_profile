@@ -1,4 +1,2 @@
+#!/usr/bin/env bash
 source ~/.bashrc
-
-# ADDED BY DOCKER-IMAGES
-source /Users/mgrosser/Code/zendesk/docker-images/dockmaster/zdi.sh

@@ -1,0 +1,11 @@
+.bash_profile
+.bashrc
+.gitconfig
+.gitignore
+.ruco.rb
+.irbrc
+.nanorc
+dotfiles/autocomplete
+dotfiles/bash
+dotfiles/bin
+dotfiles/gitconfig
