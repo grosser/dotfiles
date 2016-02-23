@@ -1,36 +1,50 @@
-__SSH=$(type -path ssh 2>/dev/null);
-function ssh()
-{
-  # This function overrides ssh to rsync all files listed in $HOME/.briefcase to
-  # the remote server before logging in.  It tries very hard to skip this if
-  # you're logging in as another user, but it cannot detect whether you have an
-  # alternate "User" defined in $HOME/.ssh/config or its /etc equivalent.
-  # USE WITH CAUTION!
+SSH_WITHOUT_COPY_ON_SSH=$(type -path ssh 2>/dev/null);
+
+function ssh() {
+  # Overrides ssh to rsync all files listed in $list to the remote server before login.
+  # Tries very hard to skip this when logging in as another user,
+  # but it cannot detect whether an alternate "User" is defined in $HOME/.ssh/config
+  # or its /etc equivalent.
+
   local skip_sync;
+  local list="$HOME/dotfiles/copy_on_ssh.txt";
+
+  # skip when rsync is missing
   if ! type -f rsync 2>&1 >/dev/null; then
-    # we don't have rsync.
-    skip_sync=1;
+    skip_sync="missing rsync";
   fi
-  if [ ! -f "$HOME/.briefcase" ]; then
-    skip_sync=1;
+
+  # skip when our sync list does not exist
+  if [ ! -f "$list" ]; then
+    skip_sync="$list not found";
   fi
-  # skip ssh options to find hostname
+
+  # skip when ssh options are used to switch to a different user
   while getopts ":1246AaCfgKkMNnqsTtVvXxYyb:c:D:e:F:i:L:l:m:O:o:p:R:S:w:" Option; do
     if [ "$Option" = "l" ]; then
-      # don't sync if we're logging into a different user's account
-      skip_sync=1;
+      skip_sync="picked user via ssh options";
       break;
     fi
   done
-  server=`eval echo "$"$OPTIND`
-  # reset $OPTIND so that subsequent invocations work properly
-  OPTIND=1;
+
+  # skip if we're logging into a different user's account via ssh foo@bar.com
+  local server=`eval echo "$"$OPTIND`;
   if echo "$server" | grep "@"; then
-    # don't sync if we're logging into a different user's account
-    skip_sync=1;
+    skip_sync="picked user via user@";
   fi
-  if [ -z "$skip_sync" -a -z "$DISABLE_BRIEFCASE" ]; then
-    rsync -rptgoL --rsh ssh --files-from="$HOME/dotfiles/copy_on_ssh.txt" "$HOME" "$server":
+  OPTIND=1; # reset $OPTIND so that subsequent invocations work properly
+
+  # skip when manually disabled
+  if [ -n "$DISABLE_COPY_ON_SSH" ]; then
+    skip_sync="DISABLE_COPY_ON_SSH is set";
   fi
-  $__SSH "$@";
+
+  # sync
+  if [ -z "$skip_sync" ]; then
+    rsync -rptgoL --rsh ssh --files-from="$list" "$HOME" "$server":
+  else
+    echo "Copy on ssh disabled: $skip_sync"
+  fi
+
+  $SSH_WITHOUT_COPY_ON_SSH "$@";
 }

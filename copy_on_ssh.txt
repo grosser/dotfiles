@@ -5,6 +5,7 @@
 .ruco.rb
 .irbrc
 .nanorc
+dotfiles/copy_on_ssh.txt
 dotfiles/autocomplete
 dotfiles/bash
 dotfiles/bin
