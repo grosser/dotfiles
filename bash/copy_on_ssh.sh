@@ -45,7 +45,6 @@ function ssh() {
   if [ -z "$skip_sync" ]; then
     mkdir -p "$(dirname "$HOME/$last_synced")"
     local recent=`cd ~ && ls -t "$last_synced" $(find $(cat "$list")) 2> /dev/null | head -n 1`
-    echo RECENT $recent $last_synced
     if [[ $recent == $last_synced ]]; then
       skip_sync="server is up to date"
     fi
