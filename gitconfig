@@ -23,7 +23,7 @@
   adpc = "!git add . && git pick --continue"
   rbm = "!git checkout master && git fetch origin && git reset --hard origin/master && git co - && git rebase master"
   clear = "!git reset .; git co .; git clean -f"
-  parent-update = "!git fetch parent && git rebase parent/master"
+  parent-update = "!git co master && git fetch parent && git reset --hard parent/master"
   amend-to = !sh -c 'git stash && git edit $1 && git stash pop && git edit --amend' -
   rprune = !git checkout master && git pull && git remote prune origin && git branch --merged | grep -v '*' | xargs git branch -d
 
