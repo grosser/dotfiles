@@ -7,7 +7,7 @@
 # bundle-unlock foobar && bundle
 
 raise 'Give me the gems' if ARGV.empty?
-lockfile = (ENV['BUNDLE_GEMFILE'] || 'Gemfile') << '.lock'
+lockfile = (ENV['BUNDLE_GEMFILE'] || 'Gemfile') + '.lock'
 content = File.read(lockfile)
 
 ARGV.each do |gem|
