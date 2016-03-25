@@ -13,6 +13,8 @@ content = File.read(lockfile)
 ARGV.each do |gem|
   content.sub!(/^    #{Regexp.escape(gem)} .*\n(      \S.*\n)*/, '') || raise("missing 4-space indent for #{gem}")
   content.sub!(/^  #{Regexp.escape(gem)}\!?(\n| .*\n)(    \S.*\n)*/, '')
+  `rm vendor/cache{,*}/#{gem}* 2>&1`
 end
+
 
 File.write(lockfile, content)
