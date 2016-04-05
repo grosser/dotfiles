@@ -21,7 +21,7 @@
   rmb = !sh -c '(git branch -D $1 >/dev/null 2>&1 || true) && (git push origin :$1 >/dev/null 2>&1 || true) && rm .git/refs/remotes/origin/$1 >/dev/null 2>&1' - # using semiconol -> syntax error :/
   adrc = "!git add . && git rebase --continue"
   adpc = "!git add . && git pick --continue"
-  rbm = "!git checkout master && git fetch origin && git reset --hard origin/master && git co - && git rebase master"
+  rbm = "!git checkout master && git fetch origin && git reset --hard origin/master && git checkout - && git rebase master"
   clear = "!git reset .; git co .; git clean -f"
   parent-update = "!git co master && git fetch parent && git reset --hard parent/master"
   amend-to = !sh -c 'git stash && git edit $1 && git stash pop && git edit --amend' -
