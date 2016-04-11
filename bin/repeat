@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+interval = ARGV[0].to_i
+raise "Usage: interval command" if interval == 0
+
+loop do
+  system(*ARGV[1..-1])
+  sleep interval
+end
