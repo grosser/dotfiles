@@ -1,3 +1,4 @@
 --color
---backtrace
 --order random
+# -- backtrace
+
