@@ -15,3 +15,5 @@ end
 ["pru", "testrbl", "git-whence", "git-autobisect", "vendorer"].each do |gem|
   file "bin/#{gem}", "http://rubinjam.herokuapp.com/pack/#{gem}"
 end
+
+file 'bin/diff-highlight', 'https://raw.githubusercontent.com/git/git/master/contrib/diff-highlight/diff-highlight'
