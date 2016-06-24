@@ -38,6 +38,7 @@
 
 [diff]
   rename = copy
+  compactionHeuristic = true
 
 [color]
   branch = auto
@@ -60,6 +61,10 @@
   log = diff-highlight | less
   show = diff-highlight | less
   diff = diff-highlight | less
+
+
+[interactive]
+  diffFilter = diff-highlight
 
 [core]
   excludesfile = ~/.gitignore
