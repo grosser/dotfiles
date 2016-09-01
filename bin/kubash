@@ -1,2 +1,3 @@
 #!/bin/sh
+[[ $# -eq 1 ]] || (echo "Usage: kubash <pod_name>" && exit 1)
 kubectl exec -it $1 -- /bin/bash -c "stty rows $(tput lines) cols $(tput cols) && export TERM=$TERM && exec bash"
