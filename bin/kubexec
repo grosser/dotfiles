@@ -1,0 +1,2 @@
+#!/bin/sh
+kubectl exec -it $1 -- /bin/bash -c "stty rows $(tput lines) cols $(tput cols) && export TERM=$TERM && exec bash"
