@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUNDLED_COMMANDS="cucumber rackup rails rake ruby shotgun spec rspec cap knife mtest rubocop"
+BUNDLED_COMMANDS="cucumber rackup rails rake ruby shotgun spec rspec cap knife mtest rubocop sfn"
 
 ## Functions
 
