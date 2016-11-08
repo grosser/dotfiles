@@ -1,2 +1,2 @@
 #!/bin/sh
-ssh -L 9099:master.k8s-api.service.consul:8080 -L 9100:staging.k8s-api.service.consul:8080 -L 8500:0:8500 admin1.aws1.zdsystest.com
+ssh -L 9099:master.k8s-api-backend.service.consul:8080 -L 9100:staging.k8s-api-backend.service.consul:8080 -L 8500:0:8500 admin1.aws1.zdsystest.com
