@@ -42,8 +42,8 @@ export RUBY_HEAP_FREE_MIN=500000
 
 # Docker
 export DOCKER_HOST=tcp://192.168.42.45:2375
-
 export ZENDESK_REGISTRY_PUSH_PATH=registry.docker.zdsys/grosser
+export DOCKER_VM_MEMORY=4096 # remove when on 16g machine
 
 # GO
 export GOPATH=$HOME/Code/go
