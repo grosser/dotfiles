@@ -19,6 +19,8 @@ alias casper-off='sudo mv /usr/sbin/jamfAgent{,-off} && sudo mv /usr/sbin/jamf{,
 alias casper-on='sudo mv /usr/sbin/jamfAgent{-off,} && sudo mv /usr/sbin/jamf{-off,}'
 alias game-on='global-off; casper-off'
 alias game-off='global-on; casper-on'
+alias kcm='sudo kubectl --context=master-devops'
+alias kcs='sudo kubectl --context=staging-devops'
 
 function take(){
   mkdir $1;
