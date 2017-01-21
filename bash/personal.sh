@@ -49,4 +49,8 @@ export DOCKER_VM_MEMORY=4096 # remove when on 16g machine
 
 # GO
 export GOPATH=$HOME/Code/go
-PATH="/Applications/eclipse-adt/sdk/tools:/Applications/eclipse-adt/sdk/platform-tools/:$HOME/Code/go/bin:$PATH"
+PATH="$HOME/Code/go/bin:$PATH"
+
+# Rust
+PATH="$HOME/.cargo/bin:$PATH"
+
