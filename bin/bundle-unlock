@@ -4,6 +4,9 @@
 # This script only removes the gem itself from the lockfile, allowing to update it without
 # touching anything else.
 #
+# for single gems prefer bundle update --souce gem-name
+# for multiple gems this script is the only thing that works
+#
 # bundle-unlock foobar && bundle
 
 raise 'Give me the gems' if ARGV.empty?
