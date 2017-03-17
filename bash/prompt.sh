@@ -32,7 +32,7 @@ function parse_git_branch {
     remote="${YELLOW}↕"
   fi
   if [[ ${git_status} =~ ${branch_pattern} ]]; then
-    branch=${BASH_REMATCH[1]}
+    branch=${BASH_REMATCH[1]//[^a-z0-9\/]/-} # only allow safe characters see https://github.com/njhartwell/pw3nage
     echo " (${branch})${remote}${state}"
   fi
 }
