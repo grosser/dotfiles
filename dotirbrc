@@ -1,3 +1,4 @@
+# require files from gems that are not in the bundle
 def require_without_bundler(gem, file)
   return require(file) unless defined?(::Bundler)
   if gem_path = Dir.glob("{#{Gem.path.join(',')}}/gems/#{gem}*").first
@@ -8,62 +9,14 @@ def require_without_bundler(gem, file)
   end
 end
 
-begin
-  # nice history and color
-  require_without_bundler 'blackwinter-wirble', 'wirble' # blackwinter branch has history_uniq fixes
-  Wirble::History::DEFAULTS[:history_uniq] = 'reverse'
+require 'irb/ext/save-history'
+IRB.conf[:USE_READLINE] = true
+IRB.conf[:SAVE_HISTORY] = 10000
+IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.irb-save-history"
 
-  Wirble.init
-  Wirble.colorize
-rescue LoadError => e
-  # No wirble use defaults to get at least history
-  require 'irb/ext/save-history'
-  IRB.conf[:USE_READLINE] = true
-  IRB.conf[:SAVE_HISTORY] = 10000
-  IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.irb-save-history"
-end
-
-# simple prompt
 IRB.conf[:PROMPT_MODE] = :SIMPLE
-
-#Show Rails output
-#  quick-and-dirty possibility to redirect the logger-output to console
-#  http://techspeak.plainlystated.com/2009/03/watching-your-logs-from-console.html
-#  dynamic_logger_switcher.rb
-#
-#  Created by Roman Heinrich on 2009-06-05.
-#  Copyright 2009 DaWanda. All rights reserved.
-#
-
-def show_rails_log
-  unless @log_buffer_size
-    @log_file = Rails.logger.instance_variable_get("@log")
-    @log_level = Rails.logger.level
-    @log_buffer_size = Rails.logger.auto_flushing
-  end
-  Rails.logger.flush
-  Rails.logger.instance_variable_set("@log", STDOUT)
-  Rails.logger.level = Logger::DEBUG
-  Rails.logger.auto_flushing = 1
-  nil
-end
-
-def hide_rails_log
-  if @log_buffer_size
-    Rails.logger.instance_variable_set("@log", @log_file)
-    Rails.logger.level = @log_level
-    Rails.logger.auto_flushing = @log_buffer_size
-  end
-  nil
-end
-
-class Time
-  def self.benchmark
-    t = Time.now.to_f
-    yield
-    Time.now.to_f - t
-  end
-end
+IRB.conf[:AUTO_INDENT] = true
+require 'irb/completion'
 
 def sql(query)
   ActiveRecord::Base.connection.select_all(query)
