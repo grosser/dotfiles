@@ -26,7 +26,7 @@
   parent-update = "!git co master && git fetch parent && git reset --hard parent/master"
   amend-to = !sh -c 'git stash && git edit $1 && git stash pop && git edit --amend' -
   rprune = !git checkout master && git pull && git remote prune origin && git branch --merged | grep -v '*' | xargs git branch -d
-  all = "!f() { for i in `ls`; do if [ -d $i/.git ]; then echo \"$i\n--------------------------\"; git -C $i $1; echo; fi; done; }; f"
+  all = "!f() { for i in `ls`; do if [ -d $i/.git ]; then echo \"$i\n--------------------------\"; git -C $i $1; echo; fi; done; }; f" # perform an action on all git repositories in the current directory (for example git all pull)
 
   # shortcuts so I get autocomlete
   stached-switch = "!~/dotfiles/bin/git-stached-switch"
