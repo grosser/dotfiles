@@ -3,7 +3,7 @@ alias m='mine $(pwd) > /dev/null 2>&1 &'
 alias wrake="`which rake`" # rake without bundler
 alias wruby="`which ruby`" # ruby without bundler
 alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/helpers" # pry as rails console, without pry as dependency
-alias r="(which rvm && rvm 2.0.0 exec ruco) || RBENV_VERSION=2.3.1 ruco"
+alias r="(which rvm && rvm 2.0.0 exec ruco) || RBENV_VERSION=2.4.3 ruco"
 alias t='testrbl'
 alias r3t='BUNDLE_GEMFILE=Gemfile.rails3 t'
 alias r3b='BUNDLE_GEMFILE=Gemfile.rails3 bundle'
