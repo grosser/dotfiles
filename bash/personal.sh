@@ -43,9 +43,9 @@ export RUBY_GC_MALLOC_LIMIT=1000000000
 export RUBY_HEAP_FREE_MIN=500000
 
 # Docker
-export DOCKER_HOST=tcp://192.168.42.45:2375
+# export DOCKER_HOST=tcp://192.168.42.45:2375
 export ZENDESK_REGISTRY_PUSH_PATH=registry.docker.zdsys/grosser
-export DOCKER_VM_MEMORY=4096 # remove when on 16g machine
+export DOCKER_FOR_MAC_ENABLED=true
 
 # GO
 export GOPATH=$HOME/Code/go
@@ -53,4 +53,3 @@ PATH="$HOME/Code/go/bin:$PATH"
 
 # Rust
 PATH="$HOME/.cargo/bin:$PATH"
-
