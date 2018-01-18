@@ -21,6 +21,7 @@ alias game-on='global-off; casper-off'
 alias game-off='global-on; casper-on'
 alias kcm='sudo kubectl --context=master-devops'
 alias kcs='sudo kubectl --context=staging-devops'
+alias dst='docker rm -f $(docker ps -aq) >/dev/null 2>&1 || true'
 
 function take(){
   mkdir $1;
