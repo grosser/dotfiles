@@ -18,6 +18,7 @@ export PATH="/usr/local/heroku/bin:$PATH"
 
 # docker-images
 export DOCKER_FOR_MAC_ENABLED=true
+export DOCKER_HOST_IP=172.17.0.1 # makes shell startup faster and avoid printing error when docker is not running
 [ -f ~/Code/zendesk/docker-images/dockmaster/zdi.sh ] && source ~/Code/zendesk/docker-images/dockmaster/zdi.sh
 
 # rbenv
