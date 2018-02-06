@@ -11,8 +11,10 @@ url = remote.split(" ")[1]
 repo = url.split("://").last.split(%r{[/:]}, 2).last.sub(".git", "")
 branch = sh("git rev-parse --abbrev-ref HEAD").strip
 
-# push branch if it is not yet on origin
-unless system("git show origin/#{branch} 2>&1 > /dev/null")
+# push branch if it is not yet the same on origin
+# - push will fail if force-update is needed
+# - rev-parse will fail if not pushed
+unless `git rev-parse origin/#{branch} 2>/dev/null` == sh("git rev-parse HEAD")
   puts "pushing #{branch} to origin"
   sh("git push -u origin #{branch}")
 end
