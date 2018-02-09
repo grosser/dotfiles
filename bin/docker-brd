@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# build local image, run command, delete image
+require 'shellwords'
+
+def sh(*command)
+  puts command.shelljoin
+  system *command
+  $?.exitstatus
+end
+
+image = "docker-brd"
+
+begin
+  status = sh("docker", "build", "-t", image, ".")
+  exit status unless status == 0
+  exit sh("docker", "run", "-it", "--rm", image, *ARGV)
+ensure
+  `docker rmi #{image}` # silent cleanup
+end
