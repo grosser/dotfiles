@@ -19,6 +19,6 @@ changed = `git status --porcelain`.
 
 exit if changed.empty?
 
-result = `bundle exec rubocop --force-exclusion #{changed.shelljoin}`
+result = `bundle exec rubocop --parallel --force-exclusion #{changed.shelljoin}`
 puts result unless $?.success?
 exit $?.exitstatus
