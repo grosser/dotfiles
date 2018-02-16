@@ -19,6 +19,7 @@ changed = `git status --porcelain`.
 
 exit if changed.empty?
 
-result = `bundle exec rubocop --parallel --force-exclusion #{changed.shelljoin}`
+parallel = ((File.read(".rubocop.yml").include?("UseCache: false") rescue false) ? "" : " --parallel")
+result = `bundle exec rubocop#{parallel} --force-exclusion #{changed.shelljoin}`
 puts result unless $?.success?
 exit $?.exitstatus
