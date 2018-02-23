@@ -26,5 +26,5 @@ export SKIP_DOCKER_CHECK=true # speeds up startup a bit
 eval "$(rbenv init -)"
 
 # Gcloud
-[ -f usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc ] && source /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc
-[ -f usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc ] && source /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc
+[ -f /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc ] && source /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc
+[ -f /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc ] && source /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc
