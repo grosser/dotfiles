@@ -1,2 +1,14 @@
 #!/usr/bin/env bash
 source ~/.bashrc
+
+# docker-images
+export DOCKER_HOST_IP=172.17.0.1 # makes shell startup faster and avoid printing error when docker is not running
+export SKIP_DOCKER_CHECK=true # speeds up startup a bit
+
+# auto-added by docker-images but I want it to not blow up on remote servers
+if [ -f ~/Code/zendesk/docker-images/dockmaster/zdi.sh ]; then
+# BEGIN DOCKER-IMAGES
+export DOCKER_FOR_MAC_ENABLED=true
+source /Users/mgrosser/Code/zendesk/docker-images/dockmaster/zdi.sh
+# END DOCKER-IMAGES
+fi
