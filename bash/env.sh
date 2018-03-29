@@ -1,5 +1,5 @@
 export EDITOR="ruco"
-export PATH="$HOME/dotfiles/bin:$HOME/dotfiles/secret/bin:/usr/local/bin:$PATH"
+export PATH="$HOME/dotfiles/bin:$HOME/dotfiles/secret/bin:$HOME/.nodenv/shims:/usr/local/bin:$PATH"
 if [ -f /usr/libexec/java_home ]; then
   export JAVA_HOME=$(/usr/libexec/java_home)
 fi
