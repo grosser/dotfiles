@@ -11,7 +11,7 @@ for file in ~/dotfiles/autocomplete/* ; do
 done
 
 # travis gem
-[ -f /Users/mgrosser/.travis/travis.sh ] && source /Users/mgrosser/.travis/travis.sh
+[ -f ~/.travis/travis.sh ] && source ~/.travis/travis.sh
 
 # Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:$PATH"
@@ -22,3 +22,6 @@ eval "$(rbenv init -)"
 # Gcloud
 [ -f /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc ] && source /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc
 [ -f /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc ] && source /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc
+
+# secret
+[ -f ~/dotfiles/secret/bash.sh ] && source ~/dotfiles/secret/bash.sh
