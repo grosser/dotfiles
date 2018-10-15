@@ -95,5 +95,5 @@
 [hub]
   protocol = https
 
-[remote]
-  prune = true # prune deleted bbranches when pulling
+[fetch]
+  prune = true # prune deleted branches when pulling
