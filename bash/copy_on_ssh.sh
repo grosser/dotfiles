@@ -55,7 +55,7 @@ function ssh() {
     rsync -rptgoL --rsh ssh --files-from="$list" "$HOME" "$server": &&
       touch "$HOME/$last_synced" # mark as synced only on success
   else
-    echo "Copy on ssh disabled: $skip_sync"
+    echo "Copy on ssh disabled: $skip_sync" 1>&2
   fi
 
   $SSH_WITHOUT_COPY_ON_SSH "$@"
