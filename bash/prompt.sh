@@ -62,4 +62,4 @@ function prompt_func() {
   history -a;
 }
 
-PROMPT_COMMAND=prompt_func
+export PROMPT_COMMAND=prompt_func 2>/dev/null

@@ -16,5 +16,5 @@ unset -v MAIL;
 unset -v MAIL_WARNING;
 
 #in case-sensitive autocompletion
-tty -s && bind 'set completion-ignore-case on'
+tty -s && bind 'set completion-ignore-case on' 2>/dev/null
 
