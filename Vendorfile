@@ -1,6 +1,6 @@
 # see: vendorer -h
 
-["git", "rake", "bundler", "ssh", "gem", "docker", "vagrant", "virtualbox"].each do |type|
+["git", "rake", "bundler", "ssh", "gem", "docker", "vagrant", "virtualbox", "makefile"].each do |type|
   file "autocomplete/#{type}.bash", "https://raw.githubusercontent.com/Bash-it/bash-it/master/completion/available/#{type}.completion.bash"
 end
 
@@ -15,5 +15,3 @@ end
 ["pru", "testrbl", "git-whence", "git-autobisect", "vendorer"].each do |gem|
   file "bin/#{gem}", "http://rubinjam.herokuapp.com/pack/#{gem}"
 end
-
-file 'bin/diff-highlight', 'https://raw.githubusercontent.com/git/git/master/contrib/diff-highlight/diff-highlight'
