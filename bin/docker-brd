@@ -10,9 +10,9 @@ end
 
 image = "docker-brd"
 
+status = sh("docker", "build", "-t", image, ".")
+exit status unless status == 0
 begin
-  status = sh("docker", "build", "-t", image, ".")
-  exit status unless status == 0
   exit sh("docker", "run", "-it", "--rm", *ENV["ARGS"].to_s.shellsplit, image, *ARGV)
 ensure
   `docker rmi #{image}` # silent cleanup
