@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
-# Copy-pastable Gemfile.lock diff compared to master
+# Copy-pastable Gemfile.lock diff compared to master (override with COMMIT=)
+#
+# - COMMIT= compare to a specific commit (default: master)
+# - BUNDLE_GEMFILE= compare this gemfile (default: Gemfile)
 
 require 'shellwords'
 require 'json'
@@ -17,28 +20,36 @@ def versions(lock)
 end
 
 def github_compare(gem, old, new)
-  content = sh "curl", "-Ls", "https://rubygems.org/api/v1/gems/#{gem}.json"
-  content = JSON.parse(content)
-  url = content["source_code_uri"] || content["homepage_uri"]
+  text = "v#{old} -> v#{new}"
+  spec = Gem::Specification.find_by_name(gem, new)
+  url = spec.metadata["source_code_uri"] || spec.homepage
   if url.include?("github.com")
-    " [compare](#{url}/compare/v#{CGI.escape(old)}...v#{CGI.escape(new)})"
+    # "..." mode is nicer, but does not show downgrades
+    # see https://help.github.com/articles/about-comparing-branches-in-pull-requests/#three-dot-and-two-dot-git-diff-comparisons
+    compare_mode = (Gem::Version.new(new) > Gem::Version.new(old) ? "..." : "..")
+
+    "[#{text}](#{url}/compare/v#{CGI.escape(old)}#{compare_mode}v#{CGI.escape(new)})"
   else
-    ""
+    "#{text}"
   end
 end
 
-lockfile = "Gemfile.lock"
-master = versions(sh("git", "show", "master:#{lockfile}"))
-local = versions(File.read(lockfile))
+def link_to_gem(gem)
+  "[#{gem}](https://rubygems.org/gems/#{gem})"
+end
 
-added = local.keys - master.keys
-removed = master.keys - local.keys
-modified = (local.keys & master.keys).select { |gem| master[gem] != local[gem] }
+lockfile = "#{ENV["BUNDLE_GEMFILE"] || "Gemfile"}.lock"
+before = versions(sh("git", "show", "#{ENV["COMMIT"] || "master"}:#{lockfile}"))
+after = versions(File.read(lockfile))
 
-added.each { |gem| puts " Add #{gem}" }
-removed.each { |gem| puts " Remove #{gem}" }
+added = after.keys - before.keys
+removed = before.keys - after.keys
+modified = (after.keys & before.keys).select { |gem| before[gem] != after[gem] }
+
+added.each { |gem| puts " - #{link_to_gem(gem)} v#{after[gem]} Added" }
+removed.each { |gem| puts " - #{link_to_gem(gem)} v#{before[gem]} Removed" }
 modified.each do |gem|
-  old = master[gem]
-  new = local[gem]
-  puts " - Change️ #{gem} #{old} -> #{new}#{github_compare(gem, old, new)}"
+  old = before[gem]
+  new = after[gem]
+  puts " - #{link_to_gem(gem)} #{github_compare(gem, old, new)}"
 end
