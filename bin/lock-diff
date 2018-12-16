@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+# Copy-pastable Gemfile.lock diff compared to master
+
+require 'shellwords'
+require 'json'
+require 'cgi'
+
+def sh(*command)
+  command = command.shelljoin
+  result = `#{command} 2>&1`
+  raise "Command failed\n#{command}\n#{result}" unless $?.success?
+  result
+end
+
+def versions(lock)
+  lock.scan(/^    (\S+) \((\S+)\)/).to_h
+end
+
+def github_compare(gem, old, new)
+  content = sh "curl", "-Ls", "https://rubygems.org/api/v1/gems/#{gem}.json"
+  content = JSON.parse(content)
+  url = content["source_code_uri"] || content["homepage_uri"]
+  if url.include?("github.com")
+    " [compare](#{url}/compare/v#{CGI.escape(old)}...v#{CGI.escape(new)})"
+  else
+    ""
+  end
+end
+
+lockfile = "Gemfile.lock"
+master = versions(sh("git", "show", "master:#{lockfile}"))
+local = versions(File.read(lockfile))
+
+added = local.keys - master.keys
+removed = master.keys - local.keys
+modified = (local.keys & master.keys).select { |gem| master[gem] != local[gem] }
+
+added.each { |gem| puts " Add #{gem}" }
+removed.each { |gem| puts " Remove #{gem}" }
+modified.each do |gem|
+  old = master[gem]
+  new = local[gem]
+  puts " - Change️ #{gem} #{old} -> #{new}#{github_compare(gem, old, new)}"
+end
