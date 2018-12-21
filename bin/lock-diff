@@ -7,6 +7,7 @@
 require 'shellwords'
 require 'json'
 require 'cgi'
+require 'bundler/setup'
 
 def sh(*command)
   command = command.shelljoin
@@ -39,6 +40,7 @@ def link_to_gem(gem)
 end
 
 lockfile = "#{ENV["BUNDLE_GEMFILE"] || "Gemfile"}.lock"
+lockfile.sub!("#{Bundler.root}/", "")
 before = versions(sh("git", "show", "#{ENV["COMMIT"] || "master"}:#{lockfile}"))
 after = versions(File.read(lockfile))
 
