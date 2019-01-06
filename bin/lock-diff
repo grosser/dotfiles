@@ -27,7 +27,7 @@ def github_compare(gem, old, new)
   # "..." mode is nicer, but does not show downgrades
   # see https://help.github.com/articles/about-comparing-branches-in-pull-requests/#three-dot-and-two-dot-git-diff-comparisons
   compare_mode = (Gem::Version.new(new) > Gem::Version.new(old) ? "..." : "..")
-  link_to text, "#{url}/compare/v#{CGI.escape(old)}#{compare_mode}v#{CGI.escape(new)})"
+  link_to text, "#{url}/compare/v#{CGI.escape(old)}#{compare_mode}v#{CGI.escape(new)}"
 end
 
 def link_to_github(name, version)
