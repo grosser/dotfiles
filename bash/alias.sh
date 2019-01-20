@@ -1,12 +1,16 @@
 # General
-#alias t="tail -f"
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias cdd="cd -" #go to last used directory
-alias l="ls -lah" #ls all+long+humanized filesizes
 alias shutdown-vms="VBoxManage list vms | cut -f 1 -d ' ' | xargs -I NAME sh -c 'VBoxManage controlvm NAME poweroff ; VBoxManage unregistervm NAME' ; rm -rf ~/VirtualBox\ VMs/*"
 alias reberks="rm -f Berksfile.lock && bundle exec berks"
+alias cp='cp -iv'
+alias mv='mv -iv'
+alias rmdir='rmdir -v'
+alias ln='ln -v'
+alias ls='ls -Gh'
+alias grep='grep --color=auto'
 
 f(){ find . -iname "*$1*"; }
 
