@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-source ~/.bashrc
 
 # docker-images
 export DOCKER_HOST_IP=172.17.0.1 # makes shell startup faster and avoid printing error when docker is not running
