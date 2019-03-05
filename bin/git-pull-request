@@ -10,6 +10,7 @@ remote = remotes.detect{|l| l.start_with?("origin\t") }
 url = remote.split(" ")[1]
 repo = url.split("://").last.split(%r{[/:]}, 2).last.sub(".git", "")
 branch = sh("git rev-parse --abbrev-ref HEAD").strip
+abort "Cannot run on master" if branch == "master"
 
 # push branch if it is not yet the same on origin
 # - push will fail if force-update is needed
