@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUNDLED_COMMANDS="cucumber rackup rails ruby shotgun spec rspec cap knife mtest sfn"
+BUNDLED_COMMANDS="rake cucumber rackup rails ruby shotgun spec rspec cap knife mtest sfn"
 
 ## Functions
 
@@ -40,5 +40,6 @@ for CMD in $BUNDLED_COMMANDS; do
     alias $CMD="run-with-bundler $CMD"
 done
 
-alias rubocop="ruby-cli-daemon rubocop"
-alias rake="ruby-cli-daemon rake"
+alias rubocop="ruby-cli-daemon rubocop --color"
+alias mtest="ruby-cli-daemon mtest"
+# alias rake="ruby-cli-daemon rake"
