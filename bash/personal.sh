@@ -45,7 +45,7 @@ export RUBY_HEAP_FREE_MIN=500000
 
 # GO
 export GOPATH=$HOME/Code/go
-PATH="$HOME/Code/go/bin:$PATH"
+PATH="$HOME/Code/go/bin:/usr/local/go/bin:$PATH"
 
 # Rust
 PATH="$HOME/.cargo/bin:$PATH"

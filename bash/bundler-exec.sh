@@ -40,6 +40,6 @@ for CMD in $BUNDLED_COMMANDS; do
     alias $CMD="run-with-bundler $CMD"
 done
 
-alias rubocop="ruby-cli-daemon rubocop --color"
-alias mtest="ruby-cli-daemon mtest"
+# alias rubocop="ruby-cli-daemon rubocop"
+# alias mtest="ruby-cli-daemon mtest"
 # alias rake="ruby-cli-daemon rake"
