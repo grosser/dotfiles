@@ -18,7 +18,7 @@
   amendm = commit -a --amend # amend with message
   rmuntracked = clean -df
   l = log --pretty=format:'%h %an %Cred%ar %d %Cgreen%s'
-  rmb = !sh -c '(git branch -D $1 >/dev/null 2>&1 || true) && (git push origin :$1 >/dev/null 2>&1 || true) && rm .git/refs/remotes/origin/$1 >/dev/null 2>&1' - # using semiconol -> syntax error :/
+  rbm = !"git fetch --all && git rebase origin/master"
   adrc = "!git add . && git rebase --continue"
   adpc = "!git add . && git pick --continue"
   rbm = "!git checkout master && git fetch origin && git reset --hard origin/master && git checkout - && git rebase master"
