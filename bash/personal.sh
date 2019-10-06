@@ -44,7 +44,7 @@ export RUBY_GC_MALLOC_LIMIT=1000000000
 export RUBY_HEAP_FREE_MIN=500000
 
 # GO
-PATH="$HOME/Code/go/bin:/usr/local/go/bin:$PATH"
+PATH="$HOME/.goenv/shims:$PATH"
 
 # Rust
 PATH="$HOME/.cargo/bin:$PATH"
