@@ -40,6 +40,7 @@
 [diff]
   rename = copy
   compactionHeuristic = true
+  noprefix = true
 
 [color]
   branch = auto
