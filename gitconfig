@@ -19,7 +19,7 @@
   rmuntracked = clean -df
   l = log --pretty=format:'%h %an %Cred%ar %d %Cgreen%s'
   rmb = !sh -c '(git branch -D $1 >/dev/null 2>&1 || true) && (git push origin :$1 >/dev/null 2>&1 || true) && rm .git/refs/remotes/origin/$1 >/dev/null 2>&1' - # using semiconol -> syntax error :/
-  rbm = !"git fetch --all && git rebase origin/master"
+  rbm = !"git fetch origin && git rebase origin/master"
   adrc = "!git add . && git rebase --continue"
   adpc = "!git add . && git pick --continue"
   clear = "!git reset .; git co .; git clean -f"
