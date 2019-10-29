@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+def sh(command)
+  result = `#{command}`
+  raise "'#{command}' failed!" unless $?.success?
+  result
+end
+
+url = sh("git remote -v")[/^origin\t(\S+)/]
+repo = url.split("://").last.split(%r{[/:]}, 2).last.sub(".git", "")
+command = (RUBY_PLATFORM.include?('darwin') ? "open" : "sensible-browser")
+exec %Q{#{command} "https://github.com/#{repo}"}
