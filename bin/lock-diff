@@ -42,7 +42,7 @@ end
 
 def github_url(gem, version)
   return unless spec = spec(gem, version)
-  url = spec.metadata["source_code_uri"] || spec.homepage
+  url = spec.metadata["source_code_uri"] || spec.homepage || ""
   url.sub(/\/$/, '') if url.include?("github.com")
 end
 
