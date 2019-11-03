@@ -1,0 +1,29 @@
+#!/usr/bin/ruby
+#
+# Reports how many commits a branch has and how far it is behind compared to it's start point
+
+Thread.abort_on_exception = true
+require 'shellwords'
+
+def sh(command)
+  result = `#{command}`
+  abort "Command failed:\n#{command}\n#{result}" unless $?.success?
+  result
+end
+
+abort "Prefix please" unless ARGV.size == 1 # TODO: support stdin so ppl can git br | grep foo |
+prefix = ARGV[0]
+
+branches = sh("git br --sort=-committerdate --format '%(refname)'").gsub("refs/heads/", "").split("\n")
+
+branches.select! { |b| b.start_with?(prefix)  }
+abort "No branches found that start with #{prefix}" if branches.empty?
+
+branches.each do |branch|
+  max = 10
+  history = sh("git log #{branch.shellescape} --pretty=format:'%h %Cred%ar %d %Cgreen%s%Creset' --color | head -n #{max}").split("\n")
+  cut = history.index { |l| l =~ /Merge pull request| \(tag: / } || max
+  [branch, history[0...cut].map { |l| "  #{l}" }]
+  puts "#{branch}:"
+  puts history[0...cut].map { |l| "  #{l}" }
+end

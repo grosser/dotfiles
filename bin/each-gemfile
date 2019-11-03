@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# run a command with all gemfiles in a repo
+# TODO: --parallel ?
+
+abort "Pass command as argument" if ARGV.empty?
+
+gemfiles = Dir["{Gemfile,gemfiles/*.gemfile}"]
+abort "No gemfiles found" if gemfiles.empty?
+
+gemfiles.each do |gemfile|
+  warn "BUNDLE_GEMFILE=#{gemfile}" # copy-paste friendly
+  abort unless system({"BUNDLE_GEMFILE" => gemfile}, *ARGV)
+end
