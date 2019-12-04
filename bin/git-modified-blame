@@ -1,0 +1,40 @@
+#!/usr/bin/ruby
+#
+# Show whos peoples code you just modified
+#
+# TODO: support moved / added / deleted files too
+# TODO: ignore whitespace
+
+def sh(command)
+  result = `#{command}`
+  abort "Command failed:\n#{command}\n#{result}" unless $?.success?
+  result
+end
+
+abort "no arguments" if ARGV.any?
+
+found = []
+file_diffs = sh("git show").split(/^diff --git /) # each file starts with a `diff --git`
+file_diffs.shift # ignore the first commit info section
+file_diffs.each do |diff|
+  diff.sub!(/.*^--- (.*?)$/m, "") # remove diffing noise
+  file = $1.sub(/^(a|b)\//, "") # remove a/ b/ prefix when user does not have diff.noprefix=true
+  next if file == "/dev/null" # ignore added iles
+
+  sections = diff.split(/\n@@ -(\d+),\d+ \+\d+,\d+ @@\n/)
+  sections.each_slice(3) do |_, start, modified|
+    next unless start
+    lines = modified.split("\n")
+    counter = Integer(start)
+    lines.each do |line|
+      next if line.start_with?("+") # ignore added lines
+      if line.start_with?("-")
+        blame = sh("git blame HEAD^ -L #{counter},#{counter} -- #{file}") # TODO: better format ?
+        found << blame[/\S+ \((.*?) \d{4}-/, 1]
+      end
+      counter += 1
+    end
+  end
+end
+
+puts found.uniq
