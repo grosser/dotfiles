@@ -5,6 +5,8 @@
 # TODO: support moved / added / deleted files too
 # TODO: ignore whitespace
 
+require 'pp'
+
 def sh(command)
   result = `#{command}`
   abort "Command failed:\n#{command}\n#{result}" unless $?.success?
@@ -21,9 +23,9 @@ file_diffs.each do |diff|
   file = $1.sub(/^(a|b)\//, "") # remove a/ b/ prefix when user does not have diff.noprefix=true
   next if file == "/dev/null" # ignore added iles
 
-  sections = diff.split(/\n@@ -(\d+),\d+ \+\d+,\d+ @@\n/)
-  sections.each_slice(3) do |_, start, modified|
-    next unless start
+  sections = diff.split(/\n@@ -(\d+),\d+ \+\d+,\d+ @@(?:.*)/) # can end with \n or what diff things is nesting
+  sections.shift # things before the first marker are not important
+  sections.each_slice(2) do |start, modified|
     lines = modified.split("\n")
     counter = Integer(start)
     lines.each do |line|
