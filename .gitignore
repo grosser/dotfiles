@@ -1,3 +1,4 @@
 secret
 gems
 bin/kubectl
+bin/go-testcov
