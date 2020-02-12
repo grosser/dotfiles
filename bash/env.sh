@@ -1,8 +1,8 @@
 export EDITOR="ruco"
 export PATH="$HOME/dotfiles/bin:$HOME/dotfiles/secret/bin:$HOME/.nodenv/shims:/usr/local/bin:$PATH"
-if [ -f /usr/libexec/java_home ]; then
-  export JAVA_HOME=$(/usr/libexec/java_home)
-fi
+#if [ -f /usr/libexec/java_home ]; then
+#  export JAVA_HOME=$(/usr/libexec/java_home)
+#fi
 export CLICOLOR=1 # colors for e.g. ls on mac
 export RBXOPT="-Xrbc.db" # do not clutter up everything with .rbc files when using rubinius
 
