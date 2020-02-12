@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source ~/.bash_profile
+
 source ~/dotfiles/bash/env.sh
 source ~/dotfiles/bash/alias.sh
 source ~/dotfiles/bash/prompt.sh
