@@ -9,7 +9,9 @@ export RBXOPT="-Xrbc.db" # do not clutter up everything with .rbc files when usi
 # HISTORY https://sanctum.geek.nz/arabesque/better-bash-history
 export HISTSIZE=1000000 # size of history
 export HISTCONTROL=ignorespace:ignoredups # ignore duplicates, cmds beginning with space
-export HISTIGNORE='ls:bg:fg:history' # ignore useless commands
+
+eval "HISTIGNORE+=" 2>/dev/null && # if HISTIGNORE is writeable (avoid noise on remote hosts)
+  export HISTIGNORE='ls:bg:fg:history' # ignore useless commands
 export HISTTIMEFORMAT='%F %T ' # show when commands were executed
 
 
