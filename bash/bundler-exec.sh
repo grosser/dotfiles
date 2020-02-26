@@ -4,11 +4,6 @@ BUNDLED_COMMANDS="cucumber rackup rails ruby shotgun spec rspec cap knife sfn ra
 
 ## Functions
 
-bundler-installed()
-{
-    which bundle > /dev/null 2>&1
-}
-
 within-bundled-project()
 {
     local dir="$(pwd)"
@@ -23,7 +18,7 @@ run-with-bundler()
 {
     local command="$1"
     shift
-    if bundler-installed && within-bundled-project; then
+    if within-bundled-project; then
         if [ $command == "ruby" ]; then
           ruby -rbundler/setup "$@"
         else
