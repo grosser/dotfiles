@@ -7,11 +7,11 @@ BUNDLED_COMMANDS="cucumber rackup rails ruby shotgun spec rspec cap knife sfn ra
 within-bundled-project()
 {
     local dir=$PWD
-    while true; do
-        [ -f "$dir/Gemfile" ] && return
+    while [ $dir != "/" ]; do
+        [ -f "$dir/Gemfile" ] && return 0
         dir="$(dirname $dir)"
-        [ $dir == "/" ] && return 1
     done
+    return 1
 }
 
 run-with-bundler()

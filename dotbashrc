@@ -21,6 +21,7 @@ export PATH="/usr/local/heroku/bin:$PATH"
 if [ -e /usr/local/share/chruby ]; then
   source /usr/local/share/chruby/chruby.sh
   RUBIES+=(~/.rbenv/versions/*)
+  chruby 2.6.5 # pick a default ruby
   source /usr/local/share/chruby/auto.sh
 else
   eval "$(rbenv init -)"
