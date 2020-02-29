@@ -3,7 +3,11 @@ alias m='mine .'
 alias wrake="`which rake`" # rake without bundler
 alias wruby="`which ruby`" # ruby without bundler
 alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/helpers" # pry as rails console, without pry as dependency
-alias r="RBENV_VERSION=2.5.7 ruco"
+if [ -e /usr/local/share/chruby ]; then
+  alias r="chruby 2.6.5 && ruco"
+else
+  alias r="RBENV_VERSION=2.6.5 ruco"
+fi
 alias t='testrbl'
 alias r3t='BUNDLE_GEMFILE=Gemfile.rails3 t'
 alias r3b='BUNDLE_GEMFILE=Gemfile.rails3 bundle'
