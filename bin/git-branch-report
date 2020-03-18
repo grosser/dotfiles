@@ -11,7 +11,7 @@ def sh(command)
   result
 end
 
-abort "Prefix please" unless ARGV.size == 1 # TODO: support stdin so ppl can git br | grep foo |
+abort "Prefix please" unless ARGV.size == 1 # TODO: support stdin so ppl can git branch | grep foo |
 prefix = ARGV[0]
 
 branches = sh("git br --sort=-committerdate --format '%(refname)'").gsub("refs/heads/", "").split("\n")
