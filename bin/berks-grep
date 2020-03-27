@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+# greps for given strings in all dependent cookbooks
+# usage: berks-grep foobar
+
+raise "Needs exactly 1 argument" if ARGV.size != 1
+
+require 'shellwords'
+
+def sh(command)
+  result = `#{command}`
+  raise "'#{command}' failed!" unless $?.success?
+  result
+end
+
+cookbooks = sh("bundle exec berks list").scan(/ \* (\S+) \((\S+)\)/)
+paths = cookbooks.map do |cookbook, version|
+  prefix = File.expand_path("~/.berkshelf/cookbooks/#{cookbook}")
+  naive_path = "#{prefix}-#{version}"
+
+  if File.exist? naive_path
+    naive_path
+  else
+    Dir.glob("#{prefix}-*").detect { |dir| File.read("#{dir}/metadata.rb").match? /version\s+['"]#{Regexp.escape(version)}['"]/ } ||
+      warn("Did not find cookbook #{cookbook} with version #{version}")
+  end
+end.compact
+
+exec("echo #{paths.join("\n").shellescape} | xargs grep --recursive --line-number -- #{ARGV.shelljoin}")
+
+
