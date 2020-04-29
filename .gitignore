@@ -3,3 +3,4 @@ gems
 bin/kubectl
 bin/go-testcov
 bin/trans
+bin/ginko
