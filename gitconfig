@@ -60,7 +60,7 @@
   untracked = cyan
 
 [core]
-  pager = diff-so-fancy | less --tabs=4 -RFX # https://github.com/so-fancy/diff-so-fancy
+  pager = delta --plus-color="#012800" --minus-color="#340001" --theme='Monokai Extended' # https://github.com/dandavison/delta
   excludesfile = ~/.gitignore
 
 [color "diff-highlight"]
@@ -78,7 +78,7 @@
   whitespace = red reverse
 
 [interactive]
-  diffFilter = diff-highlight
+  diffFilter = delta --color-only
 
 [push]
   default = current
