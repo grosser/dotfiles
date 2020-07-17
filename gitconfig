@@ -60,7 +60,7 @@
   untracked = cyan
 
 [core]
-  pager = delta --plus-color="#012800" --minus-color="#340001" --theme='Monokai Extended' # https://github.com/dandavison/delta
+  pager = delta --theme='GitHub' # https://github.com/dandavison/delta
   excludesfile = ~/.gitignore
 
 [color "diff-highlight"]
