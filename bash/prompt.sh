@@ -59,7 +59,7 @@ function prompt_func() {
   PS1=$prompt
 
   # amend the session history to the history file so that new terminals have all the history of the other terminals
-  history -a;
+  history -a
 }
 
 export PROMPT_COMMAND=prompt_func 2>/dev/null
