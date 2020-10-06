@@ -1,4 +1,8 @@
-export EDITOR="ruco"
+if [[ $host != *"mgrosser"* ]]; then
+  export EDITOR="ruco"
+else
+  export EDITOR="nano"
+fi
 export PATH="$HOME/dotfiles/bin:$HOME/dotfiles/secret/bin:$HOME/.nodenv/shims:/usr/local/bin:$PATH"
 #if [ -f /usr/libexec/java_home ]; then
 #  export JAVA_HOME=$(/usr/libexec/java_home)
