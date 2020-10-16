@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+[ -z "$PS1" ] && return # do nothing for non-interactive sessions to avoid bugs from sending to stderr/stdout
+
 source ~/dotfiles/bash/env.sh
 source ~/dotfiles/bash/alias.sh
 source ~/dotfiles/bash/prompt.sh
