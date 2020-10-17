@@ -30,7 +30,12 @@ def github_compare(gem, old, new)
   link_to "🐙±", "#{url}/compare/v#{CGI.escape(old)}#{compare_mode}v#{CGI.escape(new)}"
 end
 
+def private?(gem, version)
+  spec(gem, version)&.metadata["allowed_push_host"]
+end
+
 def gem_compare(gem, old, new)
+  return if private?(gem, new)
   old, new = new, old if (Gem::Version.new(new) > Gem::Version.new(old) ? "..." : "..") rescue false # support downgrade diff
   link_to "💎±", "https://my.diffend.io/gems/#{gem}/#{old}/#{new}"
 end
@@ -46,9 +51,12 @@ def github_url(gem, version)
   url.sub(/\/$/, '') if url.include?("github.com")
 end
 
-# TODO: find source from spec somehow ... don't think that works :/
-def link_to_gem(gem)
-  link_to gem, "https://rubygems.org/gems/#{gem}"
+def link_to_gem(gem, version)
+  if private?(gem, version)
+    gem
+  else
+    link_to gem, "https://rubygems.org/gems/#{gem}"
+  end
 end
 
 def link_to(title, url)
@@ -70,11 +78,11 @@ added = after.keys - before.keys
 removed = before.keys - after.keys
 modified = (after.keys & before.keys).select { |gem| before[gem] != after[gem] }
 
-added.each { |gem| puts "- #{link_to_gem(gem)} #{after[gem]} Added #{link_to_github(gem, after[gem])}" }
-removed.each { |gem| puts "- #{link_to_gem(gem)} #{before[gem]} Removed #{link_to_github(gem, before[gem])}" }
+added.each { |gem| puts "- #{link_to_gem(gem, after[gem])} #{after[gem]} Added #{link_to_github(gem, after[gem])}" }
+removed.each { |gem| puts "- #{link_to_gem(gem, before[gem])} #{before[gem]} Removed #{link_to_github(gem, before[gem])}" }
 modified.each do |gem|
   old = before[gem]
   new = after[gem]
-  puts "- #{link_to_gem(gem)} #{old}→#{new} #{gem_compare(gem, old, new)} #{github_compare(gem, old, new)}"
+  puts "- #{link_to_gem(gem, new)} #{old}→#{new} #{gem_compare(gem, old, new)} #{github_compare(gem, old, new)}"
 end
 puts '<sup>by <a href="https://github.com/grosser/dotfiles/blob/master/bin/lock-diff">lock-diff</a></sup>'
