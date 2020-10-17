@@ -21,23 +21,23 @@ def versions(lock)
 end
 
 def github_compare(gem, old, new)
-  text = "v#{old} -> v#{new}"
-  return text unless url = github_url(gem, new)
+  return "" unless url = github_url(gem, new)
+  url.sub!(/\/tree\/.*/, "") # some gems link to things like /tree/v2.7.2.0
 
   # "..." mode is nicer, but does not show downgrades
   # see https://help.github.com/articles/about-comparing-branches-in-pull-requests/#three-dot-and-two-dot-git-diff-comparisons
-  begin
-    compare_mode = (Gem::Version.new(new) > Gem::Version.new(old) ? "..." : "..")
-  rescue
-    warn "Bad version #{gem} #{$!}"
-  end
-  link_to text, "#{url}/compare/v#{CGI.escape(old)}#{compare_mode}v#{CGI.escape(new)}"
+  compare_mode = (Gem::Version.new(new) > Gem::Version.new(old) ? "..." : "..") rescue "..."
+  link_to "🐙±", "#{url}/compare/v#{CGI.escape(old)}#{compare_mode}v#{CGI.escape(new)}"
+end
+
+def gem_compare(gem, old, new)
+  old, new = new, old if (Gem::Version.new(new) > Gem::Version.new(old) ? "..." : "..") rescue false # support downgrade diff
+  link_to "💎±", "https://my.diffend.io/gems/#{gem}/#{old}/#{new}"
 end
 
 def link_to_github(name, version)
-  text = "v#{version}"
-  return text unless url = github_url(name, version)
-  link_to text, url
+  return unless url = github_url(name, version)
+  link_to "🐙", url
 end
 
 def github_url(gem, version)
@@ -70,10 +70,11 @@ added = after.keys - before.keys
 removed = before.keys - after.keys
 modified = (after.keys & before.keys).select { |gem| before[gem] != after[gem] }
 
-added.each { |gem| puts " - #{link_to_gem(gem)} #{link_to_github(gem, after[gem])} Added" }
-removed.each { |gem| puts " - #{link_to_gem(gem)} #{link_to_github(gem, before[gem])} Removed" }
+added.each { |gem| puts "- #{link_to_gem(gem)} #{after[gem]} Added #{link_to_github(gem, after[gem])}" }
+removed.each { |gem| puts "- #{link_to_gem(gem)} #{before[gem]} Removed #{link_to_github(gem, before[gem])}" }
 modified.each do |gem|
   old = before[gem]
   new = after[gem]
-  puts " - #{link_to_gem(gem)} #{github_compare(gem, old, new)}"
+  puts "- #{link_to_gem(gem)} #{old}→#{new} #{gem_compare(gem, old, new)} #{github_compare(gem, old, new)}"
 end
+puts '<sup>by <a href="https://github.com/grosser/dotfiles/blob/master/bin/lock-diff">lock-diff</a></sup>'
