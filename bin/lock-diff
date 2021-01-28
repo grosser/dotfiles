@@ -36,7 +36,7 @@ end
 
 def gem_compare(gem, old, new)
   return if private?(gem, new)
-  old, new = new, old if (Gem::Version.new(new) > Gem::Version.new(old) ? "..." : "..") rescue false # support downgrade diff
+  old, new = new, old if Gem::Version.new(old) > Gem::Version.new(new) rescue false # support downgrade diff
   link_to "💎±", "https://my.diffend.io/gems/#{gem}/#{old}/#{new}"
 end
 

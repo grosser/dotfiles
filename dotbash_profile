@@ -16,3 +16,6 @@ source /Users/mgrosser/Code/zendesk/docker-images/dockmaster/zdi.sh
 fi
 
 source ~/.bashrc
+
+# fixes weird PG connection issue
+export PGHOST=localhost
