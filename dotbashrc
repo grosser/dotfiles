@@ -35,3 +35,6 @@ fi
 
 # secret
 [ -f ~/dotfiles/secret/bash.sh ] && source ~/dotfiles/secret/bash.sh
+
+
+[ -f ~/Code/zendesk/kubectl_config/dotfiles/kubectl_stuff.bash ] && source ~/Code/zendesk/kubectl_config/dotfiles/kubectl_stuff.bash

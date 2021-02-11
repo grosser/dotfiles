@@ -12,23 +12,20 @@ else
   alias r="RBENV_VERSION=2.6.5 ruco"
 fi
 alias t='testrbl'
-alias r3t='BUNDLE_GEMFILE=Gemfile.rails3 t'
-alias r3b='BUNDLE_GEMFILE=Gemfile.rails3 bundle'
-alias st='spring test'
 alias bo='bundle open'
 alias bu='bundle update'
-alias bp='bundle package --quiet'
-alias tdd='date && tddium run --quiet'
-alias tds='tddium status'
 alias global-off='sudo mv /Applications/GlobalProtect{,OFF}.app && pkill -9 -f GlobalProtect && sudo pkill -9 -f PanGPS'
 alias global-on='sudo mv /Applications/GlobalProtect{OFF,}.app'
 alias casper-off='sudo mv /usr/local/jamf/bin/jamfAgent{,-off} ; sudo mv /usr/local/jamf/bin/jamf{,-off} ; sudo pkill -9 jamf'
 alias casper-on='sudo mv /usr/local/jamf/bin/jamfAgent{-off,} ; sudo mv /usr/local/jamf/bin/jamf{-off,}'
 alias game-on='global-off; casper-off'
 alias game-off='global-on; casper-on'
-alias kcm='sudo kubectl --context=master-devops'
-alias kcs='sudo kubectl --context=staging-devops'
 alias dst='docker rm -f $(docker ps -aq) >/dev/null 2>&1 || true'
+alias k="kubectl --context"
+alias ka="kubectl --as admin --as-group system:masters --context"
+alias s="stern --context"
+alias kube-console="~/Code/zendesk/chef_kubernetes_tools/templates/default/kube-console.rb --as admin --as-group system:masters --context"
+
 
 function take(){
   mkdir $1;

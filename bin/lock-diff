@@ -31,7 +31,8 @@ def github_compare(gem, old, new)
 end
 
 def private?(gem, version)
-  spec(gem, version)&.metadata["allowed_push_host"]
+  return unless found = spec(gem, version)
+  found.metadata["allowed_push_host"]
 end
 
 def gem_compare(gem, old, new)

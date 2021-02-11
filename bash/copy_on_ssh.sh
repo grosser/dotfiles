@@ -1,6 +1,6 @@
 SSH_WITHOUT_COPY_ON_SSH=$(type -path ssh 2>/dev/null);
 
-function ssh() {
+function xssh() {
   # Overrides ssh to rsync all files listed in $list to the remote server before login.
   # Tries very hard to skip this when logging in as another user,
   # but it cannot detect whether an alternate "User" is defined in $HOME/.ssh/config
