@@ -24,7 +24,9 @@ function git-find-merge() {
 # alias erase="wipe -crqQ1" # rename + overwrite + remove files
 
 #GIT
-alias master='git co master'
+function master() {
+  ([[ -z $(git branch --list master) ]] && git checkout main) || git checkout master
+}
 
 #Rails
 alias ttr="touch tmp/restart.txt"
