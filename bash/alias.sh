@@ -11,6 +11,7 @@ alias rmdir='rmdir -v'
 alias ln='ln -v'
 alias ls='ls -Gh'
 alias grep='grep --color=auto'
+alias dive="docker run -ti --rm  -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
 
 f(){ find . -iname "*$1*"; }
 

@@ -7,6 +7,9 @@ export SKIP_DOCKER_CHECK=true # speeds up startup a bit
 # make catalina shut up about zsh
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
+# make docker shut up about scanning
+export DOCKER_SCAN_SUGGEST=false
+
 # auto-added by docker-images but I want it to not blow up on remote servers
 if [ -f ~/Code/zendesk/docker-images/dockmaster/zdi.sh ]; then
 # BEGIN DOCKER-IMAGES

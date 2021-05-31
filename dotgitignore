@@ -26,3 +26,4 @@ dump.rdb
 .byebug_history
 .crystal
 .rake_tasks~
+.go-version

@@ -85,6 +85,7 @@
 
 [branch]
   autosetuprebase = always # rebase when pulling
+  sort = -committerdate
 
 [pull]
   rebase = true

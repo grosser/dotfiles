@@ -13,9 +13,6 @@ for file in ~/dotfiles/autocomplete/* ; do
   source "$file"
 done
 
-# travis gem
-[ -f ~/.travis/travis.sh ] && source ~/.travis/travis.sh
-
 # Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:$PATH"
 
