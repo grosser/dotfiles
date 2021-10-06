@@ -19,7 +19,9 @@ changed = `git status --porcelain`.
 
 exit if changed.empty?
 
-parallel = ((File.read(".rubocop.yml").include?("UseCache: false") rescue false) ? "" : " --parallel")
-result = `bundle exec rubocop #{parallel} --color --force-exclusion #{changed.shelljoin}`
-puts result unless $?.success?
-exit $?.exitstatus
+if File.exist?(".standard.yml")
+  exec "bundle exec standardrb #{changed.shelljoin}"
+else
+  parallel = ((File.read(".rubocop.yml").include?("UseCache: false") rescue false) ? "" : " --parallel")
+  exec "bundle exec rubocop #{parallel} --color --force-exclusion #{changed.shelljoin}"
+end
