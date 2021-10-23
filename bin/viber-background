@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# make Viber open in th background by modifying the plist, but undo the change after so after a reboot it does not crash
+folder = "/Applications/Viber.app"
+path = "#{folder}/Contents/Info.plist"
+original = File.read(path)
+background = original.dup.sub!("<dict>", "<dict>\n<key>LSUIElement</key><string>1</string>\n") || raise
+begin
+  File.write(path, background)
+  system "open", folder
+ensure
+  sleep 1 # let it start
+  File.write(path, original)
+end
