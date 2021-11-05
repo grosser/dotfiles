@@ -15,8 +15,7 @@ changed = `git status --porcelain`.
   split("\n").
   map { |l| l.split(" ", 2) }.
   select { |status, _| ["A", "AM", "M"].include?(status) }. # changed, not deleted
-  map { |_, file| file.delete('"') }. # remove extra quotes from git
-  grep(/\A(.*\.(rb|rake)|Rakefile|Gemfile|bin\/.*)\z/) # only run on ruby files
+  map { |_, file| file.delete('"') } # remove extra quotes from git
 
 exit if changed.empty?
 
