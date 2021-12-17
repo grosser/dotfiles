@@ -54,7 +54,7 @@ export RUBY_HEAP_FREE_MIN=500000
 
 # GO
 # PATH="$HOME/.goenv/shims:$PATH"
-PATH="$HOME/go/1.16.2/bin:$PATH"
+PATH="$PATH:$HOME/go/bin"
 
 # Rust
 PATH="$HOME/.cargo/bin:$PATH"
