@@ -26,6 +26,7 @@
   parent-update = "!br=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@');git co $br && git fetch parent && git reset --hard parent/$br && git checkout - && git rebase $br"
   amend-to = !sh -c 'git stash && git edit $1 && git stash pop && git edit --amend' -
   rprune = "!git checkout master && git pull && git remote prune origin && git branch --merged | grep -v '*' | xargs git branch -d && git for-each-ref refs/heads/ '--format=%(refname:short)' | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch^{tree}) -p $mergeBase -m _)) == '-'* ]] && git branch -D $branch; done"
+  yeet = "!git branch | grep -v "master\\|main" | xargs git branch -D "
   all = "!f() { for i in `ls`; do if [ -d $i/.git ]; then echo \"$i\n--------------------------\"; git -C $i $1; echo; fi; done; }; f" # perform an action on all git repositories in the current directory (for example git all pull)
 
   # shortcuts so I get autocomlete
