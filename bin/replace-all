@@ -1,2 +1,0 @@
-# replace all occurances without messing up encoding or failing on invalid encodings like sed does
-find $1 -name "*" | RBENV_VERSION=2.0.0 D1=$2 D2=$3 pru 'return unless File.file?(self); c = File.read(self); s = ENV["D1"]; r = ENV["D2"]; while x = c.index(s) do; c.slice!(x,s.size); c.insert(x, r);  end; File.write(self, c)'
