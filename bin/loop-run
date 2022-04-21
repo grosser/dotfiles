@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+time = ARGV[0].to_i
+raise "Usage: sleep-time command" if time == 0
+
+loop do
+  puts Time.now
+  system(*ARGV[1..-1])
+  sleep time
+end
