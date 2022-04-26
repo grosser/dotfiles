@@ -24,8 +24,6 @@ alias dst='docker rm -f $(docker ps -aq) >/dev/null 2>&1 || true'
 alias k="kubectl --context"
 alias ka="kubectl --as admin --as-group system:masters --context"
 alias s="stern --context"
-alias kube-console="~/Code/zendesk/chef_kubernetes_tools/templates/default/kube-console.rb --as admin --as-group system:masters --context"
-alias kube-drain="~/Code/zendesk/chef_kubernetes_tools/templates/default/kube-drain.rb --as admin --as-group system:masters --context"
 alias kbadpod="kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded -L team,project,role --context"
 
 function take(){

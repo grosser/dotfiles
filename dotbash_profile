@@ -10,14 +10,6 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 # make docker shut up about scanning
 export DOCKER_SCAN_SUGGEST=false
 
-# auto-added by docker-images but I want it to not blow up on remote servers
-if [ -f ~/Code/zendesk/docker-images/dockmaster/zdi.sh ]; then
-# BEGIN DOCKER-IMAGES
-export DOCKER_FOR_MAC_ENABLED=true
-source /Users/mgrosser/Code/zendesk/docker-images/dockmaster/zdi.sh
-# END DOCKER-IMAGES
-fi
-
 source ~/.bashrc
 
 # fixes weird PG connection issue
