@@ -58,3 +58,8 @@ PATH="$PATH:$HOME/go/bin"
 
 # Rust
 PATH="$HOME/.cargo/bin:$PATH"
+
+# make ruby installs fast by reusing openssl
+# see `brew list openssl`
+export RUBY_CONFIGURE_OPTS=--with-openssl-dir=/opt/homebrew/Cellar/openssl@3/3.0.2
+
