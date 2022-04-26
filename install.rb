@@ -55,6 +55,12 @@ raise "You must be in your home folder" unless Dir.pwd == File.expand_path('~')
 expected = File.expand_path("~/dotfiles")
 raise "dotfiles must be checked out as #{expected}" unless dotfiles == expected
 
+secret = "#{expected}/secret"
+unless File.exist?(secret)
+  warn "#{secret} is not symlinked ... continue ? (y/n)"
+  abort unless $STDING.gets.strip == "y"
+end
+
 backup = create_backup_folder
 
 # backup and replace files through links
