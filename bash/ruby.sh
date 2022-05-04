@@ -1,5 +1,5 @@
 # chruby or rbenv
-if [ -f /opt/homebrew/opt/chruby/share/chruby/chruby.sh ]; then
+if [ -e /opt/homebrew/opt/chruby ]; then
   source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
   RUBIES+=(~/.rbenv/versions/*)
   chruby 3.1.0 # pick a default ruby

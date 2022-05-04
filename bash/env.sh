@@ -1,7 +1,7 @@
-if [[ $host != *"mgrosser"* ]]; then
-  export EDITOR="ruco"
+if [[ $HOME == "/Users/mgrosser" ]]; then
+  export EDITOR="ruco" # local
 else
-  export EDITOR="nano"
+  export EDITOR="nano" # server
 fi
 export PATH="$HOME/dotfiles/bin:$HOME/dotfiles/secret/bin:$HOME/.nodenv/shims:/usr/local/bin:$PATH"
 #if [ -f /usr/libexec/java_home ]; then
@@ -18,11 +18,9 @@ eval "HISTIGNORE+=" 2>/dev/null && # if HISTIGNORE is writeable (avoid noise on 
   export HISTIGNORE='ls:ll:cd:pwd:bg:fg:history' # ignore useless commands
 export HISTTIMEFORMAT='%F %T ' # show when commands were executed
 
-
 # Ignore mail
 unset -v MAIL;
 unset -v MAIL_WARNING;
 
 # in case-sensitive autocompletion
 tty -s && bind 'set completion-ignore-case on' 2>/dev/null
-

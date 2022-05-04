@@ -3,14 +3,6 @@ alias m='mine .'
 alias wrake="`which rake`" # rake without bundler
 alias wruby="`which ruby`" # ruby without bundler
 alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/helpers" # pry as rails console, without pry as dependency
-if [ -e /usr/local/share/chruby ]; then
-  function r(){
-    old=$(chruby | grep '*' | cut -b 4-) && chruby 2.6.5 && ruco "$@"
-    chruby $old
-  }
-else
-  alias r="RBENV_VERSION=2.6.5 ruco"
-fi
 alias t='testrbl'
 alias bo='bundle open'
 alias bu='bundle update'
