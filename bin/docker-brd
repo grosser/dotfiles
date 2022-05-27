@@ -1,6 +1,11 @@
 #!/usr/bin/env ruby
 # build local image, run command, delete image
-# to use options for `docker run` separate arguments with --
+# docker-brd <run command>
+# docker-brd <build options> -- <run command>
+# docker-brd <build options> -- <run options> -- <run command>
+#
+# docker-brd --build-arg PLATFORM=aarch64 . -- --entrypoint '' -- irb
+
 require 'shellwords'
 
 def sh(*command)
@@ -10,17 +15,24 @@ def sh(*command)
 end
 
 image = "docker-brd"
+if (split_at = ARGV.index("--"))
+  build_options = ARGV.shift(split_at)
+  ARGV.shift
+  if (split_at = ARGV.index("--"))
+    run_options = ARGV.shift(split_at)
+    ARGV.shift
+  end
+else
+  build_options = ["."]
+end
 
 # build
-status = sh("docker", "build", "-t", image, ".")
+status = sh("docker", "build", "-t", image, *build_options)
 exit status unless status == 0
 
 # run + cleanup
-split_at = ARGV.index("--")
-options, argv = (split_at ? [ARGV[0...split_at], ARGV[split_at+1..-1]] : [[], argv])
-
 begin
-  exit sh("docker", "run", "-it", "--rm", *options, image, *argv)
+  exit sh("docker", "run", "-it", "--rm", *run_options, image, *ARGV)
 ensure
   `docker rmi #{image}` # silent cleanup
 end
