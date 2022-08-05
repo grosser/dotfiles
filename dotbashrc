@@ -28,9 +28,10 @@ eval "$(/opt/homebrew/bin/goenv init -)"
 PATH="$HOME/.cargo/bin:$PATH"
 
 # Gcloud
-file=/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc
+source "/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc"
+file=/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc
 [ -f $file ] && source $file
-file=/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc
+file=/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc
 [ -f $file ] && source $file
 
 # secret
