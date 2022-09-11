@@ -13,6 +13,7 @@ source ~/dotfiles/bash/bundler-exec.sh
 source ~/dotfiles/bash/copy_on_ssh.sh
 source ~/dotfiles/bash/personal.sh
 
+source /opt/homebrew/etc/bash_completion # for kubectl, needs `brew install bash-completion`
 for file in ~/dotfiles/autocomplete/* ; do
   source "$file"
 done
