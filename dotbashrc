@@ -22,6 +22,7 @@ done
 export PATH="/usr/local/heroku/bin:$PATH"
 
 # GO
+export GOENV_GOMOD_VERSION_ENABLE=1
 #PATH="$HOME/.goenv/shims:$PATH"
 eval "$(/opt/homebrew/bin/goenv init -)"
 
