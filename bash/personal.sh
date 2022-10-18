@@ -15,7 +15,7 @@ alias game-off='global-on; casper-on'
 alias dst='docker rm -f $(docker ps -aq) >/dev/null 2>&1 || true'
 alias k="kubectl --context"
 alias ka="kubectl --as admin --as-group system:masters --context"
-alias s="stern --context"
+alias s="stern --timezone utc -t --context"
 alias kbadpod="kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded -L team,project,role --context"
 
 function take(){
