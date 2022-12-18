@@ -39,3 +39,11 @@ file=/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.i
 # secret
 file=~/dotfiles/secret/bash.sh
 [ -f $file ] && source $file
+
+# TODO: fix chruby https://github.com/ddworken/hishtory/issues/44
+# Hishtory Config:
+# install via https://github.com/ddworken/hishtory
+#export PATH="$PATH:/Users/mgrosser/.hishtory"
+#source /Users/mgrosser/.hishtory/config.sh
+#hishtory config-set displayed-columns Command 'Exit Code' CWD Runtime # Timestamp Hostname
+#hishtory config-set timestamp-format '2006-01-02 15:04:39'
