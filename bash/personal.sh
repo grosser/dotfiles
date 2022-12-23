@@ -13,10 +13,12 @@ alias casper-on='sudo mv /usr/local/jamf/bin/jamfAgent{-off,} ; sudo mv /usr/loc
 alias game-on='global-off; casper-off'
 alias game-off='global-on; casper-on'
 alias dst='docker rm -f $(docker ps -aq) >/dev/null 2>&1 || true'
-alias k="kubectl --context"
-alias ka="kubectl --as admin --as-group system:masters --context"
 alias s="stern --timezone utc -t --context"
 alias kbadpod="kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded -L team,project,role --context"
+
+# must be a function to support plugins (like kubectl evict) which need their sub-command in first position
+function k() { kubectl "${@:2}" --context "$1"; }
+function ka() { kubectl "${@:2}" --as admin --as-group system:masters --context "$1"; }
 
 function take(){
   mkdir $1;
