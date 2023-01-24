@@ -10,6 +10,7 @@ nbproject
 *.pid
 .rvmrc
 .redcar
+.vscode
 node_modules
 tmp
 log
