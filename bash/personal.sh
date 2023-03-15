@@ -16,9 +16,11 @@ alias dst='docker rm -f $(docker ps -aq) >/dev/null 2>&1 || true'
 alias s="stern --timezone utc -t --context"
 alias kbadpod="kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded -L team,project,role --context"
 
-# must be a function to support plugins (like kubectl evict) which need their sub-command in first position
-function k() { kubectl "${@:2}" --context "$1"; }
-function ka() { kubectl "${@:2}" --as admin --as-group system:masters --context "$1"; }
+# - cannot be an alias to make plugins work `ka sandbox edit-status -h`
+# - needs $3 at the end to make exec with `--` work
+# - needs dash-detection to make `ka sandbox -n foo get pods` work
+function k() { if [[ $2 = -* ]]; then kubectl --context "$1" "${@:2}"; else kubectl "$2" --context "$1" "${@:3}"; fi; }
+function ka() { if [[ $2 = -* ]]; then kubectl --as admin --as-group system:masters --context "$1" "${@:2}"; else kubectl "$2" --as admin --as-group system:masters --context "$1" "${@:3}"; fi; }
 
 function take(){
   mkdir $1;
