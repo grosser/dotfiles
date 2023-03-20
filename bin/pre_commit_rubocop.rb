@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-# put this file into your path and use `<file> install` to add a new hook
+# put this file into your path and use `<file> install` in the repo you want to have the pre-commit hook
 # or use it as a binary to check changed files
 
 require 'shellwords'
