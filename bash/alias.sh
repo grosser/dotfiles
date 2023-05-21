@@ -26,7 +26,7 @@ function git-find-merge() {
 
 # GIT
 function master() {
-  ([[ -z $(git branch --list master) ]] && git checkout main) || git checkout master
+  ([[ -z $(git branch --list main) ]] && git checkout main) || git checkout master
 }
 
 # Rails
