@@ -1,6 +1,5 @@
-nbproject
 .svn
-*.gem
+pkg/*.gem
 *.idea
 *.cache
 *.log
