@@ -1,0 +1,4 @@
+#!/bin/sh
+# needs to be an executable so it works with `bundle open`
+# see https://youtrack.jetbrains.com/issue/RUBY-31628
+open -a /Applications/RubyMine.app/Contents/MacOS/rubymine "$@"

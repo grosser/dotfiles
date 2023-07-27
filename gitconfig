@@ -26,8 +26,12 @@
   parent-update = "!br=$((test -e .git/refs/remotes/parent/main && echo main) || echo master);git co $br && git fetch parent && git reset --hard parent/$br && git checkout - && git rebase $br"
   amend-to = !sh -c 'git stash && git edit $1 && git stash pop && git edit --amend' -
   rprune = "!git checkout master && git pull && git remote prune origin && git branch --merged | grep -v '*' | xargs git branch -d && git for-each-ref refs/heads/ '--format=%(refname:short)' | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch^{tree}) -p $mergeBase -m _)) == '-'* ]] && git branch -D $branch; done"
+  # delete all branches except master/main
   yeet = "!git branch | grep -v "master\\|main" | xargs git branch -D "
-  all = "!f() { for i in `ls`; do if [ -d $i/.git ]; then echo \"$i\n--------------------------\"; git -C $i $1; echo; fi; done; }; f" # perform an action on all git repositories in the current directory (for example git all pull)
+  # perform an action on all git repositories in the current directory (for example git all pull)
+  all = "!f() { for i in `ls`; do if [ -d $i/.git ]; then echo \"$i\n--------------------------\"; git -C $i $1; echo; fi; done; }; f"
+  # show modified files for given ref
+  modified = "!sh -c 'git diff-tree --no-commit-id --name-only -r $1' -"
 
   # shortcuts so I get autocomlete
   stached-switch = "!~/dotfiles/bin/git-stached-switch"

@@ -1,5 +1,5 @@
-#Stuff that no-one else need, add and modify here to keep forks clean
-alias m='mine .'
+# Stuff that no-one else need, add and modify here to keep forks clean
+alias m="mine ."
 alias wrake="`which rake`" # rake without bundler
 alias wruby="`which ruby`" # ruby without bundler
 alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/helpers" # pry as rails console, without pry as dependency
@@ -23,12 +23,12 @@ function k() { if [[ $2 = -* ]]; then kubectl --context "$1" "${@:2}"; else kube
 function ka() { if [[ $2 = -* ]]; then kubectl --as admin --as-group system:masters --context "$1" "${@:2}"; else kubectl "$2" --as admin --as-group system:masters --context "$1" "${@:3}"; fi; }
 
 function take(){
-  mkdir $1;
-  cd $1;
+  mkdir "$1"
+  cd "$1" || exit
 }
 
 function pdf-decrypt(){
-  qpdf --decrypt $1 $1.tmp && mv -f $1.tmp $1
+  qpdf --decrypt "$1" "$1".tmp && mv -f "$1.tmp" "$1"
 }
 
 function kbadpdb(){
