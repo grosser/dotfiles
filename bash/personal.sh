@@ -15,6 +15,7 @@ alias game-off='global-on; casper-on'
 alias dst='docker rm -f $(docker ps -aq) >/dev/null 2>&1 || true'
 alias s="stern --timezone utc -t --context"
 alias kbadpod="kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded -L team,project,role --context"
+alias each-cluster="~/Code/zendesk/dotfiles_n_scripts/shell_scripts/each-cluster"
 
 # - cannot be an alias to make plugins work `ka sandbox edit-status -h`
 # - needs $3 at the end to make exec with `--` work
