@@ -17,4 +17,4 @@ export RUBY_HEAP_FREE_MIN=500000
 
 # make ruby installs fast by reusing openssl
 # see `brew list openssl`
-export RUBY_CONFIGURE_OPTS=--with-openssl-dir=/opt/homebrew/Cellar/openssl@3/3.0.2
+export RUBY_CONFIGURE_OPTS=--with-openssl-dir=/opt/homebrew/Cellar/openssl@3/3.2.0_1
