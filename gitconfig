@@ -87,6 +87,7 @@
 
 [push]
   default = current
+  autoSetupRemote = true # create remote branch if none exists
 
 [branch]
   autosetuprebase = always # rebase when pulling
