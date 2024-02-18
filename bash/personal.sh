@@ -1,5 +1,5 @@
 # Stuff that no-one else need, add and modify here to keep forks clean
-alias m="mine ."
+alias j="test -e go.mod && goland . || mine ."
 alias wrake="`which rake`" # rake without bundler
 alias wruby="`which ruby`" # ruby without bundler
 alias t='testrbl'
