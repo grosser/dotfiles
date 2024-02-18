@@ -2,7 +2,6 @@
 alias m="mine ."
 alias wrake="`which rake`" # rake without bundler
 alias wruby="`which ruby`" # ruby without bundler
-alias pryr="pry -r ./config/environment -r rails/console/app -r rails/console/helpers" # pry as rails console, without pry as dependency
 alias t='testrbl'
 alias bo='bundle open'
 alias bu='bundle update'
@@ -12,11 +11,12 @@ alias casper-off='sudo mv /usr/local/jamf/bin/jamfAgent{,-off} ; sudo mv /usr/lo
 alias casper-on='sudo mv /usr/local/jamf/bin/jamfAgent{-off,} ; sudo mv /usr/local/jamf/bin/jamf{-off,}'
 alias game-on='global-off; casper-off'
 alias game-off='global-on; casper-on'
-alias dst='docker rm -f $(docker ps -aq) >/dev/null 2>&1 || true'
-alias s="stern --timezone utc -t --context"
+alias dst='docker rm -f $(docker ps -aq) >/dev/null 2>&1 || true' # docker stop
+alias s="stern --timezone utc -t --context" # stern with timestamps that match systems time
 alias kbadpod="kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded -L team,project,role --context"
 alias each-cluster="~/Code/zendesk/dotfiles_n_scripts/shell_scripts/each-cluster"
 
+# kubectl shortcuts
 # - cannot be an alias to make plugins work `ka sandbox edit-status -h`
 # - needs $3 at the end to make exec with `--` work
 # - needs dash-detection to make `ka sandbox -n foo get pods` work
