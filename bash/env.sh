@@ -3,7 +3,10 @@ if [[ $HOME == "/Users/mgrosser" ]]; then
 else
   export EDITOR="nano" # server
 fi
-export PATH="$HOME/dotfiles/bin:$HOME/dotfiles/secret/bin:$HOME/.nodenv/shims:/usr/local/bin:$HOME/.krew/bin:$PATH"
+export PATH="$HOME/.krew/bin:$PATH"
+export PATH="$HOME/dotfiles/bin:$PATH"
+export PATH="$HOME/dotfiles/secret/bin:$PATH"
+export PATH="/usr/local/bin:$PATH"
 
 #if [ -f /usr/libexec/java_home ]; then
 #  export JAVA_HOME=$(/usr/libexec/java_home)

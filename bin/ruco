@@ -2,6 +2,8 @@
 # needs to be a binary since aliases are not available in sub-commands
 if [ -e /opt/homebrew/opt/chruby ]; then
   exec chruby-exec 2.6.5 -- ruco "$@"
+elif [ -e /opt/homebrew/bin/mise ]; then
+  mise exec ruby@3.2.2 -- ruco "$@"
 else
   exec RBENV_VERSION=2.6.5 ruco "$@"
 fi
