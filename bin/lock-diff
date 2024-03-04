@@ -72,7 +72,8 @@ end
 
 lockfile = "#{ENV["BUNDLE_GEMFILE"] || "Gemfile"}.lock"
 lockfile.sub!("#{Bundler.root}/", "")
-before = versions(sh("git", "show", "#{ENV["COMMIT"] || "master"}:#{lockfile}"))
+default_branch = (File.exist?(".git/refs/heads/main") ? "main" : "master")
+before = versions(sh("git", "show", "#{ENV["COMMIT"] || default_branch}:#{lockfile}"))
 after = versions(File.read(lockfile))
 
 added = after.keys - before.keys
