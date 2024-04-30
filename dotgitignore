@@ -27,3 +27,4 @@ dump.rdb
 .crystal
 .rake_tasks~
 .go-version
+.vendir-tmp

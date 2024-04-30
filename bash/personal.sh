@@ -41,3 +41,6 @@ function kbadpdb(){
 
 export BUNDLER_EDITOR=mine
 export GEM_EDITOR=mine
+
+# prevent kubectl mistakes
+kubectl config use-context docker-desktop >/dev/null
