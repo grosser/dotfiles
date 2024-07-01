@@ -26,6 +26,12 @@ function ka() { if [[ $2 = -* ]]; then kubectl --as admin --as-group system:mast
 # show all resources in a namespace given context and namespace
 function kall() { kubectl --as admin --as-group system:masters --context $1 api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl --as admin --as-group system:masters --context $1 get --show-kind --ignore-not-found -n $2; }
 
+# delete without finalizers
+function kdelf() {
+  kubectl patch --as admin --as-group system:masters --patch '{"metadata":{"finalizers":null}}' --type merge --context "$@"
+  kubectl delete --as admin --as-group system:masters  --context "$@"
+}
+
 function take(){
   mkdir "$1"
   cd "$1" || exit
