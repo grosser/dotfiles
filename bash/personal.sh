@@ -32,6 +32,11 @@ function kdelf() {
   kubectl delete --as admin --as-group system:masters  --context "$@"
 }
 
+# ns can be stuck with spec.finalizers and a regular patch can't remove them
+function kdelns() {
+  kubectl get --as admin --as-group system:masters --context "$1" namespace "$2" -ojson | jq '.spec.finalizers = []' | kubectl replace --as admin --as-group system:masters --context "$1" --raw "/api/v1/namespaces/$2/finalize" -f -
+}
+
 function take(){
   mkdir "$1"
   cd "$1" || exit
