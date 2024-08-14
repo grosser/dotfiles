@@ -23,9 +23,6 @@ alias each-cluster="~/Code/zendesk/dotfiles_n_scripts/shell_scripts/each-cluster
 function k() { if [[ $2 = -* ]]; then kubectl --context "$1" "${@:2}"; else kubectl "$2" --context "$1" "${@:3}"; fi; }
 function ka() { if [[ $2 = -* ]]; then kubectl --as admin --as-group system:masters --context "$1" "${@:2}"; else kubectl "$2" --as admin --as-group system:masters --context "$1" "${@:3}"; fi; }
 
-# show all resources in a namespace given context and namespace
-function kall() { kubectl --as admin --as-group system:masters --context $1 api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl --as admin --as-group system:masters --context $1 get --show-kind --ignore-not-found -n $2; }
-
 # delete without finalizers (does not support -l, for that use https://github.com/grosser/kubectl-patch-all)
 function kdelf() {
   kubectl patch --as admin --as-group system:masters --patch '{"metadata":{"finalizers":null}}' --type merge --context "$@" && \

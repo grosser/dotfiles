@@ -2,7 +2,6 @@
 #
 # Reports how many commits a branch has and how far it is behind compared to it's start point
 
-Thread.abort_on_exception = true
 require 'shellwords'
 
 def sh(command)
