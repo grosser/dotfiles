@@ -28,3 +28,4 @@ dump.rdb
 .rake_tasks~
 .go-version
 .vendir-tmp
+.jfrog
