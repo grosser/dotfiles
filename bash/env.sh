@@ -28,3 +28,6 @@ unset -v MAIL_WARNING;
 
 # in case-sensitive autocompletion
 tty -s && bind 'set completion-ignore-case on' 2>/dev/null
+
+# do not show docker ads
+export DOCKER_CLI_HINTS=false
