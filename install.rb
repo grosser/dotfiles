@@ -58,7 +58,7 @@ raise "dotfiles must be checked out as #{expected}" unless dotfiles == expected
 secret = "#{expected}/secret"
 unless File.exist?(secret)
   warn "#{secret} is not symlinked ... continue ? (y/n)"
-  abort unless $STDING.gets.strip == "y"
+  abort unless STDIN.gets.strip == "y"
 end
 
 backup = create_backup_folder
