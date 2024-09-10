@@ -7,9 +7,13 @@ raise "Usage: times command" if runs == 0
 times = Array.new(runs).each_with_index.map do |_, i|
   t = Benchmark.realtime { system(*ARGV[1..-1]) }
   puts "run #{(i+1).to_s.rjust(3)}: #{t.round(2)} #{"FAILURE " unless $?.success?}"
+  if ENV["BENCHMARK_FAIL_ON_ERR"] && !$?.success?
+    system "say", "err"
+    exit
+  end
   t
 end
 
-sum = times.inject(:+)
+sum = times.sum
 
 puts "\nruns: #{runs}\ntotal: #{sum.round(2)}\naverage: #{(sum / runs).round(2)}\nrange: #{times.min.round(2)}..#{times.max.round(2)}"
