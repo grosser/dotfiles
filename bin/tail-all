@@ -1,0 +1,22 @@
+#!/bin/bash
+
+DIR=$1
+
+tail_file() {
+    tail -n 0 -f "$1" &
+}
+
+# tail existing files
+for file in "$DIR"/*; do
+    [ -f "$file" ] || continue
+    tail_file "$file"
+done
+
+# monitor for new files
+fswatch -0 "$DIR" | while read -d "" event
+do
+    file=$(basename "$event")
+    if [ -f "$DIR/$file" ]; then
+        tail_file "$DIR/$file"
+    fi
+done
