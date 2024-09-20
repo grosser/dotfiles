@@ -1,5 +1,11 @@
 #!/bin/bash
-
+# tail all files in a folder
+# but also new files that get added
+#
+# TODO:
+# - support multiple arguments
+# - say which file the log line came from (ideally opt-in)
+# - support inotifywait (`inotifywait -m -e create "$DIRECTORY_TO_WATCH" |`)
 DIR=$1
 
 tail_file() {
