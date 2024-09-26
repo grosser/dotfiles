@@ -107,3 +107,6 @@
 
 [fetch]
   prune = true # prune deleted branches when pulling
+
+[advice]
+  skippedCherryPicks = false
