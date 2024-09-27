@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+#
+# Fast kubectl json get by using raw and resourceVersion=0
+# Usage: kubectl jget <resource>
+
+
+found = false
+command = ARGV.each_slice(2).flat_map do |pair|
+  next pair if pair[0].start_with?("-") || found
+  found = true
+  ["get", "--raw", "/api/v1/#{pair[0]}?resourceVersion=0", *pair[1]]
+end
+exec "kubectl", *command
