@@ -37,10 +37,16 @@ new_aliases = found_aliases
   .uniq # when using regex matching we will find multiple that match the same current alias
 
 # verify no alias duplication, but ignore regex resolved ones
+# this is also enforced by "importas", but not for regexes
 dupes = new_aliases
   .reject { |a| a["alias"].include?("$") }
   .group_by { |a| a["alias"] }.select { |_, nas| nas.size > 1 }
-abort "These aliases have dupes, make them unique before continuing:\n#{dupes.map(&:inspect).join("\n")}" if dupes.any?
+if dupes.any?
+  message = "These aliases have dupes, make them unique before continuing:"
+  message += "\n"
+  dupes.each { |a, ds| message += "  #{a}:\n#{ds.map { |d| "    #{d["pkg"]}" }.join("\n")}\n" }
+  abort message
+end
 
 # write the new config file
 new_content = new_aliases.to_yaml.sub(/^---\n/, '').gsub(/^/, spacer)
