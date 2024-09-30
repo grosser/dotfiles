@@ -3,6 +3,7 @@
 
 # TODO: should ignore lines ignored by govet
 # TODO: should ignore pkg already covered by regex matchers and then keep these matchers see https://github.com/julz/importas?tab=readme-ov-file#use-regular-expression
+# TODO: should not ignore unaliases packages with the same name foo/client vs bar/client
 
 require "yaml"
 
@@ -17,6 +18,7 @@ found_aliases = Dir["{cmd,pkg,test}/**/*.go"].flat_map do |file|
   imports.filter_map do |import|
     next unless import =~ /^\s+(\S+)\s+"(\S+\/\S+)"$/ # only non-core packages have aliases enforced by importas
     next if $1 == "."
+    next if $1 == "_"
     {"pkg" => $2, "alias" => $1}
   end
 end
