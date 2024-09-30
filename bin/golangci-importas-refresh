@@ -37,7 +37,7 @@ new_aliases = found_aliases
 
 # verify no alias duplication
 dupes = new_aliases.group_by { |a| a["alias"] }.select { |_, nas| nas.size > 1 }
-abort "These aliases have dupes:\n#{dupes.inspect}" if dupes.any?
+abort "These aliases have dupes, make them unique before continuing:\n#{dupes.inspect}" if dupes.any?
 
 # write the new config file
 new_content = new_aliases.to_yaml.sub(/^---\n/, '').gsub(/^/, spacer)
