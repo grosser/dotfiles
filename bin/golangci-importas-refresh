@@ -2,8 +2,8 @@
 # updates the .golangci.yaml importas section with all used aliases
 
 # TODO: should ignore lines ignored by govet
-# TODO: should ignore pkg already covered by regex matchers and then keep these matchers see https://github.com/julz/importas?tab=readme-ov-file#use-regular-expression
 # TODO: should not ignore unaliases packages with the same name foo/client vs bar/client
+# TODO: for regex matchers also verify that all combinations are unique
 
 require "yaml"
 
@@ -17,8 +17,8 @@ found_aliases = Dir["{cmd,pkg,test}/**/*.go"].flat_map do |file|
   imports = File.read(file)[/^import \(\n(.*?)\)/m, 1].to_s.split("\n")
   imports.filter_map do |import|
     next unless import =~ /^\s+(\S+)\s+"(\S+\/\S+)"$/ # only non-core packages have aliases enforced by importas
-    next if $1 == "."
-    next if $1 == "_"
+    next if $1 == "." # ignore inlined
+    next if $1 == "_" # ignore imported for cli tooling
     {"pkg" => $2, "alias" => $1}
   end
 end
@@ -26,18 +26,21 @@ end
 # read the current list
 current_aliases = YAML.load_file(file_path).dig(*alias_path) || []
 
-# make the most used one or the current one the default
+# make the current one or the most used one the default
 new_aliases = found_aliases
   .sort_by { |a| a["pkg"] }
   .group_by { |a| a["pkg"] }
   .map do |pkg, fas|
-    current_aliases.detect { |ca| ca["pkg"] == pkg } ||
+    current_aliases.detect { |ca| ca["pkg"] == pkg || Regexp.new(ca["pkg"]).match?(pkg) } ||
       fas.group_by { |a| a["alias"] }.sort_by { |_, as| -as.size }[0][1][0]
   end
+  .uniq # when using regex matching we will find multiple that match the same current alias
 
-# verify no alias duplication
-dupes = new_aliases.group_by { |a| a["alias"] }.select { |_, nas| nas.size > 1 }
-abort "These aliases have dupes, make them unique before continuing:\n#{dupes.inspect}" if dupes.any?
+# verify no alias duplication, but ignore regex resolved ones
+dupes = new_aliases
+  .reject { |a| a["alias"].include?("$") }
+  .group_by { |a| a["alias"] }.select { |_, nas| nas.size > 1 }
+abort "These aliases have dupes, make them unique before continuing:\n#{dupes.map(&:inspect).join("\n")}" if dupes.any?
 
 # write the new config file
 new_content = new_aliases.to_yaml.sub(/^---\n/, '').gsub(/^/, spacer)
