@@ -29,3 +29,4 @@ dump.rdb
 .go-version
 .vendir-tmp
 .jfrog
+.env
