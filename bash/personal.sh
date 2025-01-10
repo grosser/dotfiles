@@ -35,6 +35,10 @@ function kdelns() {
   kubectl get --as admin --as-group system:masters --context "$1" namespace "$2" -ojson | jq '.spec.finalizers = []' | kubectl replace --as admin --as-group system:masters --context "$1" --raw "/api/v1/namespaces/$2/finalize" -f -
 }
 
+function kubeletconfig() {
+    ka $1 get --raw "/api/v1/nodes/$2/proxy/configz" | jq .
+}
+
 function take(){
   mkdir "$1"
   cd "$1" || exit
