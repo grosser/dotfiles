@@ -7,9 +7,8 @@ def require_without_bundler(gem, file)
   else
     raise LoadError, "Gem #{gem} not found via require_without_bundler"
   end
-end
+end unless defined?(require_without_bundler)
 
-require 'irb/ext/save-history'
 IRB.conf[:USE_READLINE] = true
 IRB.conf[:SAVE_HISTORY] = 10000
 IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.irb-save-history"
@@ -18,6 +17,3 @@ IRB.conf[:PROMPT_MODE] = :SIMPLE
 IRB.conf[:AUTO_INDENT] = true
 require 'irb/completion'
 
-def sql(query)
-  ActiveRecord::Base.connection.select_all(query)
-end
