@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# https://gist.github.com/Thomascountz/5ae98a738abb9246b9f7749f53cdddcf
+
+set -euo pipefail
+
+if [ "${1:-}" = "--help" ]; then
+  cat << EOF
+Usage: ijq [filename]
+
+    A wrapper around jq that uses fzf to interactively build jq filters.
+
+Examples:
+
+    ijq [filename]
+    cat file.json | ijq
+    curl -s https://api.github.com/users/thomascountz | ijq
+EOF
+  exit 0
+fi
+
+# Create a temporary file
+tempfile=$(mktemp)
+
+# Export the tempfile variable so it can be accessed within the fzf context
+export tempfile
+
+# Always clean up the temp file on exit, even if script is interrupted
+trap 'rm -f "$tempfile"' EXIT
+
+# Read JSON input into the temp file. If a filename is provided as an
+#  argument, read from the file. Otherwise, read from stdin.
+
+if [ -n "${1:-}" ]; then
+  cat "$1" > "$tempfile"
+else
+  cat > "$tempfile"
+fi
+
+# Set the commands to be bound enter, ctrl-y, and ctrl-f.
+fzf_enter_bind_command='enter:become(jq {q} $tempfile)'
+fzf_ctrl_y_bind_command='ctrl-y:execute-silent(jq {q} $tempfile | pbcopy)'
+fzf_ctrl_f_bind_command='ctrl-f:execute-silent(echo {q} | pbcopy)'
+
+# Start fzf with an empty candidate list, and reference the temp file in preview
+# window so you can type jq filters and see the live preview. Press Enter to output
+# the filtered JSON to STDOUT, or use ctrl-y and ctrl-f to copy to your clipboard.
+echo '' | fzf --print-query \
+  --query '.' \
+  --prompt 'jq filter: ' \
+  --bind "$fzf_enter_bind_command" \
+  --bind "$fzf_ctrl_y_bind_command" \
+  --bind "$fzf_ctrl_f_bind_command" \
+  --preview "jq {q} \"$tempfile\"" \
+  --preview-window=top:90%:wrap \
+  --header=$'ctrl+y : copy JSON\nctrl+f : copy filter\nenter  : output\nesc    : exit' \
+  --header-border \
+  --header-label="INSTRUCTIONS" \
+  --border
