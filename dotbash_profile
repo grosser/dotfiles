@@ -14,3 +14,6 @@ source ~/.bashrc
 
 # fixes weird PG connection issue
 export PGHOST=localhost
+
+test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
+
