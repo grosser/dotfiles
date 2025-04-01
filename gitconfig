@@ -32,6 +32,7 @@
   all = "!f() { for i in `ls`; do if [ -d $i/.git ]; then echo \"$i\n--------------------------\"; git -C $i $1; echo; fi; done; }; f"
   # show modified files for given ref
   modified = "!sh -c 'git diff-tree --no-commit-id --name-only -r $1' -"
+  shown = "show --name-only"
 
   # shortcuts so I get autocomlete
   stached-switch = "!~/dotfiles/bin/git-stached-switch"
