@@ -35,3 +35,4 @@ alias ttr="touch tmp/restart.txt"
 # RUBY
 alias be="bundle exec"
 alias bundle-grep='bundle show --paths | sed "s+$PWD/++" | xargs grep --recursive --line-number --'
+alias rua="bundle exec rubocop -A"
