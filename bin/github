@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# open github for current git repository
+
 def sh(command)
   result = `#{command}`
   raise "'#{command}' failed!" unless $?.success?

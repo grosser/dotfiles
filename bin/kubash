@@ -1,2 +1,0 @@
-#!/bin/sh
-kubectl exec -it "$@" -- /bin/bash -c "stty rows $(tput lines) cols $(tput cols) && export TERM=$TERM && exec bash"

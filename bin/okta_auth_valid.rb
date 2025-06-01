@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+# validate Okta id_tokens in ~/.kube/pkce_helper.json
 require "base64"
 require "json"
 

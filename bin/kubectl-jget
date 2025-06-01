@@ -5,6 +5,8 @@
 
 
 found = false
+# replace the first none-flag argument with "get --raw /api/v1/<resource>?resourceVersion=0"
+# this won't work when using --context=foo or multiple resources
 command = ARGV.each_slice(2).flat_map do |pair|
   next pair if pair[0].start_with?("-") || found
   found = true
