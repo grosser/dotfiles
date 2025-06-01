@@ -1,0 +1,86 @@
+#!/usr/bin/env ruby
+# show regular kubectl get output with requests of each object
+
+require 'json'
+require 'shellwords'
+
+# Copied from samson/plugins/kubernetes/app/models/kubernetes/role.rb
+KUBE_MEMORY_VALUES = {
+  "" => 1, # needs to be first since it's our fallback for "no unit"
+  "m" => 1/1000.0, # used by some containers on accident
+  "k" => 1000, # used by vpas
+  "K" => 1000,
+  "Ki" => 1024,
+  "M" => 1000**2,
+  "Mi" => 1024**2,
+  "G" => 1000**3,
+  "Gi" => 1024**3
+}.freeze
+
+def parse_cpu_count(cpu)
+  return 0 if cpu.to_s.empty? # requests not specified
+  cpu.end_with?("m") ? Float(cpu[0...-1]) / 1000 : Float(cpu)
+rescue
+  raise "Unable to parse #{cpu}"
+end
+
+def parse_mem_mi(memory)
+  return 0 if memory.to_s.empty? # requests not specified
+  KUBE_MEMORY_VALUES.reverse_each.detect do |k, v|
+    break (Integer(memory[0...-k.size]) * v.to_f) / 1024 ** 3 if memory.end_with?(k)
+  end || 0
+rescue
+  raise "Unable to parse #{memory}"
+end
+
+data = `kubectl get #{ARGV.shelljoin} -o json`
+abort "kubectl get failed" unless $?.success?
+
+resources = JSON.parse(data)
+resources = resources['items'] || [resources] # support one or multiple results
+
+# get raw data for each resource
+data = resources.each_with_index.map do |resource, i|
+  count =
+    resource.dig("status", "replicas") || resource.dig("spec", "replicas") || # deployment and sts
+    resource.dig("status", "desiredNumberScheduled") || # daemonset
+    1 # pod and job etc
+
+  pod_template = resource.dig("spec", "template") || resource
+
+  containers =
+    pod_template.dig("spec", "containers") +
+    pod_template.dig("spec", "initContainers").to_a.select { |c| c["restartPolicy"] == "Always" }
+
+  cpu_requests = containers.sum do |container|
+    parse_cpu_count container.dig("resources", "requests", "cpu")
+  end
+
+  mem_requests = containers.sum do |container|
+    parse_mem_mi container.dig("resources", "requests", "memory")
+  end
+  [resource, count * cpu_requests, count * mem_requests]
+end
+
+# sort high cpu to the top
+data.sort_by! { |_, cpu, mem| [-cpu, -mem] }
+
+# make them print nicely
+columns = data.map do |resource, cpu, mem|
+  [
+    resource.dig("metadata", "name"),
+    resource.dig("metadata", "namespace").to_s,
+    cpu.round(2).to_s,
+    mem.round(2).to_s + "Gi",
+  ]
+end
+
+columns.unshift ["Name", "Namespace", "CPU", "Memory"]
+
+row_lengths = columns[0].each_with_index.map { |_, i| columns.map { |row| row[i].size }.max }
+
+columns.map do |row|
+  puts(row.each_with_index.map do |content, i|
+    content.ljust(row_lengths[i])
+  end.join(" "))
+end
