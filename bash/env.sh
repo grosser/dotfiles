@@ -1,7 +1,5 @@
 export EDITOR="ruco"
 export PATH="$HOME/.krew/bin:$PATH"
-export PATH="/Applications/GoLand.app/Contents/MacOS:$PATH"
-export PATH="/Applications/RubyMine.app/Contents/MacOS:$PATH"
 export PATH="$HOME/dotfiles/bin:$PATH"
 export PATH="$HOME/dotfiles/secret/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
