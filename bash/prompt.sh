@@ -48,7 +48,7 @@ function prompt_func() {
 
   # show host on remote servers
   host=$(hostname)
-  if [[ $host != *"NY44PMJ44K"* ]]; then
+  if [[ $host != *"G9MK336W2P"* ]]; then
     host="${host} - "
   else
     host=""
