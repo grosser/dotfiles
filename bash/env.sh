@@ -1,9 +1,7 @@
-if [[ $HOME == "/Users/mgrosser" ]]; then
-  export EDITOR="ruco" # local
-else
-  export EDITOR="nano" # server
-fi
+export EDITOR="ruco"
 export PATH="$HOME/.krew/bin:$PATH"
+export PATH="/Applications/GoLand.app/Contents/MacOS:$PATH"
+export PATH="/Applications/RubyMine.app/Contents/MacOS:$PATH"
 export PATH="$HOME/dotfiles/bin:$PATH"
 export PATH="$HOME/dotfiles/secret/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
@@ -19,7 +17,7 @@ export HISTSIZE=1000000 # size of history
 export HISTCONTROL=ignorespace:ignoredups # ignore duplicates, cmds beginning with space
 
 eval "HISTIGNORE+=" 2>/dev/null && # if HISTIGNORE is writeable (avoid noise on remote hosts)
-  export HISTIGNORE='ls:ll:cd:pwd:bg:fg:history' # ignore useless commands
+export HISTIGNORE='ls:ll:cd:pwd:bg:fg:history' # ignore useless commands
 export HISTTIMEFORMAT='%F %T ' # show when commands were executed
 
 # Ignore mail

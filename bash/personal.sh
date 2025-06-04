@@ -1,5 +1,5 @@
 # Stuff that no-one else need, add and modify here to keep forks clean
-alias j="test -e go.mod && goland . || mine ."
+alias j="test -e go.mod && goland . || rubymine ."
 alias wrake="`which rake`" # rake without bundler
 alias wruby="`which ruby`" # ruby without bundler
 alias t='testrbl'
@@ -52,8 +52,8 @@ function kbadpdb(){
   kubectl get pdb -A -o json --context $1 | jq '.items | map(select(.status.disruptionsAllowed == 0)) | map(select(.status.desiredHealthy != 0))' | jq -r '.[] | "\(.metadata.namespace)\t\(.metadata.name)\t\(.status.currentHealthy)/\(.status.expectedPods)\tteam:\(.metadata.labels.team)"'
 }
 
-export BUNDLER_EDITOR=mine
-export GEM_EDITOR=mine
+export BUNDLER_EDITOR=rubymine
+export GEM_EDITOR=rubymine
 
 # prevent kubectl mistakes
 kubectl config use-context docker-desktop >/dev/null
