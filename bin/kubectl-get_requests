@@ -19,6 +19,16 @@ KUBE_MEMORY_VALUES = {
   "Gi" => 1024**3
 }.freeze
 
+def cpu_requests(containers)
+  containers.map { |container| parse_cpu_count container.dig("resources", "requests", "cpu") }
+end
+
+def mem_requests(containers)
+  containers.map do |container|
+    parse_mem_mi container.dig("resources", "requests", "memory")
+  end
+end
+
 def parse_cpu_count(cpu)
   return 0 if cpu.to_s.empty? # requests not specified
   cpu.end_with?("m") ? Float(cpu[0...-1]) / 1000 : Float(cpu)
@@ -51,17 +61,12 @@ data = resources.each_with_index.map do |resource, i|
 
   pod_template = resource.dig("spec", "template") || resource
 
-  containers =
-    pod_template.dig("spec", "containers") +
-    pod_template.dig("spec", "initContainers").to_a.select { |c| c["restartPolicy"] == "Always" }
+  containers = pod_template.dig("spec", "containers")
+  sidecar, init = pod_template.dig("spec", "initContainers").to_a.partition { |c| c["restartPolicy"] == "Always" }
 
-  cpu_requests = containers.sum do |container|
-    parse_cpu_count container.dig("resources", "requests", "cpu")
-  end
+  cpu_requests = [cpu_requests(containers + sidecar).sum, cpu_requests(init).max || 0].max
+  mem_requests = [mem_requests(containers + sidecar).sum, mem_requests(init).max || 0].max
 
-  mem_requests = containers.sum do |container|
-    parse_mem_mi container.dig("resources", "requests", "memory")
-  end
   [resource, count * cpu_requests, count * mem_requests]
 end
 
@@ -70,8 +75,8 @@ data.sort_by! { |_, cpu, mem| [-cpu, -mem] }
 
 # add total line if requested
 if add_sum
-  resource = {"metadata" => { "name" => "Total", "namespace" => "" } }
-  data << [resource, data.sum { |d| d[1] }, data.sum { |d| d[2] }]
+  fake_resource = {"metadata" => { "name" => "Total", "namespace" => "" } }
+  data << [fake_resource, data.sum { |d| d[1] }, data.sum { |d| d[2] }]
 end
 
 # make them print nicely
