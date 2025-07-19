@@ -4,3 +4,4 @@ bin/kubectl
 bin/go-testcov
 bin/trans
 bin/ginko
+bin/logrecycler
