@@ -13,9 +13,9 @@ end
 
 changed = `git status --porcelain`.
   split("\n").
-  map { |l| l.split(" ", 2) }.
-  select { |status, _| ["A", "AM", "M"].include?(status) }. # changed, not deleted
-  map { |_, file| file.delete('"') } # remove extra quotes from git
+  map { |l| l.split(" ", 2) }. # separate status from file
+  select { |status, _| ["A", "AM", "M", "R"].include?(status) }. # changed, not deleted
+  map { |_, file| file.split(" -> ", 2).last.delete('"') } # support renames + remove extra quotes from git
 
 exit if changed.empty?
 
