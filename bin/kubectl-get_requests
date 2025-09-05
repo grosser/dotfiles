@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# show regular kubectl get output with requests of each object
+# show regular kubectl get output and add requests of each object
 # kubectl get-requests deployments -n kube-system
 # use --sum add a total line at the end
 
@@ -45,6 +45,15 @@ rescue
   raise "Unable to parse #{memory}"
 end
 
+def table_print(rows)
+  row_lengths = rows[0].each_with_index.map { |_, i| rows.map { |row| row[i].size }.max }
+  rows.map do |row|
+    puts(row.each_with_index.map do |content, i|
+      content.ljust(row_lengths[i])
+    end.join(" "))
+  end
+end
+
 add_sum = ARGV.delete("--sum")
 data = `kubectl get #{ARGV.shelljoin} -o json`
 abort "kubectl get failed" unless $?.success?
@@ -79,21 +88,16 @@ if add_sum
   data << [fake_resource, data.sum { |d| d[1] }, data.sum { |d| d[2] }]
 end
 
-# make them print nicely
-columns = data.map do |resource, cpu, mem|
+# make them print nicelyable
+labels = ARGV.index("-L") ? ARGV[ARGV.index("-L") + 1].split(",") : []
+rows = data.map do |resource, cpu, mem|
   [
     resource.dig("metadata", "name"),
     resource.dig("metadata", "namespace").to_s,
     cpu.round(2).to_s,
     mem.round(2).to_s + "Gi",
+    *labels.map { |l| resource.dig("metadata", "labels", l).to_s }
   ]
 end
 
-# print a nicely formatted table
-columns.unshift ["Name", "Namespace", "CPU", "Memory"]
-row_lengths = columns[0].each_with_index.map { |_, i| columns.map { |row| row[i].size }.max }
-columns.map do |row|
-  puts(row.each_with_index.map do |content, i|
-    content.ljust(row_lengths[i])
-  end.join(" "))
-end
+table_print [["Name", "Namespace", "CPU", "Memory", *labels], *rows]
