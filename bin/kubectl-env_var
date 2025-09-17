@@ -1,0 +1,97 @@
+#!/usr/bin/env ruby
+# get or set environment variables on container of kubernetes resources
+# uses the first container, use -c=<name> to select another
+#
+# kubectl env-var deploy my-app -n foo KEY     # print
+# kubectl env-var deploy my-app -n foo KEY=bar # set
+# kubectl env-var deploy my-app -n foo KEY=-   # remove
+
+require 'json'
+require 'shellwords'
+
+DELETE_MARKER = "-"
+
+def sh(command)
+  result = `#{command}`
+  abort "command failed!\n#{command}\n#{result}" unless $?.success?
+  result
+end
+
+def parse_env_argv(argv)
+  env = argv.to_h do |arg|
+    result = arg.split('=', 2)
+    result << nil if result.size == 1 # get mode
+    result
+  end
+  abort "No environment variables specified. Use KEY=value or KEY format." if env.empty?
+  abort "Only set or only get variables" if env.any? { |_, v| v == nil } && !get_mode?(env)
+  env
+end
+
+def find_container(resource, container_name)
+  pod_template = resource.dig("spec", "template") || raise("spec.template not found")
+  containers = pod_template.dig("spec", "containers") || raise("spec.template.spec.containers not found")
+  containers += pod_template.dig("spec", "initContainers").to_a
+  index =
+    if container_name
+      containers.index { |c| c["name"] == container_name } ||
+        raise("Container #{container_name} not found in #{all.map { |c| c["name"] }.join(", ")}")
+    else
+      0
+    end
+  [containers[index], index]
+end
+
+def container_env_patches(container, index, new_vars)
+  path = "/spec/template/spec/containers/#{index}/env"
+  existing_env = container["env"] || []
+  new_vars.filter_map do |k, v|
+    if (index = existing_env.index { |e| e["name"] == k })
+      next if existing_env[index]["value"] == v # noop
+      if v == DELETE_MARKER
+        { "op" => "remove", "path" => "#{path}/#{index}"}
+      else # update existing value or replace valueFrom
+        { "op" => "replace", "path" => "#{path}/#{index}", "value" => { "name" => k, "value" => v} }
+      end
+    elsif v != DELETE_MARKER
+      { "op" => "add", "path" => "#{path}/-", "value" => { "name" => k, "value" => v } }
+    end
+  end
+end
+
+def get_mode?(env)
+  env.all? { |_, v| v == nil }
+end
+
+# split arguments into env vars and others
+env_argv, kubectl_argv = ARGV.partition { |arg| arg.match?(/^[A-Z\d_]+/) }
+env = parse_env_argv(env_argv)
+if (i = kubectl_argv.index("-c"))
+  container_name = kubectl_argv[i + 1]
+  kubectl_argv.slice!(i, 2)
+end
+
+# get current resource
+data = sh "kubectl get #{kubectl_argv.shelljoin} -o json"
+resource = JSON.parse(data)
+raise "multiple resources not supported yet" if resource["items"]
+
+container, index = find_container(resource, container_name)
+
+if get_mode?(env)
+  env.each_key do |k|
+    all = (container["env"] || []).find { |e| e["name"] == k }
+    value = (all ? all["value"] || all.fetch("valueFrom").inspect : "<not set>")
+    puts "#{k}=#{value}"
+  end
+else
+  # build patches
+  patches = container_env_patches container, index, env
+  if patches.empty?
+    warn "No changes needed"
+    exit 0
+  end
+
+  # apply
+  sh "kubectl patch #{kubectl_argv.shelljoin} --type json -p #{patches.to_json.shellescape}"
+end
