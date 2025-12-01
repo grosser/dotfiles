@@ -7,6 +7,7 @@
   cod = checkout -
   st = status -sb
   br = branch
+  brs = for-each-ref --sort=-committerdate refs/heads/ --format='%(committerdate:short) %(color:yellow)%(refname:short)%(color:reset)'
   diffc = diff --cached
   pl = pull
   ps = push
