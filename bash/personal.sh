@@ -3,6 +3,7 @@ alias j="test -e go.mod && goland . || rubymine ."
 alias wrake="`which rake`" # rake without bundler
 alias wruby="`which ruby`" # ruby without bundler
 alias t='testrbl'
+alias bi='bundle install'
 alias bo='bundle open'
 alias bu='bundle update'
 alias global-off='sudo mv /Applications/GlobalProtect{,OFF}.app && sudo pkill -9 -f GlobalProtect && sudo pkill -9 -f PanGPS'
