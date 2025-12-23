@@ -1,4 +1,6 @@
 #!/bin/sh
+# needs to be an executable so it does not kill goland when ctrl+c ing the terminal that opened it
+# also verify that calling the same directory twice does not open 2 instances like `open -a` would
 # can retry with `export PATH="/Applications/GoLand.app/Contents/MacOS:$PATH"` if `goland .` works
 # see https://youtrack.jetbrains.com/issue/RUBY-31628
-open -a /Applications/GoLand.app/Contents/MacOS/goland "$@"
+/Applications/GoLand.app/Contents/MacOS/goland "$@" >/dev/null 2>&1 &
