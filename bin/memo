@@ -1,0 +1,266 @@
+#!/usr/bin/env bash
+#
+# https://github.com/aktau/dotfiles/blob/master/bin/memo
+#
+# memo(1), memoizes the output of your command-line, so you can do:
+#
+#  $ memo <some long running command> | ...
+#
+# Instead of
+#
+#  $ <some long running command> > tmpfile
+#  $ cat tmpfile | ...
+#  $ rm tmpfile
+#
+# You can even use it in the middle of a pipe if you know that the input is not
+# extremely long. Just supply the -s switch:
+#
+#  $ cat sitelist | memo -s parallel curl | grep "server:"
+#
+# As long as "sitelist" isn't changed, the curl(1) invocation will not be rerun.
+#
+# Memo provides some nice to haves, like transparant (de)compressing of the
+# output so you're less likely to be disk I/O bound and save some space. The
+# order of preferred compression algorithms is: lz4, xz, gzip. If none of these
+# programs are present on the system, the output is stored uncompressed.
+#
+# If you think this is handy, you're right. Yet, there are good reasons why this
+# sort of tool isn't distributed by default on distributions: it can give
+# surprising effects. Suppose the <command> you're trying to memoize depends on
+# the current working directory. Changing the directory and running the same
+# memo invocation will now paste the wrong data to stdout. Use this only if you
+# know what it's doing.
+#
+# That said, I use it a lot, I really can't be bothered to create arbitrarily
+# named temporary files all the time when I'm grabbing output from some slow
+# networked program. Additionally, memo transparantly compresses.
+#
+# If you want to memo'ize shell functions, then you can source this script
+# instead of executing it. This will define a function called memo() that you
+# can use in exactly the same way. It made the implementation much uglier, but
+# at least I can memo'ize functions.
+#
+# Don't let the /bin/bash shebang at the top fool you, it runs just fine in zsh.
+
+# Detect being sourced from zsh and bash.
+__memo_sourced=0
+([[ -n $ZSH_EVAL_CONTEXT && $ZSH_EVAL_CONTEXT =~ :file$ ]] ||
+ [[ -n $KSH_VERSION && $(cd "$(dirname -- "$0")" &&
+    printf '%s' "${PWD%/}/")$(basename -- "$0") != "${.sh.file}" ]] ||
+ [[ -n $BASH_VERSION && $0 != "$BASH_SOURCE" ]]) && __memo_sourced=1
+
+memo() {
+  (
+  set -euo pipefail
+
+  usage() {
+      echo "SYNOPSIS"
+      echo "  memo [-chs] <command>"
+      echo ""
+      echo "DESCRIPTION"
+      echo "  Memoizes the output of <command> and outputs it."
+      echo ""
+      echo "  NOTE: If an interrupt happens while memoizing, it is cleared."
+      echo ""
+      echo "OPTIONS"
+      echo "  -c  Clean the cache, if no command is specified, clean everything."
+      echo "  -h  Usage message."
+      echo "  -s  Take stdin as an input to the command. Note, that this"
+      echo "      requires buffering up all the input before memo is able to"
+      echo "      decide whether to replay the cached version or not."
+      return $1
+  }
+
+  # Process options.
+  local opt_clear=0
+  local opt_stdin=0
+  while getopts :chs opt ; do
+    case $opt in
+      c) opt_clear=1 ;;
+      h) usage 0 ;;
+      s) opt_stdin=1 ;;
+      ?) (( --OPTIND )) ; break ;;
+    esac
+  done
+  shift $(( OPTIND - 1 ))
+
+  (( $# > 0 )) || usage 1
+
+  # Ensures that the memodir for $USER exists. If it doesn't exist, tries to
+  # create it with the right permissions.
+  ensuredir() {
+    local dir="${TMPDIR:-/tmp}/memo"
+    [[ -d "$dir" ]] || mkdir -p -m 0777 "$dir"
+    dir="$dir/$USER"
+    [[ -d "$dir" ]] || mkdir -m 0700 "$dir"
+    echo -n "$dir"
+  }
+
+  # Generate a sha512, done this way to account for differences between most
+  # Linux distros and OSX.
+  genhash() {
+    hash sha512sum 2>/dev/null && sha512sum || shasum -a 512
+  }
+
+  # Generates a hashed path inside of the memodir. The hash is based on the
+  # stdin of this function.
+  path() {
+    # Output the first part
+    ensuredir
+    # Output a separator
+    echo -n "/"
+    # Finally, output the hashed arguments and use it as the filename The shasum
+    # family of utilities tend to output the hashes in hex format, so no need to
+    # fear strange characters being output.
+    genhash | cut -d' ' -f1
+  }
+
+  # Echo memo's preferred compressor, must take input on stdin and output
+  # a compressed stream on stdout. Replaces current shell.
+  compressor() {
+    if hash zstd 2>/dev/null ; then exec zstd
+    elif hash lz4 2>/dev/null ; then exec lz4
+    elif hash xz 2>/dev/null ; then exec xz
+    elif hash gzip 2>/dev/null ; then exec gzip
+    fi
+    exec cat -
+  }
+
+  # Same as compressor, but in reverse. Keep these two in sync. Replaces current
+  # shell.
+  decompressor() {
+    if hash zstd 2>/dev/null ; then exec zstd -dc
+    elif hash lz4 2>/dev/null ; then exec lz4 -dc
+    elif hash xz 2>/dev/null ; then exec xz -dc
+    elif hash gzip 2>/dev/null ; then exec gzip -dc
+    fi
+    exec cat -
+  }
+
+  # Cats a file, decompressing if necessary. The filename is the first argument,
+  # and it will get a compression extension (.gz, ...) applied for every
+  # available decompressor to see if the file exists.
+  catfile() {
+    if [ -f "$1.zst" ] && hash zstd 2>/dev/null ; then
+      zstd -dc < "$1.zst" || true
+    elif [ -f "$1.lz4" ] && hash lz4 2>/dev/null ; then
+      lz4 -dc < "$1.lz4" || true
+    elif [ -f "$1.xz" ] && hash xz 2>/dev/null ; then
+      xz -dc < "$1.xz" || true
+    elif [ -f "$1.gz" ] && hash gzip 2>/dev/null ; then
+      gzip -dc < "$1.gz" || true
+    elif [ -f "$1" ] ; then
+      cat "$1" || true
+    else
+      # Cache not found, sad face.
+      return 1
+    fi
+  }
+
+  # Compress standard input to $1.<ext> (.ext is based on the best compression
+  # program found). Calling this function will replace the current shell with
+  # the decompressor, so make sure this is a terminal statement.
+  compressfile() {
+    if hash zstd 2>/dev/null ; then
+      exec zstd > "$1.zst"
+    elif hash lz4 2>/dev/null ; then
+      exec lz4 > "$1.lz4"
+    elif hash xz 2>/dev/null ; then
+      exec xz > "$1.xz"
+    elif hash gzip 2>/dev/null ; then
+      exec gzip > "$1.gz"
+    else
+      exec cat - > "$1"
+    fi
+  }
+
+  # Blast the entire folder if -c was passed and nothing more.
+  if (( opt_clear )) && (( $# == 0 )) ; then
+    rm -rf "$(ensuredir)"
+  else
+    # If stdin needs to be part of the unique command fingerprint, we need to
+    # save it somewhere so we can first hash it and then check if we already
+    # have a cache. Let's create a temporary file.
+    local stdinsave
+    if (( opt_stdin )) ; then
+      # Create a temporary file and schedule its cleanup.
+      stdinsave=$(mktemp)
+      cleanup() {
+        rm "$stdinsave"
+        trap - EXIT # Clean EXIT trap.
+      }
+
+      # Cleanup file after either EXIT (if run as a standalone script) or
+      # RETURN (if run as a sourced bash function). zsh seems to also fire
+      # the EXIT trap when a sourced function returns.
+      #
+      # Check if $ZSH_VERSION is set in an antique way because macOS is
+      # stuck on pre 4.2 bash, so it doesn't know about -v (and we're in set
+      # -u mode, so most other checks will fail).
+      if [[ -z "${ZSH_VERSION-}" ]] ; then
+        trap cleanup EXIT RETURN
+      else
+        trap cleanup EXIT
+      fi
+    fi
+
+    # In the following block we construct the unique path to save the output of
+    # the command in.
+    local file
+    file=$({
+      # The command and its arguments are always part of the hash.
+      echo -n "$@"
+
+      # Save the input while compressing it and pass it through with tee(1).
+      if (( opt_stdin )) ; then
+        tee >(compressor > "$stdinsave")
+      fi
+    } | path)
+
+    if (( opt_clear )) ; then
+      # Remove the saved content(s) of this hash if -c was passed.
+      find "$(dirname "$file")" -type f -name "$(basename "$file")*" -delete
+    else
+      # Output the cached file or generate a new one.
+      catfile "$file" || {
+        # Clear the cache and forward the return/signal code.
+        nocache() {
+          # $? represents the signal on all handlers except for ERR, where it
+          # represents the process error code. Note to self: find a clever way
+          # to deal with this.
+          declare -ri ret=$?
+          trap - INT # Clear traps.
+          rm "$file"* 2>/dev/null || true
+          exit $ret
+        }
+
+        # WARNING: if you're ever thinking of adding more signals to clear the
+        # cache on, read the following:
+        #
+        # When adding the 'ERR' signal to the set, any 'INT' signal received
+        # will trigger the specified function twice (from the same process, see
+        # the commit comments). I cannot explain why this is the case, but it's
+        # so. To try it out: trap nocache INT ERR, then make the process
+        # interrupt by pressing ctrl-c.
+        trap nocache INT
+
+        if (( opt_stdin )) ; then
+          # It appears we don't have a cached file, but we already absorbed
+          # stdin, so we need to produce it again.
+          exec < <(decompressor < "$stdinsave")
+        fi
+        "$@" | tee >(compressfile "$file")
+      }
+    fi
+  fi
+  )
+}
+
+(( __memo_sourced )) && {
+  unset __memo_sourced
+  return 0
+}
+
+# If we reach here, we're not being sourced.
+set -euo pipefail
+memo "$@"

@@ -1,0 +1,24 @@
+#!/usr/bin/awk -f
+#
+# https://github.com/aktau/dotfiles/blob/master/bin/tal
+#
+# Tally up the Nth columns of numbers.
+
+# Parse arguments.
+BEGIN {
+  if (ARGC != 2) {
+    print "Usage: tal <colnr>" > "/dev/stderr"
+    exit(1)
+  }
+  col = ARGV[1]
+  ARGV[1]="-"
+}
+
+{
+  sum += $col
+}
+
+END {
+  OFMT="%.9g"
+  print sum
+}
