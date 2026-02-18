@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+# port-forward to a lease, which will be for example the leader pod of a deployment
+# assumes the lease holderIdentity follows the <pod-name>_<uid> pattern
+#
+# kubectl-lport_forward [kubectl-flags] -n namespace lease/lease-name [port-forward-flags]
+# kubectl-lport_forward --context prod -n foo lease/my-app --port 8080
+
+require 'json'
+require 'shellwords'
+
+def sh(command)
+  result = `#{command}`
+  abort "command failed!\n#{command}\n#{result}" unless $?.success?
+  result
+end
+
+# [kubectl] -n namespace lease/name [forward]
+def parse_argv(argv)
+  n_index = argv.index('-n') || argv.index('--namespace')
+  abort "No -n/--namespace specified" unless n_index
+
+
+  kubectl_argv = argv[0...n_index] + [argv[n_index], argv[n_index + 1]]
+  resource = argv[n_index + 2]
+  forward_argv = argv[(n_index + 3)..-1] || []
+
+  _, lease_name = resource.split(/^lease\//)
+  abort "lease name must come after namespace and start with lease/" unless lease_name
+
+  [kubectl_argv, lease_name, forward_argv]
+end
+
+kubectl_argv, lease_name, forward_argv = parse_argv(ARGV)
+lease = JSON.parse(sh("kubectl get lease #{lease_name.shellescape} #{kubectl_argv.shelljoin} -o json"))
+holder_name = lease.dig("spec", "holderIdentity")
+pod_name = holder_name.rpartition("_")[0] # pattern is usually name_uid
+exec "kubectl port-forward #{kubectl_argv.shelljoin} pod/#{pod_name.shellescape} #{forward_argv.shelljoin}"
