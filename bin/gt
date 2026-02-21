@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+#
+# run go-testcov from a given test file(s) and optional line number
+#
+# --plain to run `go test` instead
+#
+# gt pkg/providers/storageclasses/provider_test.go
+# -> ./bin/go-testcov github.com/foo/bar/pkg/providers/persistentvolumeclaim
+#
+# gt pkg/providers/storageclasses/provider_test.go:42
+# -> ./bin/go-testcov github.com/foo/bar/pkg/providers/persistentvolumeclaim -ginkgo.focus="Test Name"
+
+def pattern_from_line(file, line)
+  return unless line
+
+  lines = File.readlines(file)
+  abort "Line #{line} does not exist" if line > lines.size
+
+  # walk backwards from the line to find test blocks hierarchy
+  patterns = []
+  indent_min = 999
+  (0...line).reverse_each do |i|
+    line_text = lines[i]
+    line_indent = line_text[/^\s*/].size
+    next if line_indent >= indent_min # ignore other describes or tests that have same or larger indent
+
+    # TODO: support _ := style
+    if (test_name = line_text[/^\s*(?:var _ = )?(?:Describe|Context|It|When|Specify)\s*\(\s*"([^"]+)"/, 1])
+      patterns.unshift test_name
+      indent_min = line_indent
+    end
+  end
+  abort "No Ginkgo test found on or above line #{line}" if patterns.empty?
+
+  # focus tests matching the pattern
+  focus = patterns.map { |p| Regexp.escape(p) }.join(' ')
+  "-ginkgo.focus=#{focus}"
+end
+
+plain = ARGV.delete("--plain")
+abort "Usage: gt <test_file.go>[:<line>]" if ARGV.empty?
+
+files = ARGV.map do |file|
+  file, line = file.split(':', 2)
+  line = Integer(line) if line
+  [file, line]
+end
+
+focussed = files.any? { |_, l| l }
+abort "only 1 file allowed when focussing" if focussed && files.size != 1
+
+mod = File.read("go.mod")[/^module\s+(\S+)/, 1] || abort("no module in go.mod")
+bin =
+  if focussed
+    ["go", "test"]
+  elsif plain
+    ["go", "test", "-cover"]
+  elsif File.exist?("./bin/go-testcov")
+    ["./bin/go-testcov"]
+  elsif system('which', '-s', 'go-testcov')
+    ["go-testcov"]
+  else
+    ["go", "test", "-cover"]
+  end
+
+exec(*bin, *files.map { |f, l| "#{mod}/#{File.dirname(f)}" }, *pattern_from_line(*files[0]))
