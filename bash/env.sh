@@ -2,6 +2,7 @@ export EDITOR="ruco"
 export PATH="$HOME/.krew/bin:$PATH"
 export PATH="$HOME/dotfiles/bin:$PATH"
 export PATH="$HOME/dotfiles/secret/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
 
 #if [ -f /usr/libexec/java_home ]; then
