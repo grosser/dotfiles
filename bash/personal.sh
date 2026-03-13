@@ -17,7 +17,6 @@ alias s="stern --timezone utc -t --context" # stern with timestamps that match s
 alias kbadpod="kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded -L team,project,role --context"
 alias each-cluster="~/Code/zendesk/dotfiles_n_scripts/shell_scripts/each-cluster"
 alias sshc="~/Code/zendesk/dotfiles_n_scripts/shell_scripts/sshc"
-alias review="claude 'check the last commit things to fix/improve/document/simplify'"
 
 # kubectl shortcuts
 # - cannot be an alias to make plugins work `ka sandbox edit-status -h`
@@ -52,6 +51,19 @@ function pdf-decrypt(){
 
 function kbadpdb(){
   kubectl get pdb -A -o json --context $1 | jq '.items | map(select(.status.disruptionsAllowed == 0)) | map(select(.status.desiredHealthy != 0))' | jq -r '.[] | "\(.metadata.namespace)\t\(.metadata.name)\t\(.status.currentHealthy)/\(.status.expectedPods)\tteam:\(.metadata.labels.team)"'
+}
+
+cdz() {
+  if [ $# -ne 1 ]; then
+    echo "Usage: cdz <repo>" >&2
+    return 1
+  fi
+  cd ~/Code/zendesk || return
+  if [ -d "$1" ]; then
+    cd "$1"
+  else
+    git clone "git@github.com:zendesk/$1.git" && cd "$1"
+  fi
 }
 
 export BUNDLER_EDITOR=rubymine
