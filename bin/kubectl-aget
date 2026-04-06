@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+# filter/display kubernetes resources by annotations
+# kubectl aget pods -n foo -a=my-annotation -A=my-annotation
+# -a=key or -a=key=value  filter resources that have annotation key (optionally matching value)
+# -A=key                  print annotation values as extra columns
+
+require 'json'
+require 'shellwords'
+
+def sh(command)
+  result = `#{command}`
+  abort "command failed!\n#{command}\n#{result}" unless $?.success?
+  result
+end
+
+filter_annotations = []
+print_annotations = []
+kubectl_args = []
+
+# read the options
+ARGV.each do |arg|
+  arg = arg.dup
+  if arg.sub!(/^-a=/, "")
+    filter_annotations.concat arg.split(",")
+  elsif arg.sub!(/^-A=/, "")
+    print_annotations.concat arg.split(",")
+  else
+    kubectl_args << arg
+  end
+end
+
+resources = JSON.parse(sh("kubectl get #{kubectl_args.shelljoin} -o json"))
+resources = resources['items'] || [resources]
+
+# filter by annotation
+filter_annotations.each do |filter|
+  key, value = filter.split("=", 2)
+  resources.select! do |r|
+    annotations = r.dig("metadata", "annotations") || {}
+    if value
+      annotations[key] == value
+    else
+      annotations.key?(key)
+    end
+  end
+end
+
+# build output
+has_namespace = resources.any? { |r| r.dig("metadata", "namespace") }
+header = ["NAME"]
+header << "NAMESPACE" if has_namespace
+header += print_annotations.map(&:upcase)
+
+rows = resources.map do |r|
+  annotations = r.dig("metadata", "annotations") || {}
+  [
+    r.dig("metadata", "name"),
+    *r.dig("metadata", "namespace"),
+    *print_annotations.map { |k| annotations[k] }
+  ]
+end
+
+[header, *rows].each do |row|
+  puts row.join("\t")
+end
