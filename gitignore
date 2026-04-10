@@ -27,6 +27,7 @@ dump.rdb
 .crystal
 .rake_tasks~
 .go-version
+.mise.toml
 .vendir-tmp
 .jfrog
 .env
