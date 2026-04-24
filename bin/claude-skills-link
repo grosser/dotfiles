@@ -1,0 +1,71 @@
+#!/usr/bin/env ruby
+# link all skills from current folder into ~/.claude/skills
+# use with --refresh to discover new skills
+
+require "fileutils"
+require "pathname"
+
+DEST = File.expand_path("~/.claude/skills")
+
+def link_skills(source_dir)
+  Dir.children(source_dir).each do |name|
+    next if name.start_with?(".")
+
+    src = File.join(source_dir, name)
+    next unless File.directory?(src) && !File.symlink?(src)
+
+    dst = File.join(DEST, name)
+    src_abs = File.realpath(src)
+
+    if !File.symlink?(dst) && !File.exist?(dst) # new
+      File.symlink(src_abs, dst)
+      puts "linked #{name} -> #{src_abs}"
+    elsif File.symlink?(dst) # existing link
+      existing = File.readlink(dst)
+      if existing == src_abs
+        puts "skipped #{name} (already linked)"
+      else
+        abort "conflict: #{dst} is a symlink to #{existing}, refusing to overwrite with #{src_abs}"
+      end
+    else # existing real folder
+      abort "conflict: #{dst} is a real directory, refusing to replace"
+    end
+  end
+end
+
+def refresh
+  sources = []
+  Dir.children(DEST).each do |name|
+    linked = File.join(DEST, name)
+
+    if File.symlink?(linked)
+      target = File.readlink(linked)
+      unless File.exist?(linked)
+        File.unlink(linked)
+        puts "removed broken symlink #{name} (was -> #{target})"
+        next
+      end
+      parent = File.dirname(target)
+      sources << parent
+    elsif File.directory?(linked)
+      puts "skipped #{name} (real directory, not a symlink source)"
+    end
+  end
+  sources.uniq!
+
+  sources.each do |s|
+    puts "refreshing #{s}"
+    link_skills(s)
+  end
+end
+
+refresh_mode = !!ARGV.delete("--refresh")
+
+abort "unexpected arguments: #{ARGV.join(" ")}" unless ARGV.empty?
+abort "destination dir does not exist: #{DEST}" unless File.directory?(DEST)
+
+if refresh_mode
+  refresh
+else
+  link_skills(File.expand_path(".claude/skills"))
+end
