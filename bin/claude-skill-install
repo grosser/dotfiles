@@ -25,28 +25,27 @@ def url?(s)
   s.start_with?("http://", "https://")
 end
 
-def parse_frontmatter(path)
-  content = File.read(path)
-  abort "missing frontmatter in #{path}" unless content.start_with?("---\n")
+def parse_skill(content)
+  abort "missing frontmatter" unless content.start_with?("---\n")
   _, fm, body = content.split(/^---\s*$\n/, 3)
   [YAML.safe_load(fm || "") || {}, body.to_s]
 end
 
-def change_frontmatter(skill_md)
-  data, body = parse_frontmatter(skill_md)
-  if block_given?
-    yield data
-    File.write(skill_md, "---\n#{data.to_yaml.sub(/\A---\n/, "")}---\n#{body}")
-  end
-  data
+def read_frontmatter(path)
+  parse_skill(File.read(path)).first
 end
 
-def symlink(src_abs, dst, name)
-  File.symlink(src_abs, dst)
-  puts "linked #{name} -> #{src_abs}"
+def render_skill(fm, body)
+  "---\n#{fm.to_yaml.sub(/\A---\n/, "")}---\n#{body}"
 end
 
-def fetch(url)
+def apply_gsubs(content, gsubs)
+  return content if gsubs.nil? || gsubs.empty?
+  gsubs.each { |search, replace| content = content.gsub(search, replace) }
+  content
+end
+
+def download(url)
   out = IO.popen(["curl", "--fail", "--silent", "--show-error", "--location", url], &:read)
   abort "download failed: #{url}" unless $?.success?
   out
@@ -57,55 +56,72 @@ def git_ref(dir)
   ref.empty? ? nil : ref
 end
 
-def write_marker(dst, source, changes, git_ref: nil, gsubs: nil)
-  marker = {"source" => source, "changes" => changes}
-  marker["gsubs"] = gsubs if gsubs && !gsubs.empty?
-  marker["git_ref"] = git_ref if git_ref
+def write_marker(dst, marker)
+  source = marker["source"] || abort("spec missing source")
+  ref = git_ref(source) unless url?(source)
+  marker["git_ref"] = ref if ref
   File.write(File.join(dst, MARKER), marker.to_yaml)
 end
 
-def apply_gsubs(skill_md, gsubs)
-  return if gsubs.nil? || gsubs.empty?
-  content = File.read(skill_md)
-  gsubs.each { |search, replace| content = content.gsub(search, replace) }
-  File.write(skill_md, content)
-end
-
-def skill_name(dir)
-  change_frontmatter(File.join(dir, "SKILL.md"))["name"] || File.basename(dir)
+def read_marker(dst)
+  path = File.join(dst, MARKER)
+  abort "missing marker: #{path}" unless File.file?(path)
+  YAML.safe_load(File.read(path))
 end
 
 def check_dst!(dst)
-  return unless File.exist?(dst)
-  abort "conflict: #{dst} already exists, refusing to overwrite"
+  abort "conflict: #{dst} already exists" if File.exist?(dst)
 end
 
-def copy_folder_with_changes(src_dir, dst, name, changes, gsubs: nil)
-  FileUtils.cp_r(src_dir, dst)
-  skill_md = File.join(dst, "SKILL.md")
-  change_frontmatter(skill_md) { |fm| fm.merge!(changes) }
-  apply_gsubs(skill_md, gsubs)
-  write_marker(dst, src_dir, changes, git_ref: git_ref(src_dir), gsubs: gsubs)
-  puts "copied #{name} from #{src_dir} (changes: #{changes.inspect})"
+def symlink(src_abs, dst, name)
+  File.symlink(src_abs, dst)
+  puts "linked #{name} -> #{src_abs}"
 end
 
-# writes SKILL.md to disk first, then (optionally) lets a block decide on
-# additional frontmatter changes based on the downloaded content.
-def install_url_with_changes(url, dst, name, changes: nil, gsubs: nil)
+def skill_name(dir)
+  read_frontmatter(File.join(dir, "SKILL.md"))["name"] || File.basename(dir)
+end
+
+def write_skill_and_marker(dst, marker, fm, body)
+  fm = fm.merge(marker["changes"] || {})
   FileUtils.mkdir_p(dst)
-  skill_md = File.join(dst, "SKILL.md")
-  File.write(skill_md, fetch(url))
-  changes ||= yield(parse_frontmatter(skill_md).first, dst)
-  change_frontmatter(skill_md) { |fm| fm.merge!(changes) } unless changes.empty?
-  apply_gsubs(skill_md, gsubs)
-  write_marker(dst, url, changes, gsubs: gsubs)
-  puts "downloaded #{name} from #{url} (changes: #{changes.inspect})"
+  File.write(
+    File.join(dst, "SKILL.md"),
+    apply_gsubs(render_skill(fm, body), marker["gsubs"])
+  )
+  write_marker(dst, marker)
+end
+
+def write_skill_from_url(dst, marker)
+  skill = download(marker["source"])
+  write_skill_and_marker(dst, marker, *parse_skill(skill))
+end
+
+def write_skill_from_folder(dst, marker)
+  FileUtils.cp_r(marker["source"], dst)
+  skill = File.read(File.join(dst, "SKILL.md"))
+  write_skill_and_marker(dst, marker, *parse_skill(skill))
+end
+
+def replace_folder(dst, marker)
+  source = marker["source"] || abort("marker missing source")
+
+  if !url?(source) && !File.directory?(source)
+    warn "skipped #{dst}: source #{source.inspect} is missing"
+    return
+  end
+
+  FileUtils.rm_rf(dst)
+  if url?(source)
+    write_skill_from_url(dst, marker)
+  else
+    write_skill_from_folder(dst, marker)
+  end
 end
 
 def install_from_folder(folder)
   src_abs = File.realpath(File.expand_path(folder))
   abort "not a directory: #{src_abs}" unless File.directory?(src_abs)
-
   skill_md = File.join(src_abs, "SKILL.md")
   abort "missing SKILL.md in #{src_abs}" unless File.file?(skill_md)
 
@@ -113,65 +129,52 @@ def install_from_folder(folder)
   dst = File.join(DEST, name)
   check_dst!(dst)
 
-  if change_frontmatter(skill_md)["disable-model-invocation"] == true
+  if read_frontmatter(skill_md)["disable-model-invocation"] == true
     symlink(src_abs, dst, name)
     return
   end
 
-  print "#{name} does not have `disable-model-invocation: true`\n[l]ink as-is, [c]opy with disable-model-invocation: false, [a]bort? "
-  case $stdin.gets.strip.downcase
+  print "#{name} allows model invocation. [l]ink as-is, [c]opy with it disabled, [a]bort? "
+  case $stdin.gets&.strip&.downcase
   when "l", "link"
     symlink(src_abs, dst, name)
   when "c", "copy"
-    copy_folder_with_changes(src_abs, dst, name, {"disable-model-invocation" => true})
+    marker = { "source" => src_abs, "changes" => { "disable-model-invocation" => true } }
+    replace_folder(dst, marker)
+    puts "copied #{name} from #{src_abs}"
   else
     abort "aborted"
   end
 end
 
 def install_from_url(url)
-  name = url.split("/")[-2] || raise # http://foo/bar/SKILL.md -> bar
+  name = url.split("/")[-2] || abort("cannot derive name from url: #{url}")
   dst = File.join(DEST, name)
   check_dst!(dst)
 
-  install_url_with_changes(url, dst, name) do |fm, dst_dir|
-    if fm["disable-model-invocation"] == true
-      {}
-    else
-      print "#{name} has model invocation enabled. [c]opy with invocation disabled, [k]eep as-is, [a]bort? "
-      case $stdin.gets&.strip&.downcase
-      when "c", "copy" then {"disable-model-invocation" => true}
-      when "k", "keep" then {}
-      else
-        FileUtils.rm_rf(dst_dir)
-        abort "aborted"
-      end
+  fm, body = parse_skill(download(url))
+  changes = {}
+  unless fm["disable-model-invocation"] == true
+    print "#{name} allows model invocation. [c]opy with it disabled, [k]eep as-is, [a]bort? "
+    case $stdin.gets&.strip&.downcase
+    when "c", "copy" then changes["disable-model-invocation"] = true
+    when "k", "keep" then # noop
+    else abort "aborted"
     end
   end
+  marker = {"source" => url, "changes" => changes}
+
+  write_skill_and_marker(dst, marker, fm, body)
+  puts "downloaded #{name} from #{url}"
 end
 
 def refresh
   Dir.children(DEST).sort.each do |name|
     dst = File.join(DEST, name)
-    marker = File.join(dst, MARKER)
-    next if File.symlink?(dst) || !File.file?(marker)
-
-    info = YAML.safe_load(File.read(marker))
-    src = info["source"] || raise("missing source")
-    changes = info["changes"] || {}
-    gsubs = info["gsubs"]
-
-    if url?(src)
-      FileUtils.rm_rf(dst)
-      install_url_with_changes(src, dst, name, changes: changes, gsubs: gsubs)
-    else
-      unless File.directory?(src)
-        warn "skipped #{name}: source #{src.inspect} is missing"
-        next
-      end
-      FileUtils.rm_rf(dst)
-      copy_folder_with_changes(src, dst, name, changes, gsubs: gsubs)
-    end
+    next if File.symlink?(dst) || !File.file?(File.join(dst, MARKER)) # ignore unmanaged
+    marker = read_marker(dst)
+    replace_folder(dst, marker)
+    puts "refreshed #{name} from #{marker["source"]}"
   end
 end
 

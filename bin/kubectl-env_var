@@ -81,7 +81,7 @@ container, index = find_container(resource, container_name)
 if get_mode?(env)
   env.each_key do |k|
     all = (container["env"] || []).find { |e| e["name"] == k }
-    value = (all ? all["value"] || all.fetch("valueFrom").inspect : "<not set>")
+    value = (all ? all["value"] || all.download("valueFrom").inspect : "<not set>")
     puts "#{k}=#{value}"
   end
 else
