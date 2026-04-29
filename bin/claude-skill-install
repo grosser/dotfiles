@@ -70,6 +70,10 @@ def read_marker(dst)
 end
 
 def check_dst!(dst)
+  # refuse so we never parses a marker we didn't write
+  abort "refused: #{dst} already has #{MARKER}" if File.file?(File.join(dst, MARKER))
+
+  # user should delete if they want to replace, maybe later add a "do you want to replace" or a --force
   abort "conflict: #{dst} already exists" if File.exist?(dst)
 end
 
