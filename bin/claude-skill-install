@@ -13,6 +13,10 @@
 # copy with invocation disabled. url-sourced skills are always copied.
 # copied skills get a claude-skill-install.yml marker so --refresh can re-pull
 # them from their source.
+#
+# ~/.claude-skill-install.yml, if present, supplies default marker fields
+# (changes, gsubs, ...) merged into every install/refresh. per-skill markers
+# override.
 
 require "fileutils"
 require "shellwords"
@@ -20,6 +24,7 @@ require "yaml"
 
 DEST = File.expand_path("~/.claude/skills")
 MARKER = "claude-skill-install.yml"
+GLOBAL_CONFIG = File.expand_path("~/.claude-skill-install.yml")
 
 def url?(s)
   s.start_with?("http://", "https://")
@@ -66,7 +71,12 @@ end
 def read_marker(dst)
   path = File.join(dst, MARKER)
   abort "missing marker: #{path}" unless File.file?(path)
-  YAML.safe_load(File.read(path))
+  YAML.safe_load(File.read(path), filename: path)
+end
+
+def global_config
+  return {} unless File.file?(GLOBAL_CONFIG)
+  YAML.safe_load(File.read(GLOBAL_CONFIG), filename: GLOBAL_CONFIG) || {}
 end
 
 def check_dst!(dst)
@@ -87,12 +97,17 @@ def skill_name(dir)
 end
 
 def write_skill_and_marker(dst, marker, fm, body)
-  fm = fm.merge(marker["changes"] || {})
   FileUtils.mkdir_p(dst)
+
+  # write skill
+  effective_marker = global_config.merge(marker)
+  fm = fm.merge(effective_marker["changes"] || {})
   File.write(
     File.join(dst, "SKILL.md"),
-    apply_gsubs(render_skill(fm, body), marker["gsubs"])
+    apply_gsubs(render_skill(fm, body), effective_marker["gsubs"])
   )
+
+  # write marker so we can --refresh
   write_marker(dst, marker)
 end
 
