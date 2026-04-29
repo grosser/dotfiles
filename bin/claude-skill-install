@@ -7,12 +7,11 @@
 #   claude-skill-install --refresh  re-install every previously copied skill
 #
 # urls must be raw http(s) urls pointing at a SKILL.md (e.g. a github raw url).
-# the skill folder name is taken from the last path segment of the url. if the
-# downloaded SKILL.md already has `disable-model-invocation: true`, local
-# folders are symlinked. otherwise you are asked whether to link/keep as-is or
-# copy with invocation disabled. url-sourced skills are always copied.
-# copied skills get a claude-skill-install.yml marker so --refresh can re-pull
-# them from their source.
+# the skill folder name is taken from the last path segment of the url. local
+# folders are symlinked unless the effective marker (global config + any skill
+# overrides) would mutate the skill, in which case you're prompted to copy.
+# url-sourced skills are always copied. copied skills get a
+# claude-skill-install.yml marker so --refresh can re-pull them from source.
 #
 # ~/.claude-skill-install.yml, if present, supplies default marker fields
 # (changes, gsubs, ...) merged into every install/refresh. per-skill markers
@@ -77,6 +76,15 @@ end
 def global_config
   return {} unless File.file?(GLOBAL_CONFIG)
   YAML.safe_load(File.read(GLOBAL_CONFIG), filename: GLOBAL_CONFIG) || {}
+end
+
+# TODO: if the default value is set via changes this always says it would change -> hardcode claude defaults
+# TODO: gsubs might do nothing and it will still say there are changes -> pass the whole skill and test
+def would_change?(fm, marker)
+  effective = global_config.merge(marker)
+  changes = effective["changes"] || {}
+  gsubs = effective["gsubs"] || []
+  gsubs.any? || changes.any? { |k, v| fm[k] != v }
 end
 
 def check_dst!(dst)
@@ -148,19 +156,19 @@ def install_from_folder(folder)
   dst = File.join(DEST, name)
   check_dst!(dst)
 
-  if read_frontmatter(skill_md)["disable-model-invocation"] == true
+  marker = { "source" => src_abs }
+  unless would_change?(read_frontmatter(skill_md), marker)
     symlink(src_abs, dst, name)
     return
   end
 
-  print "#{name} allows model invocation. [l]ink as-is, [c]opy with it disabled, [a]bort? "
+  print "#{name} would be modified by changes/gsubs. [c]opy with changes, [l]ink as-is (ignore changes), [a]bort? "
   case $stdin.gets&.strip&.downcase
-  when "l", "link"
-    symlink(src_abs, dst, name)
   when "c", "copy"
-    marker = { "source" => src_abs, "changes" => { "disable-model-invocation" => true } }
     replace_folder(dst, marker)
     puts "copied #{name} from #{src_abs}"
+  when "l", "link"
+    symlink(src_abs, dst, name)
   else
     abort "aborted"
   end
@@ -172,17 +180,7 @@ def install_from_url(url)
   check_dst!(dst)
 
   fm, body = parse_skill(download(url))
-  changes = {}
-  unless fm["disable-model-invocation"] == true
-    print "#{name} allows model invocation. [c]opy with it disabled, [k]eep as-is, [a]bort? "
-    case $stdin.gets&.strip&.downcase
-    when "c", "copy" then changes["disable-model-invocation"] = true
-    when "k", "keep" then # noop
-    else abort "aborted"
-    end
-  end
-  marker = {"source" => url, "changes" => changes}
-
+  marker = { "source" => url }
   write_skill_and_marker(dst, marker, fm, body)
   puts "downloaded #{name} from #{url}"
 end
