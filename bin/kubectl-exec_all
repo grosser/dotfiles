@@ -1,0 +1,127 @@
+#!/usr/bin/env ruby
+# exec a command on every pod matching a kubectl-get query, in parallel
+#
+# kubectl exec-all [get-flags] [-c container] -- <command...>
+# example: kubectl exec-all pods -l app=foo -n bar -- date
+
+require 'json'
+require 'open3'
+require 'shellwords'
+require 'zlib'
+
+# connection flags that have a argument following them
+CONN_FLAGS = ["--context", "--kubeconfig", "--cluster", "--user", "--as", "--as-group", "--as-uid"].freeze
+
+# flags forwarded only to exec
+EXEC_FLAGS = ["-c", "--container"].freeze
+
+# colors for pod names
+COLORS = [31, 32, 33, 34, 35, 36, 91, 92, 93, 94, 95, 96].freeze
+
+def sh(command)
+  result = `#{command}`
+  abort "command failed!\n#{command}\n#{result}" unless $?.success?
+  result
+end
+
+def pod_name_color(name)
+  COLORS[Zlib.crc32(name) % COLORS.length]
+end
+
+def colorize(text, code, enabled)
+  enabled ? "\e[#{code}m#{text}\e[0m" : text
+end
+
+def parse_argv(argv)
+  separator = argv.index('--')
+  abort "missing '--' separator before command" unless separator
+  argv, command = argv[0...separator], argv[(separator + 1)..]
+  abort "command after '--' required" if command.empty?
+
+  get_args = []
+  exec_args = []
+  i = 0
+  while i < argv.length
+    arg = argv[i]
+    case arg
+    when '-i', '-t', '-it', '-ti', '--stdin', '--tty', /\A--stdin=/, /\A--tty=/
+      abort "-i/-t flags refused for mass exec: #{arg}"
+    when *EXEC_FLAGS
+      exec_args << arg << argv[i + 1]
+      i += 2
+    when /\A(?:#{EXEC_FLAGS.join('|')})=/
+      exec_args << arg
+      i += 1
+    when *CONN_FLAGS
+      get_args << arg << argv[i + 1]
+      exec_args << arg << argv[i + 1]
+      i += 2
+    when /\A(?:#{CONN_FLAGS.join('|')})=/
+      get_args << arg
+      exec_args << arg
+      i += 1
+    else
+      get_args << arg
+      i += 1
+    end
+  end
+
+  [get_args, [*exec_args, '--', *command]]
+end
+
+get_args, exec_args = parse_argv(ARGV)
+
+pods = JSON.parse(sh("kubectl get pods #{get_args.shelljoin} -o json")).fetch('items')
+abort "no pods found" if pods.empty?
+warn "exec on #{pods.length} pods"
+
+stdout_tty = $stdout.tty?
+stderr_tty = $stderr.tty?
+print_mutex = Mutex.new
+pids = []
+failures = []
+
+# when user interrupts shut down all execs
+trap('INT') do
+  pids.each { |pid| Process.kill('TERM', pid) rescue nil }
+  Thread.new do
+    sleep 2
+    pids.each { |pid| Process.kill('KILL', pid) rescue nil }
+  end
+end
+
+execs = pods.map do |pod|
+  name = pod.dig('metadata', 'name')
+  namespace = pod.dig('metadata', 'namespace')
+  color = pod_name_color(name)
+
+  Thread.new do
+    cmd = ['kubectl', 'exec', '-n', namespace, name, *exec_args]
+
+    Open3.popen3(*cmd) do |stdin, stdout, stderr, wait_thr|
+      stdin.close
+      pids << wait_thr.pid
+
+      # read all output and re-emit it synchronously
+      [
+        [stdout, $stdout, stdout_tty],
+        [stderr, $stderr, stderr_tty]
+      ].map do |src, dst, tty|
+        Thread.new do
+          src.each_line do |line|
+            print_mutex.synchronize { dst.puts "#{colorize(name, color, tty)} | #{line.chomp}" }
+          end
+        end
+      end.each(&:join)
+
+      next if wait_thr.value.success?
+      failures << name
+      print_mutex.synchronize do
+        $stderr.puts colorize("-#{name}", color, stderr_tty)
+      end
+    end
+  end
+end
+
+execs.each(&:join)
+exit(failures.empty? ? 0 : 1)
