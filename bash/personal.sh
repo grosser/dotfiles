@@ -17,6 +17,7 @@ alias s="stern --timezone utc -t --context" # stern with timestamps that match s
 alias kbadpod="kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded -L team,project,role --context"
 alias each-cluster="~/Code/zendesk/dotfiles_n_scripts/shell_scripts/each-cluster"
 alias sshc="~/Code/zendesk/dotfiles_n_scripts/shell_scripts/sshc"
+alias clc="claude --continue"
 
 # kubectl shortcuts
 # - cannot be an alias to make plugins work `ka sandbox edit-status -h`
