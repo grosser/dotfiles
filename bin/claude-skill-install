@@ -4,14 +4,16 @@
 #
 # usage:
 #   claude-skill-install <folder>   install a single skill from a local folder
-#   claude-skill-install <url>      download a raw SKILL.md URL and install it
+#   claude-skill-install <url>      download a skill from a url and install it
 #   claude-skill-install --refresh  re-install every previously copied skill
 #
-# urls must be raw http(s) urls pointing at a SKILL.md (e.g. a github raw url).
-# the skill folder name is taken from the last path segment of the url. local
-# folders are symlinked unless the effective marker (global config + any skill
-# overrides) would mutate the skill, in which case you're prompted to copy.
-# url-sourced skills are always copied. copied skills get a
+# urls can be either a raw SKILL.md url (name taken from second-to-last path
+# segment) or a github tree url pointing at a skill folder, e.g.
+# https://github.com/owner/repo/tree/main/path/to/skill (name taken from the
+# last segment; all files in the folder are pulled via the github contents
+# api). local folders are symlinked unless the effective marker (global config
+# + any skill overrides) would mutate the skill, in which case you're prompted
+# to copy. url-sourced skills are always copied. copied skills get a
 # claude-skill-install.yml marker so --refresh can re-pull them from source.
 #
 # ~/.claude-skill-install.yml, if present, supplies default marker fields
@@ -19,6 +21,7 @@
 # override.
 
 require "fileutils"
+require "json"
 require "shellwords"
 require "yaml"
 
@@ -61,13 +64,12 @@ class ClaudeSkillInstall
   end
 
   def install_from_url(url)
-    name = url.split("/")[-2] || abort("cannot derive name from url: #{url}")
+    name = url_skill_name(url)
     dst = File.join(DEST, name)
     check_dst!(dst)
 
-    fm, body = parse_skill(download(url))
     marker = { "source" => url }
-    write_skill_and_marker(dst, marker, fm, body)
+    write_skill_from_url(dst, marker)
     puts "downloaded #{name} from #{url}"
   end
 
@@ -136,8 +138,14 @@ class ClaudeSkillInstall
   end
 
   def write_skill_from_url(dst, marker)
-    skill = download(marker["source"])
-    write_skill_and_marker(dst, marker, *parse_skill(skill))
+    source = marker["source"]
+    if (parts = github_tree_parts(source))
+      download_github_tree(dst, *parts)
+      skill = File.read(File.join(dst, "SKILL.md"))
+      write_skill_and_marker(dst, marker, *parse_skill(skill))
+    else
+      write_skill_and_marker(dst, marker, *parse_skill(download(source)))
+    end
   end
 
   def write_skill_from_folder(dst, marker)
@@ -255,6 +263,44 @@ class ClaudeSkillInstall
 
   def url?(s)
     s.start_with?("http://", "https://")
+  end
+
+  def url_skill_name(url)
+    if (dir = github_tree_parts(url))
+      dir.last
+    else
+      url.split("/")[-2] || abort("cannot derive name from url: #{url}")
+    end
+  end
+
+  # https://github.com/<owner>/<repo>/tree/<ref>/<path...> -> [owner, repo, ref, *path]
+  def github_tree_parts(url)
+    _, _, host, owner, repo, tree, ref, *rest = url.split("/")
+    return unless host == "github.com" && tree == "tree" && owner && repo && ref && !rest.empty?
+    [owner, repo, ref, *rest]
+  end
+
+  def download_github_tree(dst, owner, repo, ref, *path_parts)
+    FileUtils.mkdir_p(dst)
+    download_github_dir(owner, repo, ref, path_parts.join("/"), dst)
+  end
+
+  def download_github_dir(owner, repo, ref, path, dst)
+    api = "https://api.github.com/repos/#{owner}/#{repo}/contents/#{path}?ref=#{ref}"
+    entries = JSON.parse(download(api))
+    entries.each do |entry|
+      name = entry["name"]
+      target = File.join(dst, name)
+      case entry["type"]
+      when "file"
+        File.write(target, download(entry["download_url"]))
+      when "dir"
+        FileUtils.mkdir_p(target)
+        download_github_dir(owner, repo, ref, "#{path}/#{name}", target)
+      else
+        warn "skipping #{entry["type"]}: #{entry["path"]}"
+      end
+    end
   end
 
   def download(url)
