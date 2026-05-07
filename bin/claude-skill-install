@@ -121,12 +121,18 @@ class ClaudeSkillInstall
       return
     end
 
-    FileUtils.rm_rf(dst)
+    staging = "#{dst}.new"
+    FileUtils.rm_rf(staging)
     if url?(source)
-      write_skill_from_url(dst, marker)
+      write_skill_from_url(staging, marker)
     else
-      write_skill_from_folder(dst, marker)
+      write_skill_from_folder(staging, marker)
     end
+
+    git_diff(dst, staging)
+
+    FileUtils.rm_rf(dst)
+    FileUtils.mv(staging, dst)
   end
 
   def write_skill_from_url(dst, marker)
@@ -211,6 +217,10 @@ class ClaudeSkillInstall
   end
 
   # git
+
+  def git_diff(old, new)
+    system("git", "diff", "--no-index", "--color=auto", old, new)
+  end
 
   def git_pull_if_on_default(source)
     return unless (top = git_toplevel(source))
