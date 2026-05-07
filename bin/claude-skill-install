@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
-# install a skill into ~/.claude/skills
+# install a skill into ~/.claude/skills with local modifications
+# and keep a record of where it came from for later refreshes
 #
 # usage:
 #   claude-skill-install <folder>   install a single skill from a local folder
@@ -21,191 +22,249 @@ require "fileutils"
 require "shellwords"
 require "yaml"
 
-DEST = File.expand_path("~/.claude/skills")
-MARKER = "claude-skill-install.yml"
-GLOBAL_CONFIG = File.expand_path("~/.claude-skill-install.yml")
+class ClaudeSkillInstall
+  DEST = File.expand_path("~/.claude/skills")
+  MARKER = "claude-skill-install.yml"
+  GLOBAL_MARKER = File.expand_path("~/.claude-skill-install.yml")
 
-def url?(s)
-  s.start_with?("http://", "https://")
-end
-
-def parse_skill(content)
-  abort "missing frontmatter" unless content.start_with?("---\n")
-  _, fm, body = content.split(/^---\s*$\n/, 3)
-  [YAML.safe_load(fm || "") || {}, body.to_s]
-end
-
-def read_frontmatter(path)
-  parse_skill(File.read(path)).first
-end
-
-def render_skill(fm, body)
-  "---\n#{fm.to_yaml.sub(/\A---\n/, "")}---\n#{body}"
-end
-
-def apply_gsubs(content, gsubs)
-  return content if gsubs.nil? || gsubs.empty?
-  gsubs.each { |search, replace| content = content.gsub(search, replace) }
-  content
-end
-
-def download(url)
-  out = IO.popen(["curl", "--fail", "--silent", "--show-error", "--location", url], &:read)
-  abort "download failed: #{url}" unless $?.success?
-  out
-end
-
-def git_ref(dir)
-  ref = `git -C #{dir.shellescape} rev-parse HEAD 2>/dev/null`.strip
-  ref.empty? ? nil : ref
-end
-
-def write_marker(dst, marker)
-  source = marker["source"] || abort("spec missing source")
-  ref = git_ref(source) unless url?(source)
-  marker["git_ref"] = ref if ref
-  File.write(File.join(dst, MARKER), marker.to_yaml)
-end
-
-def read_marker(dst)
-  path = File.join(dst, MARKER)
-  abort "missing marker: #{path}" unless File.file?(path)
-  YAML.safe_load(File.read(path), filename: path)
-end
-
-def global_config
-  return {} unless File.file?(GLOBAL_CONFIG)
-  YAML.safe_load(File.read(GLOBAL_CONFIG), filename: GLOBAL_CONFIG) || {}
-end
-
-# TODO: if the default value is set via changes this always says it would change -> hardcode claude defaults
-# TODO: gsubs might do nothing and it will still say there are changes -> pass the whole skill and test
-def would_change?(fm, marker)
-  effective = global_config.merge(marker)
-  changes = effective["changes"] || {}
-  gsubs = effective["gsubs"] || []
-  gsubs.any? || changes.any? { |k, v| fm[k] != v }
-end
-
-def check_dst!(dst)
-  # refuse so we never parses a marker we didn't write
-  abort "refused: #{dst} already has #{MARKER}" if File.file?(File.join(dst, MARKER))
-
-  # user should delete if they want to replace, maybe later add a "do you want to replace" or a --force
-  abort "conflict: #{dst} already exists" if File.exist?(dst)
-end
-
-def symlink(src_abs, dst, name)
-  File.symlink(src_abs, dst)
-  puts "linked #{name} -> #{src_abs}"
-end
-
-def skill_name(dir)
-  read_frontmatter(File.join(dir, "SKILL.md"))["name"] || File.basename(dir)
-end
-
-def write_skill_and_marker(dst, marker, fm, body)
-  FileUtils.mkdir_p(dst)
-
-  # write skill
-  effective_marker = global_config.merge(marker)
-  fm = fm.merge(effective_marker["changes"] || {})
-  File.write(
-    File.join(dst, "SKILL.md"),
-    apply_gsubs(render_skill(fm, body), effective_marker["gsubs"])
-  )
-
-  # write marker so we can --refresh
-  write_marker(dst, marker)
-end
-
-def write_skill_from_url(dst, marker)
-  skill = download(marker["source"])
-  write_skill_and_marker(dst, marker, *parse_skill(skill))
-end
-
-def write_skill_from_folder(dst, marker)
-  FileUtils.cp_r(marker["source"], dst)
-  skill = File.read(File.join(dst, "SKILL.md"))
-  write_skill_and_marker(dst, marker, *parse_skill(skill))
-end
-
-def replace_folder(dst, marker)
-  source = marker["source"] || abort("marker missing source")
-
-  if !url?(source) && !File.directory?(source)
-    warn "skipped #{dst}: source #{source.inspect} is missing"
-    return
+  def initialize
+    abort "destination dir does not exist: #{DEST}" unless File.directory?(DEST)
+    @pulled = []
   end
 
-  FileUtils.rm_rf(dst)
-  if url?(source)
-    write_skill_from_url(dst, marker)
-  else
-    write_skill_from_folder(dst, marker)
-  end
-end
+  def install_from_folder(folder)
+    src_abs = File.realpath(File.expand_path(folder))
+    abort "not a directory: #{src_abs}" unless File.directory?(src_abs)
+    skill_md = File.join(src_abs, "SKILL.md")
+    abort "missing SKILL.md in #{src_abs}" unless File.file?(skill_md)
 
-def install_from_folder(folder)
-  src_abs = File.realpath(File.expand_path(folder))
-  abort "not a directory: #{src_abs}" unless File.directory?(src_abs)
-  skill_md = File.join(src_abs, "SKILL.md")
-  abort "missing SKILL.md in #{src_abs}" unless File.file?(skill_md)
-
-  name = skill_name(src_abs)
-  dst = File.join(DEST, name)
-  check_dst!(dst)
-
-  marker = { "source" => src_abs }
-  unless would_change?(read_frontmatter(skill_md), marker)
-    symlink(src_abs, dst, name)
-    return
-  end
-
-  print "#{name} would be modified by changes/gsubs. [c]opy with changes, [l]ink as-is (ignore changes), [a]bort? "
-  case $stdin.gets&.strip&.downcase
-  when "c", "copy"
-    replace_folder(dst, marker)
-    puts "copied #{name} from #{src_abs}"
-  when "l", "link"
-    symlink(src_abs, dst, name)
-  else
-    abort "aborted"
-  end
-end
-
-def install_from_url(url)
-  name = url.split("/")[-2] || abort("cannot derive name from url: #{url}")
-  dst = File.join(DEST, name)
-  check_dst!(dst)
-
-  fm, body = parse_skill(download(url))
-  marker = { "source" => url }
-  write_skill_and_marker(dst, marker, fm, body)
-  puts "downloaded #{name} from #{url}"
-end
-
-def refresh
-  Dir.children(DEST).sort.each do |name|
+    name = skill_name(src_abs)
     dst = File.join(DEST, name)
-    next if File.symlink?(dst) || !File.file?(File.join(dst, MARKER)) # ignore unmanaged
-    marker = read_marker(dst)
-    replace_folder(dst, marker)
-    puts "refreshed #{name} from #{marker["source"]}"
+    check_dst!(dst)
+
+    marker = { "source" => src_abs }
+    unless would_change?(read_frontmatter(skill_md), marker)
+      symlink(src_abs, dst, name)
+      return
+    end
+
+    print "#{name} would be modified by changes/gsubs. [c]opy with changes, [l]ink as-is (ignore changes), [a]bort? "
+    case $stdin.gets&.strip&.downcase
+    when "c", "copy"
+      replace_folder(dst, marker)
+      puts "copied #{name} from #{src_abs}"
+    when "l", "link"
+      symlink(src_abs, dst, name)
+    else
+      abort "aborted"
+    end
+  end
+
+  def install_from_url(url)
+    name = url.split("/")[-2] || abort("cannot derive name from url: #{url}")
+    dst = File.join(DEST, name)
+    check_dst!(dst)
+
+    fm, body = parse_skill(download(url))
+    marker = { "source" => url }
+    write_skill_and_marker(dst, marker, fm, body)
+    puts "downloaded #{name} from #{url}"
+  end
+
+  def refresh
+    Dir.children(DEST).sort.each do |name|
+      dst = File.join(DEST, name)
+
+      # symlink
+      if File.symlink?(dst)
+        if File.exist?(dst)
+          git_pull_if_on_default(File.realpath(dst))
+        else
+          warn "broken symlink: #{dst} -> #{File.readlink(dst)}"
+        end
+        next
+      end
+
+      # unmanaged
+      next unless (marker = read_marker(dst))
+
+      # copied
+      source = marker["source"]
+      git_pull_if_on_default(source) if source && !url?(source) && File.directory?(source)
+      replace_folder(dst, marker)
+      puts "refreshed #{name} from #{marker["source"]}"
+    end
+  end
+
+  private
+
+  # install helpers
+
+  def check_dst!(dst)
+    # refuse so we never parses a marker we didn't write
+    abort "refused: #{dst} already has #{MARKER}" if File.file?(File.join(dst, MARKER))
+
+    # user should delete if they want to replace, maybe later add a "do you want to replace" or a --force
+    abort "conflict: #{dst} already exists" if File.exist?(dst)
+  end
+
+  def symlink(src_abs, dst, name)
+    File.symlink(src_abs, dst)
+    puts "linked #{name} -> #{src_abs}"
+  end
+
+  def replace_folder(dst, marker)
+    source = marker["source"] || abort("marker missing source")
+
+    if !url?(source) && !File.directory?(source)
+      warn "skipped #{dst}: source #{source.inspect} is missing"
+      return
+    end
+
+    FileUtils.rm_rf(dst)
+    if url?(source)
+      write_skill_from_url(dst, marker)
+    else
+      write_skill_from_folder(dst, marker)
+    end
+  end
+
+  def write_skill_from_url(dst, marker)
+    skill = download(marker["source"])
+    write_skill_and_marker(dst, marker, *parse_skill(skill))
+  end
+
+  def write_skill_from_folder(dst, marker)
+    FileUtils.cp_r(marker["source"], dst)
+    skill = File.read(File.join(dst, "SKILL.md"))
+    write_skill_and_marker(dst, marker, *parse_skill(skill))
+  end
+
+  def write_skill_and_marker(dst, marker, fm, body)
+    FileUtils.mkdir_p(dst)
+
+    # write skill
+    effective_marker = global_marker.merge(marker)
+    fm = fm.merge(effective_marker["changes"] || {})
+    File.write(
+      File.join(dst, "SKILL.md"),
+      apply_gsubs(render_skill(fm, body), effective_marker["gsubs"])
+    )
+
+    # write marker so we can --refresh
+    write_marker(dst, marker)
+  end
+
+  # skill parsing
+
+  def skill_name(dir)
+    read_frontmatter(File.join(dir, "SKILL.md"))["name"] || File.basename(dir)
+  end
+
+  def read_frontmatter(path)
+    parse_skill(File.read(path)).first
+  end
+
+  def parse_skill(content)
+    abort "missing frontmatter" unless content.start_with?("---\n")
+    _, fm, body = content.split(/^---\s*$\n/, 3)
+    [YAML.safe_load(fm || "") || {}, body.to_s]
+  end
+
+  def render_skill(fm, body)
+    "---\n#{fm.to_yaml.sub(/\A---\n/, "")}---\n#{body}"
+  end
+
+  def apply_gsubs(content, gsubs)
+    return content if gsubs.nil? || gsubs.empty?
+    gsubs.each { |search, replace| content = content.gsub(search, replace) }
+    content
+  end
+
+  # TODO: if the default value is set via changes this always says it would change -> hardcode claude defaults
+  # TODO: gsubs might do nothing and it will still say there are changes -> pass the whole skill and test
+  def would_change?(fm, marker)
+    effective = global_marker.merge(marker)
+    changes = effective["changes"] || {}
+    gsubs = effective["gsubs"] || []
+    gsubs.any? || changes.any? { |k, v| fm[k] != v }
+  end
+
+  # marker
+
+  def read_marker(dst)
+    path = File.join(dst, MARKER)
+    return unless File.file?(path)
+    YAML.safe_load(File.read(path), filename: path)
+  end
+
+  def write_marker(dst, marker)
+    source = marker["source"] || abort("spec missing source")
+    ref = git_ref(source) unless url?(source)
+    marker["git_ref"] = ref if ref
+    File.write(File.join(dst, MARKER), marker.to_yaml)
+  end
+
+  def global_marker
+    return {} unless File.file?(GLOBAL_MARKER)
+    YAML.safe_load(File.read(GLOBAL_MARKER), filename: GLOBAL_MARKER) || {}
+  end
+
+  # git
+
+  def git_pull_if_on_default(source)
+    return unless (top = git_toplevel(source))
+    return if @pulled.include?(top)
+    @pulled << top
+    branch = git_branch(top)
+    return unless ["main", "master"].include?(branch)
+    out = `git -C #{top.shellescape} pull --ff-only 2>&1`
+    if $?.success?
+      puts "pulled #{top} (#{branch})"
+    else
+      warn "git pull failed for #{top}, continuing with current state:\n#{out.strip}"
+    end
+  end
+
+  def git_toplevel(dir)
+    top = `git -C #{dir.shellescape} rev-parse --show-toplevel 2>/dev/null`.strip
+    top.empty? ? nil : top
+  end
+
+  def git_branch(dir)
+    branch = `git -C #{dir.shellescape} rev-parse --abbrev-ref HEAD 2>/dev/null`.strip
+    branch.empty? ? nil : branch
+  end
+
+  def git_ref(dir)
+    ref = `git -C #{dir.shellescape} rev-parse HEAD 2>/dev/null`.strip
+    ref.empty? ? nil : ref
+  end
+
+  # misc
+
+  def url?(s)
+    s.start_with?("http://", "https://")
+  end
+
+  def download(url)
+    out = IO.popen(["curl", "--fail", "--silent", "--show-error", "--location", url], &:read)
+    abort "download failed: #{url}" unless $?.success?
+    out
   end
 end
 
-abort "destination dir does not exist: #{DEST}" unless File.directory?(DEST)
+installer = ClaudeSkillInstall.new
 
 if ARGV.delete("--refresh")
   abort "unexpected arguments: #{ARGV.join(" ")}" unless ARGV.empty?
-  refresh
+  installer.refresh
 else
   arg = ARGV.shift || abort("usage: claude-skill-install <folder-or-url> | --refresh")
   abort "unexpected arguments: #{ARGV.join(" ")}" unless ARGV.empty?
-  if url?(arg)
-    install_from_url(arg)
+  if arg.start_with?("http://", "https://")
+    installer.install_from_url(arg)
   else
-    install_from_folder(arg)
+    installer.install_from_folder(arg)
   end
 end
