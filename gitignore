@@ -37,3 +37,4 @@ plan.md
 .cook
 COOK.md
 __pycache__
+.playwright-cli
