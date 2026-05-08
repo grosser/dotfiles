@@ -7,22 +7,20 @@
 #   claude-skill-install <url>      download a skill from a url and install it
 #   claude-skill-install --refresh  re-install every previously copied skill
 #
-# urls can be either a raw SKILL.md url (name taken from second-to-last path
-# segment) or a github tree url pointing at a skill folder, e.g.
-# https://github.com/owner/repo/tree/main/path/to/skill (name taken from the
-# last segment; all files in the folder are pulled via the github contents
-# api). local folders are symlinked unless the effective marker (global config
-# + any skill overrides) would mutate the skill, in which case you're prompted
-# to copy. url-sourced skills are always copied. copied skills get a
-# claude-skill-install.yml marker so --refresh can re-pull them from source.
+# <url>:
+#  - a raw SKILL.md url
+#  - a github tree url pointing at a skill folder, e.g. https://github.com/owner/repo/tree/main/path/to/skill
 #
-# ~/.claude-skill-install.yml, if present, supplies default marker fields
-# (changes, gsubs, ...) merged into every install/refresh. per-skill markers
-# override.
+# <folder>:
+#  - symlinked if the ~/.claude-skill-install.yml would mutate
+#  - copied otherwise
+#
+# ~/.claude-skill-install.yml and <SKILL>/.claude-skill-install.yml, supply changes, gsubs, source, etc
 
 require "fileutils"
 require "json"
 require "shellwords"
+require "tmpdir"
 require "yaml"
 
 class ClaudeSkillInstall
@@ -64,13 +62,16 @@ class ClaudeSkillInstall
   end
 
   def install_from_url(url)
-    name = url_skill_name(url)
-    dst = File.join(DEST, name)
-    check_dst!(dst)
-
     marker = { "source" => url }
-    write_skill_from_url(dst, marker)
-    puts "downloaded #{name} from #{url}"
+    Dir.mktmpdir do |tmp|
+      staging = File.join(tmp, "skill")
+      write_skill_from_url(staging, marker)
+      name = skill_name(staging)
+      dst = File.join(DEST, name)
+      check_dst!(dst)
+      FileUtils.cp_r(staging, dst)
+      puts "downloaded #{name} from #{url}"
+    end
   end
 
   def refresh
@@ -259,19 +260,7 @@ class ClaudeSkillInstall
     ref.empty? ? nil : ref
   end
 
-  # misc
-
-  def url?(s)
-    s.start_with?("http://", "https://")
-  end
-
-  def url_skill_name(url)
-    if (dir = github_tree_parts(url))
-      dir.last
-    else
-      url.split("/")[-2] || abort("cannot derive name from url: #{url}")
-    end
-  end
+  # github
 
   # https://github.com/<owner>/<repo>/tree/<ref>/<path...> -> [owner, repo, ref, *path]
   def github_tree_parts(url)
@@ -303,8 +292,18 @@ class ClaudeSkillInstall
     end
   end
 
+  # misc
+
+  def url?(s)
+    s.start_with?("http://", "https://")
+  end
+
   def download(url)
-    out = IO.popen(["curl", "--fail", "--silent", "--show-error", "--location", url], &:read)
+    cmd = ["curl", "--fail", "--silent", "--show-error", "--location"]
+    if (token = ENV["GH_TOKEN"]) && url.match?(%r{\Ahttps://(api\.github\.com|github\.com|raw\.githubusercontent\.com)/})
+      cmd += ["--header", "Authorization: Bearer #{token}"]
+    end
+    out = IO.popen(cmd + [url], &:read)
     abort "download failed: #{url}" unless $?.success?
     out
   end
