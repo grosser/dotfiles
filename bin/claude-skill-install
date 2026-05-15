@@ -132,7 +132,7 @@ class ClaudeSkillInstall
       write_skill_from_folder(staging, marker)
     end
 
-    git_diff(dst, staging)
+    git_diff(dst, staging) if File.exist?(dst)
 
     FileUtils.rm_rf(dst)
     FileUtils.mv(staging, dst)
