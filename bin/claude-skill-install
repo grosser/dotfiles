@@ -44,20 +44,36 @@ class ClaudeSkillInstall
     check_dst!(dst)
 
     marker = { "source" => src_abs }
-    unless would_change?(read_frontmatter(skill_md), marker)
-      symlink(src_abs, dst, name)
-      return
-    end
 
-    print "#{name} would be modified by changes/gsubs. [c]opy with changes, [l]ink as-is (ignore changes), [a]bort? "
-    case $stdin.gets&.strip&.downcase
-    when "c", "copy"
-      replace_folder(dst, marker)
-      puts "copied #{folder} to #{dst.sub(Dir.home, "~")}"
-    when "l", "link"
-      symlink(src_abs, dst, name)
-    else
-      abort "aborted"
+    Dir.mktmpdir do |tmp|
+      # prepare the new skill
+      preview = File.join(tmp, "preview")
+      write_skill_from_folder(preview, marker)
+
+      # normalize source so yaml formatting differences don't show as changes
+      normalized = File.join(tmp, "source")
+      FileUtils.cp_r(src_abs, normalized)
+      skill_md = File.join(normalized, "SKILL.md")
+      fm, body = parse_skill(File.read(skill_md))
+      File.write(skill_md, render_skill(fm, body))
+
+      # show diff and just link if there is none
+      has_changes = without_file(File.join(preview, MARKER)) do
+        !git_diff(normalized, preview)
+      end
+      return symlink(src_abs, dst, name) unless has_changes
+
+      # ask the user what to do about the diff
+      print "#{name} would be modified. [c]opy with changes, [l]ink as-is (ignore changes), [a]bort? "
+      case $stdin.gets&.strip&.downcase
+      when "c", "copy"
+        FileUtils.cp_r(preview, dst)
+        puts "copied #{folder} to #{dst.sub(Dir.home, "~")}"
+      when "l", "link"
+        symlink(src_abs, dst, name)
+      else
+        abort "aborted"
+      end
     end
   end
 
@@ -124,18 +140,21 @@ class ClaudeSkillInstall
       return
     end
 
-    staging = "#{dst}.new"
-    FileUtils.rm_rf(staging)
+    # can't use temp dir since we diff with `chdir: parent`
+    # also makes local inspection or copy-paste easy
+    preview = "#{dst}.preview"
+
+    FileUtils.rm_rf(preview)
     if url?(source)
-      write_skill_from_url(staging, marker)
+      write_skill_from_url(preview, marker)
     else
-      write_skill_from_folder(staging, marker)
+      write_skill_from_folder(preview, marker)
     end
 
-    git_diff(dst, staging) if File.exist?(dst)
+    git_diff(dst, preview) if File.exist?(dst)
 
     FileUtils.rm_rf(dst)
-    FileUtils.mv(staging, dst)
+    FileUtils.mv(preview, dst)
   end
 
   def write_skill_from_url(dst, marker)
@@ -196,15 +215,6 @@ class ClaudeSkillInstall
     content
   end
 
-  # TODO: if the default value is set via changes this always says it would change -> hardcode claude defaults
-  # TODO: gsubs might do nothing and it will still say there are changes -> pass the whole skill and test
-  def would_change?(fm, marker)
-    effective = global_marker.merge(marker)
-    changes = effective["changes"] || {}
-    gsubs = effective["gsubs"] || []
-    gsubs.any? || changes.any? { |k, v| fm[k] != v }
-  end
-
   # marker
 
   def read_marker(dst)
@@ -228,7 +238,11 @@ class ClaudeSkillInstall
   # git
 
   def git_diff(old, new)
-    system("git", "diff", "--no-index", "--color=auto", old, new)
+    system(
+      "git", "diff", "--no-index", "--color=auto",
+      File.basename(old), File.basename(new),
+      chdir: File.dirname(old)
+    )
   end
 
   def git_pull_if_on_default(source)
@@ -293,6 +307,14 @@ class ClaudeSkillInstall
   end
 
   # misc
+
+  def without_file(path)
+    content = File.read(path)
+    File.unlink(path)
+    yield
+  ensure
+    File.write(path, content)
+  end
 
   def url?(s)
     s.start_with?("http://", "https://")
