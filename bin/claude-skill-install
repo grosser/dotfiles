@@ -46,16 +46,14 @@ class ClaudeSkillInstall
     marker = { "source" => src_abs }
 
     Dir.mktmpdir do |tmp|
-      # prepare the new skill
-      preview = File.join(tmp, "preview")
-      write_skill_from_folder(preview, marker)
+      # generate what it would look like with all changes applied
+      preview = "#{tmp}/preview"
+      write_skill(marker, preview)
 
-      # normalize source so yaml formatting differences don't show as changes
-      normalized = File.join(tmp, "source")
-      FileUtils.cp_r(src_abs, normalized)
-      skill_md = File.join(normalized, "SKILL.md")
-      fm, body = parse_skill(File.read(skill_md))
-      File.write(skill_md, render_skill(fm, body))
+      # generate a normalized source, so yaml formatting differences don't show in git diff
+      normalized = "#{tmp}/source"
+      FileUtils.cp_r src_abs, normalized
+      re_render_skill "#{normalized}/SKILL.md"
 
       # show diff and just link if there is none
       has_changes = without_file(File.join(preview, MARKER)) do
@@ -81,7 +79,7 @@ class ClaudeSkillInstall
     marker = { "source" => url }
     Dir.mktmpdir do |tmp|
       staging = File.join(tmp, "skill")
-      write_skill_from_url(staging, marker)
+      write_skill_from_url(marker, staging)
       name = skill_name(staging)
       dst = File.join(DEST, name)
       check_dst!(dst)
@@ -110,7 +108,7 @@ class ClaudeSkillInstall
       # copied
       source = marker["source"]
       git_pull_if_on_default(source) if source && !url?(source) && File.directory?(source)
-      replace_folder(dst, marker)
+      replace_skill(marker, dst)
       puts "refreshed #{name} from #{marker["source"]}"
     end
   end
@@ -127,12 +125,7 @@ class ClaudeSkillInstall
     abort "conflict: #{dst} already exists" if File.exist?(dst)
   end
 
-  def symlink(src_abs, dst, name)
-    File.symlink(src_abs, dst)
-    puts "linked #{name} -> #{src_abs}"
-  end
-
-  def replace_folder(dst, marker)
+  def replace_skill(marker, dst)
     source = marker["source"] || abort("marker missing source")
 
     if !url?(source) && !File.directory?(source)
@@ -140,16 +133,8 @@ class ClaudeSkillInstall
       return
     end
 
-    # can't use temp dir since we diff with `chdir: parent`
-    # also makes local inspection or copy-paste easy
-    preview = "#{dst}.preview"
-
-    FileUtils.rm_rf(preview)
-    if url?(source)
-      write_skill_from_url(preview, marker)
-    else
-      write_skill_from_folder(preview, marker)
-    end
+    preview = "#{dst}.preview" # next to original for easy manual diffing
+    write_skill(marker, preview)
 
     git_diff(dst, preview) if File.exist?(dst)
 
@@ -157,24 +142,34 @@ class ClaudeSkillInstall
     FileUtils.mv(preview, dst)
   end
 
-  def write_skill_from_url(dst, marker)
-    source = marker["source"]
-    if (parts = github_tree_parts(source))
-      download_github_tree(dst, *parts)
-      skill = File.read(File.join(dst, "SKILL.md"))
-      write_skill_and_marker(dst, marker, *parse_skill(skill))
+  def write_skill(marker, dir)
+    FileUtils.rm_rf(dir)
+    if url?(marker["source"])
+      write_skill_from_url(marker, dir)
     else
-      write_skill_and_marker(dst, marker, *parse_skill(download(source)))
+      write_skill_from_folder(marker, dir)
     end
   end
 
-  def write_skill_from_folder(dst, marker)
-    FileUtils.cp_r(marker["source"], dst)
-    skill = File.read(File.join(dst, "SKILL.md"))
-    write_skill_and_marker(dst, marker, *parse_skill(skill))
+  def write_skill_from_url(marker, dst)
+    source = marker["source"]
+    if (parts = github_tree_parts(source))
+      download_github_tree(dst, *parts)
+      # TODO: should do the same SKILL.md check and diff as in install_from_folder
+      skill = File.read(File.join(dst, "SKILL.md"))
+      write_skill_and_marker(marker, dst, *parse_skill(skill))
+    else
+      write_skill_and_marker(marker, dst, *parse_skill(download(source)))
+    end
   end
 
-  def write_skill_and_marker(dst, marker, fm, body)
+  def write_skill_from_folder(marker, dst)
+    FileUtils.cp_r(marker["source"], dst)
+    skill = File.read(File.join(dst, "SKILL.md"))
+    write_skill_and_marker(marker, dst, *parse_skill(skill))
+  end
+
+  def write_skill_and_marker(marker, dst, fm, body)
     FileUtils.mkdir_p(dst)
 
     # write skill
@@ -213,6 +208,11 @@ class ClaudeSkillInstall
     return content if gsubs.nil? || gsubs.empty?
     gsubs.each { |search, replace| content = content.gsub(search, replace) }
     content
+  end
+
+  def re_render_skill(skill_md)
+    fm, body = parse_skill(File.read(skill_md))
+    File.write(skill_md, render_skill(fm, body))
   end
 
   # marker
@@ -307,6 +307,11 @@ class ClaudeSkillInstall
   end
 
   # misc
+
+  def symlink(src_abs, dst, name)
+    File.symlink(src_abs, dst)
+    puts "linked #{name} -> #{src_abs}"
+  end
 
   def without_file(path)
     content = File.read(path)
