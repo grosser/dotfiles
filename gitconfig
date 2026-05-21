@@ -34,6 +34,8 @@
   modified = "!sh -c 'git diff-tree --no-commit-id --name-only -r $1' -"
   shown = "show --name-only"
   showg = "!git show -- . $(grep linguist-generated .gitattributes | cut -d' ' -f1 | sed 's/^/:(exclude)/')"
+  diffg = "!git diff -- . $(grep linguist-generated .gitattributes | cut -d' ' -f1 | sed 's/^/:(exclude)/')"
+
 
   # shortcuts so I get autocomlete
   stached-switch = "!~/dotfiles/bin/git-stached-switch"
