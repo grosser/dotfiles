@@ -12,18 +12,18 @@
   pl = pull
   ps = push
   pick = cherry-pick
-  pick-all = !sh -c '(git show $1 2>&1 > /dev/null || (git fetch origin && git show $1 2>&1 > /dev/null)) && git co staging && git pull && git pick $1 $2 && git pls && git co production && git pull && git pick $1 $2 && git pls && git co master && git pull' -
+  pick-all = !sh -c '(git show $1 2>&1 > /dev/null || (git fetch origin --quiet && git show $1 2>&1 > /dev/null)) && git co staging && git pull && git pick $1 $2 && git pls && git co production && git pull && git pick $1 $2 && git pls && git co master && git pull' -
   uncommit = reset --soft HEAD^
   amend = commit -a --amend --no-edit
   amendm = commit -a --amend # amend with message
   rmuntracked = clean -df
   l = log --pretty=format:'%h %an %Cred%ar %d %Cgreen%s'
   rmb = !sh -c '(git branch -D $1 >/dev/null 2>&1 || true) && (git push origin :$1 >/dev/null 2>&1 || true) && rm .git/refs/remotes/origin/$1 >/dev/null 2>&1' - # using semiconol -> syntax error :/
-  rbm = !"br=$((git show-ref --verify --quiet refs/remotes/origin/main && echo main) || echo master) && git fetch origin && git rebase origin/$br"
+  rbm = !"br=$((git show-ref --verify --quiet refs/remotes/origin/main && echo main) || echo master) && git fetch origin --quiet && git rebase origin/$br"
   adrc = "!git add . && git rebase --continue"
   adpc = "!git add . && git pick --continue"
   clear = "!git reset .; git co .; git clean -f"
-  parent-update = "!git fetch parent; br=$((git show-ref --verify --quiet refs/remotes/origin/main && echo main) || echo master);git co $br && git reset --hard parent/$br && git checkout - && git rebase $br"
+  parent-update = "!git fetch parent --quiet; br=$((git show-ref --verify --quiet refs/remotes/origin/main && echo main) || echo master);git co $br && git reset --hard parent/$br && git checkout - && git rebase $br"
   amend-to = !sh -c 'git stash && git edit $1 && git stash pop && git edit --amend' -
   rprune = "!git checkout master && git pull && git remote prune origin && git branch --merged | grep -v '*' | xargs git branch -d && git for-each-ref refs/heads/ '--format=%(refname:short)' | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse $branch^{tree}) -p $mergeBase -m _)) == '-'* ]] && git branch -D $branch; done"
   # delete all branches except master/main/current(*)
