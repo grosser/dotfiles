@@ -72,7 +72,6 @@
 
 [core]
   pager = delta --syntax-theme='GitHub' # https://github.com/dandavison/delta
-  excludesfile = ~/dotfiles/gitignore
 
 [color "diff-highlight"]
   oldNormal = red bold
