@@ -35,6 +35,7 @@
   shown = "show --name-only"
   showg = "!f() { git show \"$@\" -- . $(grep -E 'linguist-generated|linguist-vendored' .gitattributes | cut -d' ' -f1 | sed 's/^/:(exclude,glob)/'); }; f"
   diffg = "!f() { git diff \"$@\" -- . $(grep -E 'linguist-generated|linguist-vendored' .gitattributes | cut -d' ' -f1 | sed 's/^/:(exclude,glob)/'); }; f"
+  diffn = "diff --name-only"
   showgn = "!f() { git show --name-only \"$@\" -- . $(grep -E 'linguist-generated|linguist-vendored' .gitattributes | cut -d' ' -f1 | sed 's/^/:(exclude,glob)/'); }; f"
   diffgn = "!f() { git diff --name-only \"$@\" -- . $(grep -E 'linguist-generated|linguist-vendored' .gitattributes | cut -d' ' -f1 | sed 's/^/:(exclude,glob)/'); }; f"
 
