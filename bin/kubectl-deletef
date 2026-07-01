@@ -1,0 +1,7 @@
+#!/bin/bash
+# delete a resource that is stuck by first removing its finalizers
+# (does not support -l, for that use https://github.com/grosser/kubectl-patch-all)
+# usage: kubectl deletef --context foo pod bar
+set -e
+kubectl patch --as admin --as-group system:masters --patch '{"metadata":{"finalizers":null}}' --type merge "$@"
+kubectl delete --as admin --as-group system:masters --ignore-not-found "$@"
