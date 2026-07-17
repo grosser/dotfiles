@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+# trigger a CronJob to run now by creating a Job from its template
+# the created Job auto-cleans via ttlSecondsAfterFinished (injected if the CronJob doesn't set one)
+#
+# kubectl trigger-cronjob bar -n foo
+# kubectl trigger-cronjob bar -n foo --ttl 300   # override cleanup delay (seconds), default 3600
+
+require 'json'
+require 'shellwords'
+require 'time'
+
+DEFAULT_TTL = 3600
+MAX_NAME = 63 # DNS-1123 label limit for Job names
+
+def sh(command)
+  result = `#{command}`
+  abort "command failed!\n#{command}\n#{result}" unless $?.success?
+  result
+end
+
+# --ttl <n> is ours; everything else is passed through to kubectl
+argv = ARGV.dup
+ttl = DEFAULT_TTL
+if (i = argv.index("--ttl"))
+  ttl = Integer(argv[i + 1] || abort("--ttl needs a value"))
+  argv.slice!(i, 2)
+end
+
+# pull leading flags off so the cronjob can be found no matter where it sits;
+# --foo=bar is one token, --foo bar consumes the following value
+usage = "usage: kubectl trigger-cronjob [flags] <cronjob> [flags] [--ttl seconds]"
+leading = []
+while argv.first&.start_with?("-")
+  flag = argv.shift
+  leading << flag
+  leading << (argv.shift || abort(usage)) unless flag.include?("=")
+end
+cronjob = argv.shift || abort(usage)
+kubectl_argv = leading + argv
+
+# <cronjob>-manual-<timestamp>, truncated to stay within the Job name limit
+suffix = "-manual-#{Time.now.strftime('%Y%m%d%H%M%S')}"
+job_name = cronjob[0, MAX_NAME - suffix.size] + suffix
+
+# render the Job client-side so we can guarantee a cleanup TTL
+from = "--from=cronjob/#{cronjob}"
+rendered = sh "kubectl create job #{job_name.shellescape} #{from} #{kubectl_argv.shelljoin} --dry-run=client -o json"
+job = JSON.parse(rendered)
+job["spec"]["ttlSecondsAfterFinished"] ||= ttl
+
+sh "kubectl create #{kubectl_argv.shelljoin} -f - <<<#{job.to_json.shellescape}"
+puts job_name
