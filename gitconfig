@@ -33,11 +33,11 @@
   # show modified files for given ref
   modified = "!sh -c 'git diff-tree --no-commit-id --name-only -r $1' -"
   shown = "show --name-only"
-  showg = "!f() { git show \"$@\" -- . $(grep -E 'linguist-generated|linguist-vendored' .gitattributes | cut -d' ' -f1 | sed 's/^/:(exclude,glob)/'); }; f"
-  diffg = "!f() { git diff \"$@\" -- . $(grep -E 'linguist-generated|linguist-vendored' .gitattributes | cut -d' ' -f1 | sed 's/^/:(exclude,glob)/'); }; f"
+  showg = nogen show
+  diffg = nogen diff
   diffn = "diff --name-only"
-  showgn = "!f() { git show --name-only \"$@\" -- . $(grep -E 'linguist-generated|linguist-vendored' .gitattributes | cut -d' ' -f1 | sed 's/^/:(exclude,glob)/'); }; f"
-  diffgn = "!f() { git diff --name-only \"$@\" -- . $(grep -E 'linguist-generated|linguist-vendored' .gitattributes | cut -d' ' -f1 | sed 's/^/:(exclude,glob)/'); }; f"
+  showgn = nogen show --name-only
+  diffgn = nogen diff --name-only
 
 
   # shortcuts so I get autocomlete

@@ -1,0 +1,27 @@
+#!/bin/bash
+# Run a git command excluding linguist-generated / linguist-vendored files.
+# Uses `git check-attr` so all nested .gitattributes files are honored,
+# instead of parsing only the top-level .gitattributes.
+#
+# Usage: git-nogen <git-subcommand> [args...]
+#   git-nogen show --stat
+#   git-nogen diff --name-only
+set -e
+
+if [ $# -eq 0 ]; then
+  echo "Usage: git-nogen <git-subcommand> [args...]" >&2
+  exit 1
+fi
+
+excludes=()
+while IFS= read -r path; do
+  excludes+=(":(exclude,glob,top)$path")
+done < <(
+  git ls-files |
+    git check-attr --stdin linguist-generated linguist-vendored |
+    grep -E ': (set|true)$' |
+    sed -E 's/: linguist-(generated|vendored): (set|true)$//' |
+    sort -u
+)
+
+exec git "$@" -- . "${excludes[@]}"
