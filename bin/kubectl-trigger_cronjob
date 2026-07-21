@@ -4,6 +4,7 @@
 #
 # kubectl trigger-cronjob bar -n foo
 # kubectl trigger-cronjob bar -n foo --ttl 300   # override cleanup delay (seconds), default 3600
+# kubectl trigger-cronjob bar -n foo --stern     # follow the created job's pods with stern
 
 require 'json'
 require 'shellwords'
@@ -18,12 +19,27 @@ def sh(command)
   result
 end
 
-# --ttl <n> is ours; everything else is passed through to kubectl
+def flag_value(argv, *names)
+  argv.each_with_index do |arg, i|
+    name, inline = arg.split("=", 2)
+    return inline if inline && names.include?(name)
+    return argv[i + 1] if names.include?(arg)
+  end
+  nil
+end
+
+# --ttl <n> and --stern are ours; everything else is passed through to kubectl
 argv = ARGV.dup
 ttl = DEFAULT_TTL
 if (i = argv.index("--ttl"))
   ttl = Integer(argv[i + 1] || abort("--ttl needs a value"))
   argv.slice!(i, 2)
+end
+
+stern = false
+if (i = argv.index("--stern"))
+  stern = true
+  argv.slice!(i, 1)
 end
 
 # pull leading flags off so the cronjob can be found no matter where it sits;
@@ -49,4 +65,15 @@ job = JSON.parse(rendered)
 job["spec"]["ttlSecondsAfterFinished"] ||= ttl
 
 sh "kubectl create #{kubectl_argv.shelljoin} -f - <<<#{job.to_json.shellescape}"
-puts job_name
+puts "Created job #{job_name}"
+
+if stern
+  stern_argv = ["--selector", "job-name=#{job_name}"]
+  if (namespace = flag_value(kubectl_argv, "-n", "--namespace"))
+    stern_argv += ["--namespace", namespace]
+  end
+  if (context = flag_value(kubectl_argv, "--context"))
+    stern_argv += ["--context", context]
+  end
+  exec "stern", *stern_argv
+end
