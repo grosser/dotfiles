@@ -1,0 +1,61 @@
+#!/bin/bash
+# Rebase onto <branch>, auto-resolving conflicts in generated files by taking
+# the version from the branch being rebased (`git checkout --theirs`).
+#
+# Generated files are detected via `git check-attr` (linguist-generated /
+# linguist-vendored), so all nested .gitattributes files are honored.
+#
+# Usage: git-rebaseg <upstream> [extra git-rebase args...]
+#   git-rebaseg master
+set -e
+
+if [ $# -eq 0 ]; then
+  echo "Usage: git-rebaseg <upstream> [extra git-rebase args...]" >&2
+  exit 1
+fi
+
+# Is the given path a generated/vendored file?
+is_generated() {
+  git check-attr linguist-generated linguist-vendored -- "$1" |
+    grep -qE ': (set|true)$'
+}
+
+# Resolve any conflicting generated files with --theirs (the branch being rebased).
+# Returns 0 only if there was at least one conflict and all were generated.
+any_resolved_at_all=0
+resolve_generated_conflicts() {
+  local any_resolved=0 any_unresolved=0
+  while IFS= read -r path; do
+    [ -z "$path" ] && continue
+    if is_generated "$path"; then
+      echo "git-rebaseg: resolving generated conflict with --theirs: $path"
+      git checkout --theirs -- "$path"
+      git add -- "$path"
+      any_resolved=1
+      any_resolved_at_all=1
+    else
+      any_unresolved=1
+    fi
+  done < <(git diff --name-only --diff-filter=U)
+
+  [ "$any_resolved" -eq 1 ] && [ "$any_unresolved" -eq 0 ]
+}
+
+# Start the rebase; do not exit on non-zero (conflicts are expected).
+set +e
+git rebase "$@"
+status=$?
+
+while [ $status -ne 0 ]; do
+  if ! resolve_generated_conflicts; then
+    echo "git-rebaseg: unable to resolve conflict." >&2
+    exit $status
+  fi
+
+  git rebase --continue
+  status=$?
+done
+
+if [ "$any_resolved_at_all" -eq 1 ]; then
+  echo "git-rebaseg: done. Regenerate files (e.g. bundle exec rake generate)."
+fi
