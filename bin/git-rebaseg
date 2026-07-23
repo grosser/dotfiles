@@ -5,12 +5,28 @@
 # Generated files are detected via `git check-attr` (linguist-generated /
 # linguist-vendored), so all nested .gitattributes files are honored.
 #
-# Usage: git-rebaseg <upstream> [extra git-rebase args...]
+# With --claude, non-generated conflicts are resolved by a headless `claude`
+# invocation before continuing the rebase.
+#
+# Usage: git-rebaseg [--claude] <upstream> [extra git-rebase args...]
 #   git-rebaseg master
+#   git-rebaseg --claude master
 set -e
 
+# capture --claude arg
+use_claude=0
+args=()
+for arg in "$@"; do
+  if [ "$arg" = "--claude" ]; then
+    use_claude=1
+  else
+    args+=("$arg")
+  fi
+done
+set -- "${args[@]}"
+
 if [ $# -eq 0 ]; then
-  echo "Usage: git-rebaseg <upstream> [extra git-rebase args...]" >&2
+  echo "Usage: git-rebaseg [--claude] <upstream> [extra git-rebase args...]" >&2
   exit 1
 fi
 
@@ -41,6 +57,23 @@ resolve_generated_conflicts() {
   [ "$any_resolved" -eq 1 ] && [ "$any_unresolved" -eq 0 ]
 }
 
+# Ask a headless claude to resolve the remaining (non-generated) conflicts.
+# Returns 0 only if no conflicting files remain afterwards.
+resolve_conflicts_with_claude() {
+  local remaining
+  remaining=$(git diff --name-only --diff-filter=U)
+  echo "git-rebaseg: asking claude to resolve conflict(s):" >&2
+  echo "$remaining" | sed 's/^/  /' >&2
+
+  claude -p "Resolve the current git rebase conflict. Edit the conflicting \
+files to a correct merged result, remove all conflict markers, and \
+'git add' each resolved file. Do NOT run 'git rebase --continue' or any \
+other git rebase command." --allow-dangerously-skip-permissions
+
+  # Success only if claude staged everything and left no unmerged paths.
+  [ -z "$(git diff --name-only --diff-filter=U)" ]
+}
+
 # Start the rebase; do not exit on non-zero (conflicts are expected).
 set +e
 git rebase "$@"
@@ -48,8 +81,12 @@ status=$?
 
 while [ $status -ne 0 ]; do
   if ! resolve_generated_conflicts; then
-    echo "git-rebaseg: unable to resolve conflict." >&2
-    exit $status
+    if [ "$use_claude" -eq 1 ] && resolve_conflicts_with_claude; then
+      : # conflict resolved by claude, fall through to --continue
+    else
+      echo "git-rebaseg: unable to resolve conflict." >&2
+      exit $status
+    fi
   fi
 
   git rebase --continue
