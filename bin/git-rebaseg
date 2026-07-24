@@ -57,6 +57,20 @@ resolve_generated_conflicts() {
   [ "$any_resolved" -eq 1 ] && [ "$any_unresolved" -eq 0 ]
 }
 
+# Render claude's stream-json output as readable text: assistant text as it
+# streams, plus a one-line marker for each tool use.
+stream_claude_output() {
+  jq -j --unbuffered '
+    if .type == "stream_event" and .event.type == "content_block_delta"
+       and .event.delta.type == "text_delta" then .event.delta.text
+    elif .type == "assistant" then
+      (.message.content[]? | select(.type == "tool_use")
+        | "\n[" + .name + "] "
+          + (.input.file_path // .input.command // .input.path // "") + "\n")
+    else empty end
+  ' 2>/dev/null
+}
+
 # Ask a headless claude to resolve the remaining (non-generated) conflicts.
 # Returns 0 only if no conflicting files remain afterwards.
 resolve_conflicts_with_claude() {
@@ -68,7 +82,10 @@ resolve_conflicts_with_claude() {
   claude -p "Resolve the current git rebase conflict. Edit the conflicting \
 files to a correct merged result, remove all conflict markers, and \
 'git add' each resolved file. Do NOT run 'git rebase --continue' or any \
-other git rebase command." --allow-dangerously-skip-permissions
+other git rebase command." \
+    --allow-dangerously-skip-permissions \
+    --output-format stream-json --include-partial-messages --verbose |
+    stream_claude_output
 
   # Success only if claude staged everything and left no unmerged paths.
   [ -z "$(git diff --name-only --diff-filter=U)" ]
