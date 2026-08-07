@@ -15,5 +15,5 @@ if [ $# -eq 0 ]; then
 fi
 
 exec git "$@" -- . \
-  ':(exclude,attr:linguist-generated=true)' \
-  ':(exclude,attr:linguist-vendored=true)'
+  ':(exclude,attr:linguist-generated)' \
+  ':(exclude,attr:linguist-vendored)'
