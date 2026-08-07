@@ -60,7 +60,14 @@ cdz() {
   if [ -d "$1" ]; then
     cd "$1"
   else
-    git clone "git@github.com:zendesk/$1.git" && cd "$1"
+    git clone "git@github.com:zendesk/$1.git" && cd "$1" || return
+    if [ -f go.mod ] && [ ! -e .go-version ] && [ ! -e .mise.toml ]; then
+      cat <<'EOF' > .mise.toml
+[tools]
+go = "{{ exec(command=`awk '/^go / {print $2}' go.mod`) }}"
+EOF
+      mise trust
+    fi
   fi
 }
 
