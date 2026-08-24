@@ -16,7 +16,7 @@ alias dst='docker rm -f $(docker ps -aq) >/dev/null 2>&1 || true' # docker stop
 alias s="stern --timezone utc -t --context" # stern with timestamps that match systems time
 alias kbadpod="kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded -L team,project,role --context"
 alias each-cluster="~/Code/zendesk/dotfiles_n_scripts/shell_scripts/each-cluster"
-alias cl="claude --model opus"
+alias cl="claude --model anthropic.kimi-k3"
 alias clc="cl --continue"
 alias cld="cl --dangerously-skip-permissions"
 alias clcd="clc --dangerously-skip-permissions"
