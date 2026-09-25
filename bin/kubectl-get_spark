@@ -1,0 +1,116 @@
+#!/usr/bin/env ruby
+# find sparkapplications by resource name or sparkApplicationId, or list all
+# kubectl get_spark [kubectl args] [name-or-spark-id]
+# default output is a table, use -o json|yaml for full objects
+
+require 'json'
+require 'yaml'
+require 'shellwords'
+require 'time'
+
+# kubectl-style short age, e.g. 5d3h / 4h12m / 42m
+def age(timestamp)
+  seconds = (Time.now - Time.parse(timestamp)).to_i
+  if seconds >= 86_400
+    "#{seconds / 86_400}d#{seconds % 86_400 / 3_600}h"
+  elsif seconds >= 3_600
+    "#{seconds / 3_600}h#{seconds % 3_600 / 60}m"
+  else
+    "#{seconds / 60}m"
+  end
+end
+
+# remove an option and its value from args, supports "-o json", "-o=json", "-ojson"
+# returns [value, remaining_args]
+def extract_option(args, *flags)
+  value = nil
+  rest = []
+  take_value = false
+  args.each do |arg|
+    if take_value
+      value = arg
+      take_value = false
+    elsif flags.include?(arg)
+      take_value = true
+    elsif (flag = flags.find { |f| arg.start_with?("#{f}=") || (f.size == 2 && arg.start_with?(f)) })
+      value = arg.sub(/^#{Regexp.escape(flag)}=?/, "")
+    else
+      rest << arg
+    end
+  end
+  [value, rest]
+end
+
+# run a command, abort with command and output when it fails
+def sh(command)
+  result = `#{command}`
+  abort "command failed!\n#{command}\n#{result}" unless $?.success?
+  result
+end
+
+# print rows (first is the header) with columns aligned to the widest cell
+def table_print(rows)
+  widths = rows.first.each_index.map { |i| rows.map { |r| r[i].size }.max }
+  rows.each do |row|
+    puts row.each_with_index.map { |cell, i| cell.ljust(widths[i]) }.join(" ").rstrip
+  end
+end
+
+# flags that take a separate value, so the next arg is not the id
+VALUE_FLAGS = [
+  "-n", "--namespace", "--context", "--kubeconfig", "--cluster", "--user", "-o", "--output",
+  "-l", "--selector", "--field-selector", "--sort-by", "-L", "--as", "--as-group"
+].freeze
+
+# the id is the one positional argument, everything else goes to kubectl
+kubectl_args = []
+id = nil
+until ARGV.empty?
+  arg = ARGV.shift
+  if VALUE_FLAGS.include?(arg)
+    kubectl_args.concat([arg, ARGV.shift]) # keep flag and its value together
+  elsif arg.start_with?("-")
+    kubectl_args << arg
+  elsif id
+    abort "Usage: kubectl get_spark [kubectl args] [name-or-spark-id]\ncould not parse #{([arg] + ARGV).inspect}"
+  else
+    id = arg
+  end
+end
+
+# pull out -o/--output since we always fetch json and render ourselves
+output, kubectl_args = extract_option(kubectl_args, "-o", "--output")
+
+data = sh("kubectl get sparkapplications #{kubectl_args.shelljoin} -o json")
+
+items = JSON.parse(data).fetch("items")
+
+if id
+  items.select! { |i| i.dig("metadata", "name") == id || i.dig("status", "sparkApplicationId") == id }
+  abort "no sparkapplication found with name or sparkApplicationId #{id}" if items.empty?
+end
+
+case output
+when "json", "yaml"
+  # single match prints as object, multiple as a List
+  result = (id && items.size == 1 ? items.first : { "kind" => "List", "items" => items })
+  puts(output == "json" ? JSON.pretty_generate(result) : result.to_yaml)
+when nil
+  all_namespaces = kubectl_args.include?("-A") || kubectl_args.include?("--all-namespaces")
+  header = [*("NAMESPACE" if all_namespaces), "NAME", "ID", "STATUS", "AGE"]
+  rows = items.map do |m|
+    state = m.dig("status", "applicationState", "state").to_s
+    error = m.dig("status", "applicationState", "errorMessage").to_s
+    status = (error.empty? ? state : "#{state} (#{error[0, 120]})")
+    [
+      *(m.dig("metadata", "namespace") if all_namespaces),
+      m.dig("metadata", "name"),
+      m.dig("status", "sparkApplicationId"),
+      status,
+      age(m.dig("metadata", "creationTimestamp"))
+    ]
+  end
+  table_print [header, *rows]
+else
+  abort "unsupported -o #{output}, use json or yaml"
+end
