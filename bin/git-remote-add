@@ -2,7 +2,7 @@
 # add a fork of the current repo as remote:
 # git remote-add jklaw90
 # git remote-add https://github.com/jklaw90/descheduler.git
-abort "Usage: git remote-add <github-user|url>" unless ARGV.size == 1
+abort "Usage: git remote-add <github-user|github-url>" unless ARGV.size == 1
 arg = ARGV[0]
 owner_regex = %r{(github\.com[:/])([^/]+)/}
 
@@ -18,7 +18,7 @@ else
   abort "No remotes found" unless (remote = remotes.include?("origin") ? "origin" : remotes.first)
 
   # swap owner, works for https://github.com/owner/repo.git and git@github.com:owner/repo.git
-  url = `git remote get-url #{remote}`.strip.sub(owner_regex, "\\1#{user}/")
+  url = `git remote get-url #{remote}`.strip.sub!(owner_regex, "\\1#{user}/") || raise
 end
 
 system("git", "remote", "add", user, url, exception: true)
