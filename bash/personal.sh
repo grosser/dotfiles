@@ -16,11 +16,9 @@ alias dst='docker rm -f $(docker ps -aq) >/dev/null 2>&1 || true' # docker stop
 alias s="stern --timezone utc -t --context" # stern with timestamps that match systems time
 alias kbadpod="kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded -L team,project,role --context"
 alias each-cluster="~/Code/zendesk/dotfiles_n_scripts/shell_scripts/each-cluster"
-alias cl="claude --model anthropic.claude-opus-5-5[1m]"
+alias cl="claude --model anthropic.claude-opus-5-5[1m] --permission-mode auto"
 alias clc="cl --continue"
 alias clr="cl --resume"
-alias cla="cl --permission-mode auto"
-alias clca="clc --permission-mode auto"
 
 # kubectl shortcuts
 # - cannot be an alias to make plugins work `ka sandbox edit-status -h`
