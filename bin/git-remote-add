@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# add a fork of the current repo as remote:
+# git remote-add jklaw90
+# git remote-add https://github.com/jklaw90/descheduler.git
+abort "Usage: git remote-add <github-user|url>" unless ARGV.size == 1
+arg = ARGV[0]
+owner_regex = %r{(github\.com[:/])([^/]+)/}
+
+if arg.include?("/")
+  # url given, use owner as remote name
+  abort "Unable to find owner in #{arg}" unless (user = arg[owner_regex, 2])
+  url = arg
+else
+  user = arg
+
+  # prefer origin, fall back to first remote
+  remotes = `git remote`.split
+  abort "No remotes found" unless (remote = remotes.include?("origin") ? "origin" : remotes.first)
+
+  # swap owner, works for https://github.com/owner/repo.git and git@github.com:owner/repo.git
+  url = `git remote get-url #{remote}`.strip.sub(owner_regex, "\\1#{user}/")
+end
+
+system("git", "remote", "add", user, url, exception: true)
+puts "#{user} #{url}"
