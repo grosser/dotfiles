@@ -1,0 +1,44 @@
+#!/bin/bash
+# Remove history entries containing a fixed string (not a regex) from $HISTFILE.
+# usage: bash-purge-history <search term>
+set -o errexit -o nounset -o pipefail
+
+if [ $# -ne 1 ] || [ -z "$1" ]; then
+  echo "usage: bash-purge-history <search term>" >&2
+  exit 1
+fi
+
+file="${HISTFILE:-$HOME/.bash_history}"
+tmp="$(mktemp)"
+trap 'rm -f "$tmp" "$tmp.removed" "$tmp.count"' EXIT
+
+# group "#<timestamp>" lines with the command (possibly multi-line) that follows them, drop groups that match
+TERM_TO_PURGE="$1" awk -v removed_file="$tmp.removed" '
+  function flush() {
+    if (entry == "") return
+    if (index(cmd, ENVIRON["TERM_TO_PURGE"])) { print cmd > removed_file; removed++ } else { printf "%s", entry }
+    entry = ""; cmd = ""; stamped = 0
+  }
+  /^#[0-9]+$/ { flush(); entry = $0 "\n"; stamped = 1; next }
+  {
+    if (!stamped) flush() # unstamped lines are single entries
+    entry = entry $0 "\n"; cmd = (cmd == "" ? $0 : cmd "\n" $0)
+  }
+  END { flush(); print removed + 0 > "/dev/stderr" }
+' "$file" > "$tmp" 2> "$tmp.count"
+
+count="$(cat "$tmp.count")"
+if [ "$count" = "0" ]; then
+  echo "no entries matching '$1' in $file"
+  exit 0
+fi
+
+# show what will be removed and confirm
+cat "$tmp.removed"
+read -r -p "remove $count entries from $file? [y/N] " answer
+[ "$answer" = "y" ] || exit 1
+
+cp -p "$file" "$file.bak"
+cat "$tmp" > "$file" # keep original file permissions
+echo "removed $count entries (backup at $file.bak)"
+echo "running shells still have them in memory, in each run: history -c && history -r"
