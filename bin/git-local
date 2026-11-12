@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# check out a github PR branch locally via a fork remote:
+# git local top-sigrid:support-minitest-6.1
+abort "Usage: git local <github-user>:<branch>" unless ARGV.size == 1 && ARGV[0].include?(":")
+user, branch = ARGV[0].split(":", 2)
+local = "#{user}-#{branch}"
+
+# add fork remote unless it already exists
+system("git", "remote-add", user, exception: true) unless `git remote`.split.include?(user)
+
+system("git", "fetch", user, branch, exception: true)
+
+# reuse existing local branch, otherwise create one tracking the fork
+if system("git", "rev-parse", "--verify", "--quiet", local, out: File::NULL)
+  system("git", "checkout", local, exception: true)
+  system("git", "pull", exception: true)
+else
+  system("git", "checkout", "-b", local, "--track", "#{user}/#{branch}", exception: true)
+end
