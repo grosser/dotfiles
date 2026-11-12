@@ -39,7 +39,8 @@ end
 def parse_mem_mi(memory)
   return 0 if memory.to_s.empty? # requests not specified
   KUBE_MEMORY_VALUES.reverse_each.detect do |k, v|
-    break (Integer(memory[0...-k.size]) * v.to_f) / 1024 ** 3 if memory.end_with?(k)
+    # delete_suffix instead of [0...-size] since -0 would return "" for the unitless case
+    break (Float(memory.delete_suffix(k)) * v) / 1024 ** 3 if memory.end_with?(k)
   end || 0
 rescue
   raise "Unable to parse #{memory}"
