@@ -17,6 +17,7 @@ alias s="stern --timezone utc -t --context" # stern with timestamps that match s
 alias kbadpod="kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded -L team,project,role --context"
 alias each-cluster="~/Code/zendesk/dotfiles_n_scripts/shell_scripts/each-cluster"
 alias cl="claude --model anthropic.claude-opus-5-5[1m] --permission-mode auto"
+#alias cl="claude --permission-mode auto"
 alias clc="cl --continue"
 alias clr="cl --resume"
 

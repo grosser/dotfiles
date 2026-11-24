@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# For all own (non-fork, non-archived) repos: enable private vulnerability reporting and watch them
+require "json"
+require "open3"
+
+# run gh api and return [stdout, success]
+def gh_api(*args)
+  out, status = Open3.capture2("gh", "api", *args, err: File::NULL)
+  [out, status.success?]
+end
+
+user = gh_api("user", "--jq", ".login").first.strip
+abort "Unable to determine github user" if user.empty?
+puts "Found user #{user}"
+
+repos = JSON.parse(
+  Open3.capture2(
+    "gh", "repo", "list", user, "--limit", "1000", "--source", "--no-archived", "--json", "name"
+  ).first
+).map { |r| "#{user}/#{r["name"]}" }
+puts "Checking #{repos.size} repos ..."
+
+$stdout.sync = true
+actions = []
+# print each action as it happens and keep it for the summary
+log = ->(action) { puts action; actions << action }
+repos.each do |repo|
+  enabled = gh_api("repos/#{repo}/private-vulnerability-reporting", "--jq", ".enabled").first.strip == "true"
+  unless enabled
+    _, ok = gh_api("-X", "PUT", "repos/#{repo}/private-vulnerability-reporting")
+    log.call "#{repo}: #{ok ? "enabled" : "FAILED to enable"} private vulnerability reporting"
+  end
+
+  # 404 when not watching
+  out, watched = gh_api("repos/#{repo}/subscription")
+  watched &&= JSON.parse(out)["subscribed"]
+  unless watched
+    _, ok = gh_api("-X", "PUT", "repos/#{repo}/subscription", "-F", "subscribed=true", "-F", "ignored=false")
+    log.call "#{repo}: #{ok ? "watched" : "FAILED to watch"}"
+  end
+end
+
+puts "\nDone:"
+puts actions.empty? ? "Nothing to do" : actions
